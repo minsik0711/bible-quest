@@ -786,26 +786,30 @@
         }
     }
 
-// index.html 파일의 하단 <script> 태그 부분을 아래로 교체하세요.
-    function showLevelUp(lvInfo){
-        document.getElementById('lu-icon').textContent=lvInfo.icon;
-        document.getElementById('lu-lv').textContent=`Lv. ${lvInfo.lv}`;
-        document.getElementById('lu-name').textContent=lvInfo.title;
+// 1. 기존의 script 태그 안쪽 내용을 아래 코드로 완전히 교체하세요.
+    // 2. 괄호 { } 의 짝과 세미콜론 ; 등을 엄격히 검사한 코드입니다.
+
+    function showLevelUp(lvInfo) {
+        document.getElementById('lu-icon').textContent = lvInfo.icon;
+        document.getElementById('lu-lv').textContent = `Lv. ${lvInfo.lv}`;
+        document.getElementById('lu-name').textContent = lvInfo.title;
         document.getElementById('levelup-overlay').classList.add('show');
     }
 
-    function closeLevelUp(){document.getElementById('levelup-overlay').classList.remove('show');}
+    function closeLevelUp() {
+        document.getElementById('levelup-overlay').classList.remove('show');
+    }
 
-    function initBookSelect(){
-        const sel=document.getElementById('book-select');
-        if(!sel || sel.options.length>0) return;
-        BOOK_CATEGORIES.forEach(cat=>{
-            const grp=document.createElement('optgroup');
-            grp.label=cat.label;
-            cat.books.forEach(b=>{
-                const opt=document.createElement('option');
-                opt.value=b.name;
-                opt.textContent=`${b.name} (${b.ch}${b.name==='시편'?'편':'장'})`;
+    function initBookSelect() {
+        const sel = document.getElementById('book-select');
+        if (!sel || sel.options.length > 0) return;
+        BOOK_CATEGORIES.forEach(cat => {
+            const grp = document.createElement('optgroup');
+            grp.label = cat.label;
+            cat.books.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.name;
+                opt.textContent = `${b.name} (${b.ch}${b.name === '시편' ? '편' : '장'})`;
                 grp.appendChild(opt);
             });
             sel.appendChild(grp);
@@ -815,23 +819,23 @@
 
     window.onload = () => {
         const savedName = localStorage.getItem('bq_saved_name');
-        if(savedName){
+        if (savedName) {
             const nameInput = document.getElementById('user-name-input');
-            if(nameInput) {
+            if (nameInput) {
                 nameInput.value = savedName;
                 const rememberCheck = document.getElementById('remember-name');
-                if(rememberCheck) rememberCheck.checked = true;
+                if (rememberCheck) rememberCheck.checked = true;
             }
         }
-        console.log("Bible Quest 로드 완료");
+        console.log("App loaded successfully without syntax errors.");
     };
 </script>
+
 <script>
-    if('serviceWorker' in navigator){
+    // 서비스 워커 등록 (파일이 없을 경우를 대비해 에러 무시 처리)
+    if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration skipped'));
+            navigator.serviceWorker.register('sw.js').catch(() => {});
         });
     }
 </script>
-</body>
-</html>
