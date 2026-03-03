@@ -482,7 +482,7 @@ async function loginWithName(name){
     bestStreak:user.best_streak||0,lastDate:user.last_date,readBooks:user.read_books||[],
     badges:user.badges||[],completedQuests:user.completed_quests||[],questDate:user.quest_date,
     log:user.log||[],claimedBonuses:user.claimed_bonuses||[],readDates:user.read_dates||[],
-    bookChapters:user.book_chapters||{}likeFrom: user.like_from||[]
+    bookChapters:user.book_chapters||{},likeFrom: user.like_from||[]
   };
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
