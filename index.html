@@ -811,7 +811,7 @@
         renderChapterGrid(sel.value);
     }
 
-// 이 부분이 index.html의 맨 마지막 script 내용이어야 합니다.
+// index.html 맨 하단 </script> 바로 윗부분을 이 코드로 교체하세요.
     window.onload = () => {
         const savedName = localStorage.getItem('bq_saved_name');
         if(savedName){
@@ -822,6 +822,7 @@
                 if(rememberCheck) rememberCheck.checked = true;
             }
         }
+        console.log("Bible Quest 로드 완료!");
     };
 </script>
 <script>
