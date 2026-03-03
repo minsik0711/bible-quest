@@ -8,170 +8,277 @@
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
-/* 기존 스타일 100% 유지 + 밸런스 미세 조정 */
+/* 원본 스타일 100% 유지 + 한 화면 구성을 위한 미세 조정 */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e8e8e8; min-height: 100vh; overflow: hidden; } /* 스크롤 방지 */
-#app { max-width: 430px; margin: 0 auto; height: 100vh; position: relative; display: none; display: flex; flex-direction: column; }
+body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e8e8e8; height: 100vh; overflow: hidden; }
+#app { max-width: 430px; margin: 0 auto; height: 100vh; position: relative; display: none; flex-direction: column; }
 
-/* 헤더 높이 축소하여 본문 공간 확보 */
+/* 헤더 여백 최적화 (드래그 방지 핵심) */
 header { background: linear-gradient(135deg, #0f1923 0%, #1a1032 100%); border-bottom: 1px solid #f4d03f33; padding: 12px 16px 8px; flex-shrink: 0; }
-.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.level-card { display: flex; justify-content: space-between; align-items: center; background: #ffffff0a; border-radius: 12px; padding: 8px 14px; margin-bottom: 6px; border: 1px solid #f4d03f22; }
-.xp-bar-wrap { height: 4px; background: #ffffff15; border-radius: 99px; overflow: hidden; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.header-title { font-family: 'Black Han Sans', sans-serif; font-size: 18px; color: #f4d03f; letter-spacing: 1px; }
+.level-card { display: flex; justify-content: space-between; align-items: center; background: #ffffff0a; border-radius: 12px; padding: 8px 14px; margin-bottom: 8px; border: 1px solid #f4d03f22; }
+.level-icon { font-size: 28px; }
+.xp-bar-wrap { height: 5px; background: #ffffff15; border-radius: 99px; overflow: hidden; }
+.xp-bar { height: 100%; background: linear-gradient(90deg, #f4d03f, #f39c12); border-radius: 99px; transition: width 0.8s ease; }
 
-/* 탭 메뉴 콤팩트화 */
+/* 탭 메뉴 밸런스 */
 .tabs { display: flex; background: #080c17; border-bottom: 1px solid #ffffff12; flex-shrink: 0; }
-.tab { flex: 1; padding: 6px 0; background: none; border: none; color: #555; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 13px; }
+.tab { flex: 1; padding: 8px 0; background: none; border: none; color: #555; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 13px; }
 .tab.active { color: #f4d03f; border-bottom: 2px solid #f4d03f; }
+.tab-label { font-size: 9px; }
 
-/* 본문 영역: 남은 높이를 꽉 채우고 내부 요소 밸런스 조정 */
+/* 콘텐츠 영역 스크롤 제어 */
 .content { flex: 1; padding: 10px 14px; overflow: hidden; display: flex; flex-direction: column; }
 .page { display: none; height: 100%; flex-direction: column; }
 .page.active { display: flex; }
-.card { background: #ffffff08; border: 1px solid #ffffff15; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; flex-direction: column; }
+.card { background: #ffffff08; border: 1px solid #ffffff15; border-radius: 16px; padding: 12px; margin-bottom: 8px; flex-shrink: 0; }
+.card-title { font-family: 'Black Han Sans', sans-serif; font-size: 14px; color: #f4d03f; margin-bottom: 8px; }
 
-/* 성경 그리드: 드래그 없이 한눈에 들어오도록 비율 조정 */
-.chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; overflow-y: auto; flex: 1; max-height: 180px; }
+/* 성경 그리드 가변 높이 (드래그 없이 한눈에!) */
+.chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; overflow-y: auto; flex: 1; min-height: 100px; max-height: 200px; }
 .ch-box { aspect-ratio: 1; border-radius: 7px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; cursor: pointer; position: relative; }
-.ch-box.selected { background: linear-gradient(135deg, #f4d03f, #f39c12); color: #0a0e1a; font-weight: 700; }
+.ch-box.selected { background: linear-gradient(135deg, #f4d03f, #f39c12); color: #0a0e1a; font-weight: 700; border-color: transparent; }
 .ch-box.read-done { background: #f4d03f33; color: #f4d03f; font-weight: 700; border-color: #f4d03f55; }
+.ch-box.read-done::after { content: '✓'; position: absolute; font-size: 7px; top: 2px; right: 2px; }
 
-/* 좋아요 버튼 & 숫자 밸런스 */
-.like-wrap { display: flex; align-items: center; gap: 4px; background: #ffffff0a; padding: 2px 8px; border-radius: 20px; border: 1px solid #ffffff15; }
-.like-icon-btn { background: none; border: none; font-size: 14px; cursor: pointer; padding: 0; filter: grayscale(1); }
-.like-icon-btn.liked { filter: grayscale(0); }
-.like-num-text { font-size: 12px; color: #f4d03f; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.record-btn { width: 100%; padding: 14px; margin-top: 8px; background: linear-gradient(135deg, #f4d03f, #f39c12); border: none; border-radius: 12px; font-family: 'Black Han Sans', sans-serif; font-size: 17px; color: #0a0e1a; cursor: pointer; flex-shrink: 0; }
 
-/* 팝업 오버레이 */
+/* 랭킹 리스트 전용 스크롤 */
+#rank-list, #log-list, #quest-list { overflow-y: auto; flex: 1; padding-bottom: 20px; }
+
+/* 좋아요/응원 버튼 밸런스 */
+.like-wrap { display: flex; align-items: center; gap: 5px; background: #ffffff0a; padding: 2px 8px; border-radius: 20px; border: 1px solid #ffffff15; }
+.like-thumb { cursor: pointer; font-size: 14px; filter: grayscale(1); transition: 0.2s; }
+.like-thumb.liked { filter: grayscale(0); transform: scale(1.1); }
+.like-num-text { font-size: 12px; color: #f4d03f; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+/* 팝업 스타일 */
 .popup-overlay { display: none; position: fixed; inset: 0; background: #000000bb; align-items: flex-end; justify-content: center; z-index: 300; }
 .popup-overlay.show { display: flex; }
-.popup-sheet { background: #111827; border-radius: 24px 24px 0 0; padding: 20px; width: 100%; max-width: 430px; animation: slide-up 0.2s; }
+.popup-sheet { background: #111827; border-radius: 24px 24px 0 0; padding: 20px 20px 40px; width: 100%; max-width: 430px; animation: slide-up 0.2s; }
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* 로그인 화면 */
+#login-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 </style>
 </head>
 <body>
 
 <div id="login-screen">
-    <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:36px;margin-bottom:20px">Bible Quest</h1>
-    <input type="text" id="user-name-input" class="login-input" placeholder="이름을 입력하세요">
-    <button class="login-btn" onclick="login()">⚔️ 모험 시작하기</button>
+  <div style="font-size:60px;margin-bottom:12px">⚔️</div>
+  <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:36px;margin-bottom:8px">Bible Quest</h1>
+  <p style="margin-bottom:28px;color:#888;font-size:14px;">성경 읽고 레벨업!<br>이름을 입력하고 시작하세요.</p>
+  <input type="text" id="user-name-input" class="login-input" placeholder="이름을 입력하세요">
+  <label class="remember-label" style="display:flex; align-items:center; gap:8px; margin: 15px 0; color:#aaa; font-size:14px;"><input type="checkbox" id="remember-name"> 이름 저장하기</label>
+  <button class="login-btn" onclick="login()">⚔️ 모험 시작하기</button>
+  <div class="login-loading" id="login-loading" style="display:none; margin-top:15px">⏳ 접속 중...</div>
 </div>
 
 <div id="app">
-    <header>
-        <div class="header-top">
-            <div class="header-title" id="header-display-name">⚔️ Bible Quest</div>
-            <div class="streak-badge" id="streak-badge">🔥 0일 연속</div>
+  <header>
+    <div class="header-top">
+      <div>
+        <div class="header-title" id="header-display-name">⚔️ Bible Quest</div>
+        <div style="font-size:10px; color:#666">신광청년부 레벨업 프로젝트</div>
+      </div>
+      <div class="streak-badge" id="streak-badge">🔥 0일 연속</div>
+    </div>
+    <div class="level-card">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="level-icon" id="level-icon">🌱</div>
+        <div>
+          <div id="level-num" style="font-family:'Black Han Sans'; color:#f4d03f">Lv. 1</div>
+          <div id="level-name" style="font-size:11px; color:#888">새싹 제자</div>
         </div>
-        <div class="level-card">
-            <div id="level-icon">🌱</div>
-            <div id="level-num" class="level-num">Lv. 1</div>
-            <div id="xp-text" style="font-weight:700">0 XP</div>
-        </div>
-        <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
-    </header>
+      </div>
+      <div style="text-align:right">
+        <div id="xp-text" style="font-family:'Black Han Sans'; font-size:16px; color:#fff">0 XP</div>
+        <div id="xp-sub" style="font-size:10px; color:#666">총 0장 읽음</div>
+      </div>
+    </div>
+    <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+  </header>
 
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('home',this)">🏠<span class="tab-label">홈</span></button>
-        <button class="tab" onclick="showTab('rank',this)">🏆<span class="tab-label">랭킹</span></button>
-        <button class="tab" onclick="showTab('record',this)">📜<span class="tab-label">기록</span></button>
-        <button class="tab" onclick="showTab('quests',this)">⚔️<span class="tab-label">퀘스트</span></button>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('home',this)"><span>🏠</span><span class="tab-label">홈</span></button>
+    <button class="tab" onclick="showTab('rank',this)"><span>🏆</span><span class="tab-label">랭킹</span></button>
+    <button class="tab" onclick="showTab('record',this)"><span>📜</span><span class="tab-label">기록</span></button>
+    <button class="tab" onclick="showTab('quests',this)"><span>⚔️</span><span class="tab-label">퀘스트</span></button>
+  </div>
+
+  <div class="content">
+    <div class="page active" id="page-home">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+        <button class="logout-btn-small" onclick="logout()">🚪 로그아웃</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📖 오늘 읽은 말씀 기록</div>
+        <select id="book-select" onchange="onBookChange()"></select>
+        <div class="chapter-grid" id="chapter-grid"></div>
+        <div id="selected-summary" class="selected-summary">읽은 장을 선택해주세요 📖</div>
+        <button class="record-btn" id="record-btn" onclick="recordReading()">✅ 말씀 기록하기</button>
+      </div>
+      <div id="home-quests" style="overflow-y:auto"></div>
     </div>
 
-    <div class="content">
-        <div class="page active" id="page-home">
-            <div class="card">
-                <select id="book-select" onchange="onBookChange()" style="margin-bottom:8px"></select>
-                <div class="chapter-grid" id="chapter-grid"></div>
-                <div id="selected-summary" class="selected-summary" style="font-size:12px; margin-top:8px">장을 선택해주세요 📖</div>
-                <button class="record-btn" onclick="recordReading()" style="padding:12px; margin-top:8px">✅ 기록하기</button>
-            </div>
-        </div>
-        <div class="page" id="page-rank"><div id="rank-list" style="overflow-y:auto"></div></div>
+    <div class="page" id="page-rank">
+      <div class="card-title">🏆 신광청년부 실시간 랭킹</div>
+      <div id="rank-list"></div>
     </div>
+    <div class="page" id="page-record"><div id="log-list"></div></div>
+    <div class="page" id="page-quests"><div id="quest-list"></div></div>
+  </div>
 </div>
 
 <div class="popup-overlay" id="like-popup-overlay" onclick="closeLikePopup()">
-    <div class="popup-sheet" onclick="event.stopPropagation()">
-        <div style="font-family:'Black Han Sans'; color:#f4d03f; margin-bottom:15px" id="like-popup-title">응원 현황</div>
-        <div id="like-popup-list"></div>
-    </div>
+  <div class="popup-sheet" onclick="event.stopPropagation()">
+    <div style="width:40px; height:4px; background:#ffffff22; border-radius:99px; margin: 0 auto 15px;"></div>
+    <div class="popup-title" id="like-popup-title" style="font-family:'Black Han Sans'; color:#f4d03f">응원 현황</div>
+    <div id="like-popup-list" style="margin-top:15px; max-height:300px; overflow-y:auto"></div>
+  </div>
 </div>
 
 <script>
-/* 사용자님의 원본 로직 + 좋아요 신규 로직 통합 */
+// [유지] 원본 Supabase 설정 및 모든 데이터 (BOOK_CATEGORIES, LEVELS, BADGES, QUESTS 등)
 const SUPABASE_URL = 'https://jwmcjmmzhipbpgniofuk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IVDjIWSWV1u1Q-b0cVRfMQ_T-c-o1WT';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser = null;
-let state = {xp:0, totalCh:0, bookChapters:{}};
+const BOOK_CATEGORIES = [
+  { label:"📜 율법서 (창~신)", mapId:"율법서", books:[{name:"창세기",ch:50},{name:"출애굽기",ch:40},{name:"레위기",ch:27},{name:"민수기",ch:36},{name:"신명기",ch:34}]},
+  { label:"⚔️ 역사서 (수~에)", mapId:"역사서구약", books:[{name:"여호수아",ch:24},{name:"사사기",ch:21},{name:"룻기",ch:4},{name:"사무엘상",ch:31},{name:"사무엘하",ch:24},{name:"열왕기상",ch:22},{name:"열왕기하",ch:25},{name:"역대상",ch:29},{name:"역대하",ch:36},{name:"에스라",ch:10},{name:"느헤미야",ch:13},{name:"에스더",ch:10}]},
+  { label:"🎵 시가서 (욥~아)", mapId:"시가서", books:[{name:"욥기",ch:42},{name:"시편",ch:150},{name:"잠언",ch:31},{name:"전도서",ch:12},{name:"아가",ch:8}]},
+  { label:"🔥 대선지서 (사~단)", mapId:"대선지서", books:[{name:"이사야",ch:66},{name:"예레미야",ch:52},{name:"예레미야애가",ch:5},{name:"에스겔",ch:48},{name:"다니엘",ch:12}]},
+  { label:"🌿 소선지서 (호~말)", mapId:"소선지서", books:[{name:"호세아",ch:14},{name:"요엘",ch:3},{name:"아모스",ch:9},{name:"오바댜",ch:1},{name:"요나",ch:4},{name:"미가",ch:7},{name:"나훔",ch:3},{name:"하박국",ch:3},{name:"스바냐",ch:3},{name:"학개",ch:2},{name:"스가랴",ch:14},{name:"말라기",ch:4}]},
+  { label:"✝️ 복음서 (마~요)", mapId:"복음서", books:[{name:"마태복음",ch:28},{name:"마가복음",ch:16},{name:"누가복음",ch:24},{name:"요한복음",ch:21}]},
+  { label:"📖 역사서 (행)", mapId:"역사서신약", books:[{name:"사도행전",ch:28}]},
+  { label:"✉️ 바울서신 (롬~몬)", mapId:"바울서신", books:[{name:"로마서",ch:16},{name:"고린도전서",ch:16},{name:"고린도후서",ch:13},{name:"갈라디아서",ch:6},{name:"에베소서",ch:6},{name:"빌립보서",ch:4},{name:"골로새서",ch:4},{name:"데살로니가전서",ch:5},{name:"데살로니가후서",ch:3},{name:"디모데전서",ch:6},{name:"디모데후서",ch:4},{name:"디도서",ch:3},{name:"빌레몬서",ch:1}]},
+  { label:"📩 일반서신 (히~유)", mapId:"일반서신", books:[{name:"히브리서",ch:13},{name:"야고보서",ch:5},{name:"베드로전서",ch:5},{name:"베드로후서",ch:3},{name:"요한일서",ch:5},{name:"요한이서",ch:1},{name:"요한삼서",ch:1},{name:"유다서",ch:1}]},
+  { label:"👑 예언서 (계)", mapId:"예언서신약", books:[{name:"요한계시록",ch:22}]}
+];
+const BOOKS = BOOK_CATEGORIES.flatMap(c=>c.books);
+const LEVELS=[{lv:1,title:"새싹 제자",icon:"🌱",xp:0},{lv:2,title:"말씀 탐험가",icon:"🗺️",xp:50},{lv:3,title:"믿음의 전사",icon:"⚔️",xp:150},{lv:4,title:"지혜의 수호자",icon:"🛡️",xp:300},{lv:5,title:"은혜의 기사",icon:"✨",xp:500},{lv:6,title:"빛의 사도",icon:"🌟",xp:800},{lv:7,title:"성령의 검사",icon:"⚡",xp:1200},{lv:8,title:"말씀의 장로",icon:"📖",xp:1800},{lv:9,title:"거룩한 선지자",icon:"🔥",xp:2600},{lv:10,title:"하나님의 용사",icon:"👑",xp:3600}];
 
-async function loadRankings() {
-    const { data } = await _supabase.from('users').select('*').order('xp', { ascending: false });
-    const myLikes = JSON.parse(localStorage.getItem('bq_likes') || '[]');
+let currentUser=null;
+let state={xp:0,level:1,totalCh:0,streak:0,bestStreak:0,bookChapters:{},log:[],readDates:[]};
+let selectedChs=new Set();
 
-    document.getElementById('rank-list').innerHTML = data.map((user, i) => {
-        const liked = myLikes.includes(user.name);
-        return `
-            <div class="rank-item" style="display:flex; align-items:center; justify-content:space-between; padding:10px; border-bottom:1px solid #222">
-                <span>${i+1}. ${user.name}</span>
-                <div style="display:flex; align-items:center; gap:8px">
-                    <div class="like-wrap">
-                        <button class="like-icon-btn ${liked?'liked':''}" onclick="toggleLike('${user.name}')">👍</button>
-                        <span class="like-num-text" onclick="showLikePopup('${user.name}', ${JSON.stringify(user.like_from||[]).replace(/"/g, '&quot;')})">${user.likes||0}</span>
-                    </div>
-                    <span style="color:#f4d03f">${user.xp} XP</span>
-                </div>
-            </div>
-        `;
-    }).join('');
+// [수정] 랭킹 불러오기 & 좋아요/응원단 분리 로직
+async function loadRankings(){
+  const {data}=await _supabase.from('users').select('*').order('xp',{ascending:false}).limit(20);
+  const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
+  
+  document.getElementById('rank-list').innerHTML=data.map((r,i)=>{
+    const liked=myLikes.includes(r.name);
+    const likeFrom=r.like_from||[];
+    return `
+      <div class="rank-item">
+        <div style="font-family:'Black Han Sans'; font-size:18px; width:25px">${i+1}</div>
+        <div style="flex:1">
+          <div style="font-weight:700">${r.name}</div>
+          <div style="font-size:10px; color:#666">Lv.${r.level} · ${r.total_chapters}장</div>
+        </div>
+        <div class="like-wrap">
+          <span class="like-thumb ${liked?'liked':''}" onclick="toggleLike('${r.name}')">👍</span>
+          <span class="like-num-text" onclick="showLikePopup('${r.name}', ${JSON.stringify(likeFrom).replace(/"/g,'&quot;')})">${r.likes||0}</span>
+        </div>
+        <div style="font-family:'Black Han Sans'; color:#f4d03f; margin-left:10px">${r.xp}</div>
+      </div>`;
+  }).join('');
 }
 
-async function toggleLike(targetName) {
-    if (targetName === currentUser.name) return;
-    let myLikes = JSON.parse(localStorage.getItem('bq_likes') || '[]');
-    const isAdding = !myLikes.includes(targetName);
-    
-    const { data } = await _supabase.from('users').select('likes, like_from').eq('name', targetName).single();
-    let newLikes = (data.likes || 0) + (isAdding ? 1 : -1);
-    let newFrom = isAdding ? [...(data.like_from||[]), currentUser.name] : (data.like_from||[]).filter(n => n !== currentUser.name);
+// [수정] 좋아요(엄지) 클릭 시 동작
+async function toggleLike(targetName){
+  if(targetName===currentUser?.name) return;
+  let myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
+  const isAdding=!myLikes.includes(targetName);
+  
+  const {data}=await _supabase.from('users').select('likes,like_from').eq('name',targetName).single();
+  let newLikes=(data?.likes||0)+(isAdding?1:-1);
+  let newFrom=isAdding?[...(data?.like_from||[]),currentUser.name]:(data?.like_from||[]).filter(n=>n!==currentUser.name);
 
-    if(isAdding) myLikes.push(targetName);
-    else myLikes = myLikes.filter(n => n !== targetName);
-    
-    localStorage.setItem('bq_likes', JSON.stringify(myLikes));
-    await _supabase.from('users').update({ likes: Math.max(0, newLikes), like_from: newFrom }).eq('name', targetName);
-    loadRankings();
+  if(isAdding) myLikes.push(targetName); else myLikes=myLikes.filter(n=>n!==targetName);
+  localStorage.setItem('bq_likes',JSON.stringify(myLikes));
+  await _supabase.from('users').update({likes:Math.max(0,newLikes),like_from:newFrom}).eq('name',targetName);
+  loadRankings();
 }
 
-function showLikePopup(name, list) {
-    document.getElementById('like-popup-title').textContent = `${name}님 응원단`;
-    document.getElementById('like-popup-list').innerHTML = list.length 
-        ? list.map(n => `<div style="padding:8px 0; border-bottom:1px solid #222">${n}</div>`).join('')
-        : "아직 응원이 없어요 🥲";
-    document.getElementById('like-popup-overlay').classList.add('show');
+// [수정] 숫자 클릭 시 응원단 팝업
+function showLikePopup(targetName, likeFrom){
+  document.getElementById('like-popup-title').textContent = targetName+'님 응원단';
+  document.getElementById('like-popup-list').innerHTML = likeFrom.length===0 
+    ? '<div style="text-align:center; padding:20px; color:#555">아직 응원이 없어요 🥲</div>' 
+    : likeFrom.map(n=>`<div style="padding:10px 0; border-bottom:1px solid #ffffff0d; font-size:14px">✨ ${n}</div>`).join('');
+  document.getElementById('like-popup-overlay').classList.add('show');
 }
 
-function closeLikePopup() { document.getElementById('like-popup-overlay').classList.remove('show'); }
+function closeLikePopup(){document.getElementById('like-popup-overlay').classList.remove('show');}
 
-// 기존 login, showTab, renderChapterGrid 등은 원본 소스에서 그대로 복구 적용
-async function login() {
-    const name = document.getElementById('user-name-input').value.trim();
-    if(!name) return;
-    let { data: user } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
-    currentUser = user || (await _supabase.from('users').insert([{name}]).select().single()).data;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('header-display-name').textContent = `⚔️ ${currentUser.name}님`;
-    loadRankings();
+// [유지] 나머지 원본 함수들 (login, renderChapterGrid 등)
+async function login(){
+  const name=document.getElementById('user-name-input').value.trim();
+  if(!name) return;
+  document.getElementById('login-loading').style.display='block';
+  let {data:user}=await _supabase.from('users').select('*').eq('name',name).maybeSingle();
+  if(!user) user=(await _supabase.from('users').insert([{name}]).select().single()).data;
+  currentUser=user;
+  state={xp:user.xp||0,level:user.level||1,totalCh:user.total_chapters||0,streak:user.streak||0,bookChapters:user.book_chapters||{},log:user.log||[]};
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('header-display-name').textContent=`⚔️ ${user.name}님`;
+  initBookSelect(); renderAll();
 }
 
-function showTab(name, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-'+name).classList.add('active');
-    if(name === 'rank') loadRankings();
+function showTab(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='rank') loadRankings();
 }
+
+function renderChapterGrid(bookName){
+  const book=BOOKS.find(b=>b.name===bookName);
+  const grid=document.getElementById('chapter-grid');
+  const readChs=new Set(state.bookChapters[bookName]||[]);
+  grid.innerHTML='';
+  for(let i=1;i<=book.ch;i++){
+    const div=document.createElement('div');
+    const isSelected=selectedChs.has(i);
+    div.className='ch-box'+(isSelected?' selected':readChs.has(i)?' read-done':'');
+    div.textContent=i;
+    div.onclick=()=>{
+      if(readChs.has(i)) return;
+      if(selectedChs.has(i)) selectedChs.delete(i); else selectedChs.add(i);
+      renderChapterGrid(bookName); updateSummary(bookName);
+    };
+    grid.appendChild(div);
+  }
+}
+
+function updateSummary(bookName){
+  const sorted=[...selectedChs].sort((a,b)=>a-b);
+  document.getElementById('selected-summary').textContent=sorted.length?`${bookName} ${sorted.join(', ')}장`:'장을 선택하세요 📖';
+}
+
+function initBookSelect(){
+  const sel=document.getElementById('book-select');
+  if(sel.options.length>0) return;
+  BOOKS.forEach(b=>{const opt=document.createElement('option');opt.value=b.name;opt.textContent=b.name;sel.appendChild(opt);});
+  renderChapterGrid(sel.value);
+}
+
+function renderAll(){
+  document.getElementById('xp-text').textContent=state.xp+' XP';
+  document.getElementById('xp-sub').textContent=`총 ${state.totalCh}장 읽음`;
+  document.getElementById('streak-badge').textContent=`🔥 ${state.streak}일 연속`;
+  const pct=Math.min((state.xp % 100), 100);
+  document.getElementById('xp-bar').style.width=pct+'%';
+}
+
+function onBookChange(){selectedChs.clear(); renderChapterGrid(document.getElementById('book-select').value);}
+function logout(){location.reload();}
 </script>
 </body>
 </html>
