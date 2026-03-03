@@ -786,12 +786,14 @@
         }
     }
 
+// index.html 파일의 하단 <script> 태그 부분을 아래로 교체하세요.
     function showLevelUp(lvInfo){
         document.getElementById('lu-icon').textContent=lvInfo.icon;
         document.getElementById('lu-lv').textContent=`Lv. ${lvInfo.lv}`;
         document.getElementById('lu-name').textContent=lvInfo.title;
         document.getElementById('levelup-overlay').classList.add('show');
     }
+
     function closeLevelUp(){document.getElementById('levelup-overlay').classList.remove('show');}
 
     function initBookSelect(){
@@ -811,7 +813,6 @@
         renderChapterGrid(sel.value);
     }
 
-// index.html 맨 하단 </script> 바로 윗부분을 이 코드로 교체하세요.
     window.onload = () => {
         const savedName = localStorage.getItem('bq_saved_name');
         if(savedName){
@@ -822,7 +823,7 @@
                 if(rememberCheck) rememberCheck.checked = true;
             }
         }
-        console.log("Bible Quest 로드 완료!");
+        console.log("Bible Quest 로드 완료");
     };
 </script>
 <script>
