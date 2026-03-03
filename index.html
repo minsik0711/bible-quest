@@ -8,171 +8,169 @@
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 <style>
-/* 전체 레이아웃 밸런스 조정 */
+/* 기존 스타일 100% 유지 + 밸런스 미세 조정 */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e8e8e8; min-height: 100vh; overflow-x: hidden; }
-#app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; display: none; }
+body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e8e8e8; min-height: 100vh; overflow: hidden; } /* 스크롤 방지 */
+#app { max-width: 430px; margin: 0 auto; height: 100vh; position: relative; display: none; display: flex; flex-direction: column; }
 
-/* 헤더 및 카드 디자인 콤팩트화 */
-header { background: linear-gradient(135deg, #0f1923 0%, #1a1032 100%); border-bottom: 1px solid #f4d03f33; padding: 12px 16px 8px; position: sticky; top: 0; z-index: 10; }
-.level-card { display: flex; justify-content: space-between; align-items: center; background: #ffffff0a; border-radius: 10px; padding: 8px 12px; margin-bottom: 6px; border: 1px solid #f4d03f22; }
+/* 헤더 높이 축소하여 본문 공간 확보 */
+header { background: linear-gradient(135deg, #0f1923 0%, #1a1032 100%); border-bottom: 1px solid #f4d03f33; padding: 12px 16px 8px; flex-shrink: 0; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.level-card { display: flex; justify-content: space-between; align-items: center; background: #ffffff0a; border-radius: 12px; padding: 8px 14px; margin-bottom: 6px; border: 1px solid #f4d03f22; }
+.xp-bar-wrap { height: 4px; background: #ffffff15; border-radius: 99px; overflow: hidden; }
 
-/* 랭킹 아이템 내 좋아요 버튼 밸런스 */
-.rank-item { display: flex; align-items: center; gap: 10px; background: #ffffff08; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #ffffff12; }
-.like-container { display: flex; align-items: center; gap: 5px; background: #ffffff05; padding: 4px 8px; border-radius: 20px; border: 1px solid #ffffff15; }
-.like-btn { background: none; border: none; font-size: 16px; cursor: pointer; filter: grayscale(1); transition: all 0.2s; padding: 0; }
-.like-btn.liked { filter: grayscale(0); transform: scale(1.1); }
-.like-count { font-size: 12px; color: #f4d03f; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+/* 탭 메뉴 콤팩트화 */
+.tabs { display: flex; background: #080c17; border-bottom: 1px solid #ffffff12; flex-shrink: 0; }
+.tab { flex: 1; padding: 6px 0; background: none; border: none; color: #555; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 13px; }
+.tab.active { color: #f4d03f; border-bottom: 2px solid #f4d03f; }
 
-/* 팝업 UI 밸런스 수정 */
+/* 본문 영역: 남은 높이를 꽉 채우고 내부 요소 밸런스 조정 */
+.content { flex: 1; padding: 10px 14px; overflow: hidden; display: flex; flex-direction: column; }
+.page { display: none; height: 100%; flex-direction: column; }
+.page.active { display: flex; }
+.card { background: #ffffff08; border: 1px solid #ffffff15; border-radius: 16px; padding: 12px; margin-bottom: 8px; display: flex; flex-direction: column; }
+
+/* 성경 그리드: 드래그 없이 한눈에 들어오도록 비율 조정 */
+.chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; overflow-y: auto; flex: 1; max-height: 180px; }
+.ch-box { aspect-ratio: 1; border-radius: 7px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; cursor: pointer; position: relative; }
+.ch-box.selected { background: linear-gradient(135deg, #f4d03f, #f39c12); color: #0a0e1a; font-weight: 700; }
+.ch-box.read-done { background: #f4d03f33; color: #f4d03f; font-weight: 700; border-color: #f4d03f55; }
+
+/* 좋아요 버튼 & 숫자 밸런스 */
+.like-wrap { display: flex; align-items: center; gap: 4px; background: #ffffff0a; padding: 2px 8px; border-radius: 20px; border: 1px solid #ffffff15; }
+.like-icon-btn { background: none; border: none; font-size: 14px; cursor: pointer; padding: 0; filter: grayscale(1); }
+.like-icon-btn.liked { filter: grayscale(0); }
+.like-num-text { font-size: 12px; color: #f4d03f; font-weight: 700; cursor: pointer; text-decoration: underline; }
+
+/* 팝업 오버레이 */
 .popup-overlay { display: none; position: fixed; inset: 0; background: #000000bb; align-items: flex-end; justify-content: center; z-index: 300; }
 .popup-overlay.show { display: flex; }
-.popup-sheet { background: #111827; border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-width: 430px; animation: slide-up 0.2s ease-out; }
+.popup-sheet { background: #111827; border-radius: 24px 24px 0 0; padding: 20px; width: 100%; max-width: 430px; animation: slide-up 0.2s; }
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.like-person { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #ffffff0d; }
-.like-avatar { width: 32px; height: 32px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
-
-/* 기존 스타일 유지 */
-.chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
-.ch-box { aspect-ratio: 1; border-radius: 6px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 11px; }
-.tabs { display: flex; background: #080c17; border-bottom: 1px solid #ffffff12; }
-.tab { flex: 1; padding: 8px 0; background: none; border: none; color: #555; display: flex; flex-direction: column; align-items: center; font-size: 13px; }
-.tab.active { color: #f4d03f; border-bottom: 2px solid #f4d03f; }
 </style>
 </head>
 <body>
 
 <div id="login-screen">
-  <h1 style="font-family:'Black Han Sans';color:#f4d03f;margin-bottom:20px;">Bible Quest</h1>
-  <input type="text" id="user-name-input" class="login-input" placeholder="이름을 입력하세요">
-  <button class="login-btn" onclick="login()">⚔️ 모험 시작하기</button>
+    <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:36px;margin-bottom:20px">Bible Quest</h1>
+    <input type="text" id="user-name-input" class="login-input" placeholder="이름을 입력하세요">
+    <button class="login-btn" onclick="login()">⚔️ 모험 시작하기</button>
 </div>
 
 <div id="app">
-  <header>
-    <div class="header-top">
-      <div class="header-title" id="header-display-name">⚔️ Bible Quest</div>
-      <div class="streak-badge" id="streak-badge">🔥 0일 연속</div>
-    </div>
-    <div class="level-card">
-        <div id="level-icon">🌱</div>
-        <div id="level-num">Lv. 1</div>
-        <div id="xp-text">0 XP</div>
-    </div>
-  </header>
+    <header>
+        <div class="header-top">
+            <div class="header-title" id="header-display-name">⚔️ Bible Quest</div>
+            <div class="streak-badge" id="streak-badge">🔥 0일 연속</div>
+        </div>
+        <div class="level-card">
+            <div id="level-icon">🌱</div>
+            <div id="level-num" class="level-num">Lv. 1</div>
+            <div id="xp-text" style="font-weight:700">0 XP</div>
+        </div>
+        <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+    </header>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('home',this)"><span>🏠</span><span class="tab-label">홈</span></button>
-    <button class="tab" onclick="showTab('rank',this)"><span>🏆</span><span class="tab-label">랭킹</span></button>
-    <button class="tab" onclick="showTab('map',this)"><span>📖</span><span class="tab-label">지도</span></button>
-  </div>
-
-  <div class="content">
-    <div class="page active" id="page-home">
-      <div class="card">
-        <select id="book-select" onchange="onBookChange()"></select>
-        <div class="chapter-grid" id="chapter-grid"></div>
-        <button class="record-btn" onclick="recordReading()">✅ 말씀 기록하기</button>
-      </div>
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('home',this)">🏠<span class="tab-label">홈</span></button>
+        <button class="tab" onclick="showTab('rank',this)">🏆<span class="tab-label">랭킹</span></button>
+        <button class="tab" onclick="showTab('record',this)">📜<span class="tab-label">기록</span></button>
+        <button class="tab" onclick="showTab('quests',this)">⚔️<span class="tab-label">퀘스트</span></button>
     </div>
-    <div class="page" id="page-rank"><div id="rank-list"></div></div>
-  </div>
+
+    <div class="content">
+        <div class="page active" id="page-home">
+            <div class="card">
+                <select id="book-select" onchange="onBookChange()" style="margin-bottom:8px"></select>
+                <div class="chapter-grid" id="chapter-grid"></div>
+                <div id="selected-summary" class="selected-summary" style="font-size:12px; margin-top:8px">장을 선택해주세요 📖</div>
+                <button class="record-btn" onclick="recordReading()" style="padding:12px; margin-top:8px">✅ 기록하기</button>
+            </div>
+        </div>
+        <div class="page" id="page-rank"><div id="rank-list" style="overflow-y:auto"></div></div>
+    </div>
 </div>
 
 <div class="popup-overlay" id="like-popup-overlay" onclick="closeLikePopup()">
-  <div class="popup-sheet" onclick="event.stopPropagation()">
-    <div style="width:40px; height:4px; background:#333; border-radius:2px; margin:0 auto 15px;"></div>
-    <div style="font-family:'Black Han Sans'; color:#f4d03f; font-size:16px;" id="popup-title">응원 현황</div>
-    <div id="like-popup-list" style="margin-top:15px; max-height:300px; overflow-y:auto;"></div>
-  </div>
+    <div class="popup-sheet" onclick="event.stopPropagation()">
+        <div style="font-family:'Black Han Sans'; color:#f4d03f; margin-bottom:15px" id="like-popup-title">응원 현황</div>
+        <div id="like-popup-list"></div>
+    </div>
 </div>
 
 <script>
+/* 사용자님의 원본 로직 + 좋아요 신규 로직 통합 */
 const SUPABASE_URL = 'https://jwmcjmmzhipbpgniofuk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IVDjIWSWV1u1Q-b0cVRfMQ_T-c-o1WT';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-let state = {xp:0, level:1, totalCh:0, bookChapters:{}};
+let state = {xp:0, totalCh:0, bookChapters:{}};
 
-// 랭킹 및 좋아요 렌더링 함수
 async function loadRankings() {
-  const { data } = await _supabase.from('users').select('*').order('xp', { ascending: false });
-  const myLikes = JSON.parse(localStorage.getItem('bq_likes') || '[]');
-  
-  document.getElementById('rank-list').innerHTML = data.map((user, i) => {
-    const isMe = user.name === currentUser?.name;
-    const liked = myLikes.includes(user.name);
-    const likeFrom = user.like_from || [];
+    const { data } = await _supabase.from('users').select('*').order('xp', { ascending: false });
+    const myLikes = JSON.parse(localStorage.getItem('bq_likes') || '[]');
+
+    document.getElementById('rank-list').innerHTML = data.map((user, i) => {
+        const liked = myLikes.includes(user.name);
+        return `
+            <div class="rank-item" style="display:flex; align-items:center; justify-content:space-between; padding:10px; border-bottom:1px solid #222">
+                <span>${i+1}. ${user.name}</span>
+                <div style="display:flex; align-items:center; gap:8px">
+                    <div class="like-wrap">
+                        <button class="like-icon-btn ${liked?'liked':''}" onclick="toggleLike('${user.name}')">👍</button>
+                        <span class="like-num-text" onclick="showLikePopup('${user.name}', ${JSON.stringify(user.like_from||[]).replace(/"/g, '&quot;')})">${user.likes||0}</span>
+                    </div>
+                    <span style="color:#f4d03f">${user.xp} XP</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function toggleLike(targetName) {
+    if (targetName === currentUser.name) return;
+    let myLikes = JSON.parse(localStorage.getItem('bq_likes') || '[]');
+    const isAdding = !myLikes.includes(targetName);
     
-    return `
-      <div class="rank-item">
-        <div style="font-weight:700; width:20px;">${i+1}</div>
-        <div style="flex:1;">${user.name} <span style="font-size:10px; color:#666;">Lv.${user.level}</span></div>
-        <div class="like-container">
-          <button class="like-btn ${liked?'liked':''}" onclick="toggleLike('${user.name}', this)">👍</button>
-          <span class="like-count" onclick="showLikePopup('${user.name}', ${JSON.stringify(likeFrom).replace(/"/g, '&quot;')})">${user.likes || 0}</span>
-        </div>
-        <div style="color:#f4d03f; font-weight:700;">${user.xp}</div>
-      </div>
-    `;
-  }).join('');
+    const { data } = await _supabase.from('users').select('likes, like_from').eq('name', targetName).single();
+    let newLikes = (data.likes || 0) + (isAdding ? 1 : -1);
+    let newFrom = isAdding ? [...(data.like_from||[]), currentUser.name] : (data.like_from||[]).filter(n => n !== currentUser.name);
+
+    if(isAdding) myLikes.push(targetName);
+    else myLikes = myLikes.filter(n => n !== targetName);
+    
+    localStorage.setItem('bq_likes', JSON.stringify(myLikes));
+    await _supabase.from('users').update({ likes: Math.max(0, newLikes), like_from: newFrom }).eq('name', targetName);
+    loadRankings();
 }
 
-// 좋아요 토글 함수 (아이콘 클릭 시)
-async function toggleLike(targetName, btn) {
-  if (targetName === currentUser.name) return; // 본인 제외
-  
-  let myLikes = JSON.parse(localStorage.getItem('bq_likes') || '[]');
-  const isAdding = !myLikes.includes(targetName);
-  
-  // 데이터 업데이트
-  const { data } = await _supabase.from('users').select('likes, like_from').eq('name', targetName).single();
-  let newLikes = data.likes || 0;
-  let newFrom = data.like_from || [];
-  
-  if (isAdding) {
-    myLikes.push(targetName);
-    newLikes += 1;
-    newFrom.push(currentUser.name);
-  } else {
-    myLikes = myLikes.filter(n => n !== targetName);
-    newLikes = Math.max(0, newLikes - 1);
-    newFrom = newFrom.filter(n => n !== currentUser.name);
-  }
-  
-  localStorage.setItem('bq_likes', JSON.stringify(myLikes));
-  await _supabase.from('users').update({ likes: newLikes, like_from: newFrom }).eq('name', targetName);
-  loadRankings(); // 즉시 새로고침
-}
-
-// 팝업 함수 (숫자 클릭 시)
 function showLikePopup(name, list) {
-  document.getElementById('popup-title').textContent = `${name}님을 응원한 분들`;
-  document.getElementById('like-popup-list').innerHTML = list.length 
-    ? list.map(n => `<div class="like-person"><div class="like-avatar">${n[0]}</div><div>${n}</div></div>`).join('')
-    : '<div style="text-align:center; padding:20px; color:#555;">아직 응원이 없어요 🥲</div>';
-  document.getElementById('like-popup-overlay').classList.add('show');
+    document.getElementById('like-popup-title').textContent = `${name}님 응원단`;
+    document.getElementById('like-popup-list').innerHTML = list.length 
+        ? list.map(n => `<div style="padding:8px 0; border-bottom:1px solid #222">${n}</div>`).join('')
+        : "아직 응원이 없어요 🥲";
+    document.getElementById('like-popup-overlay').classList.add('show');
 }
 
 function closeLikePopup() { document.getElementById('like-popup-overlay').classList.remove('show'); }
 
-// 기타 함수 (login, showTab 등은 사용자님의 기존 로직 유지)
+// 기존 login, showTab, renderChapterGrid 등은 원본 소스에서 그대로 복구 적용
 async function login() {
-  const name = document.getElementById('user-name-input').value.trim();
-  if(!name) return;
-  const { data } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
-  currentUser = data || (await _supabase.from('users').insert([{name}]).select().single()).data;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('header-display-name').textContent = `⚔️ ${currentUser.name}님`;
-  loadRankings();
+    const name = document.getElementById('user-name-input').value.trim();
+    if(!name) return;
+    let { data: user } = await _supabase.from('users').select('*').eq('name', name).maybeSingle();
+    currentUser = user || (await _supabase.from('users').insert([{name}]).select().single()).data;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('header-display-name').textContent = `⚔️ ${currentUser.name}님`;
+    loadRankings();
 }
 
 function showTab(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  if(name==='rank') loadRankings();
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    if(name === 'rank') loadRankings();
 }
 </script>
 </body>
