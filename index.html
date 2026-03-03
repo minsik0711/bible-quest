@@ -521,8 +521,8 @@ async function loadRankings(){
   document.getElementById('rank-list').innerHTML=data.map((r,i)=>{
     const isMe=r.name===currentUser?.name;
     const liked=myLikes.includes(r.name);
-    const likes=r.likes||0;
     const likeFrom=r.like_from||[];
+    const likes = likeFrom.length;
 
 // 타인일 경우: 엄지(좋아요 체크/취소) + 숫자(팝업)
     const otherLikeDisplay = `
