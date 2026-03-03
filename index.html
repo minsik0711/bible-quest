@@ -514,17 +514,26 @@ async function saveToCloud(){
 
 async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
+  
+  // Supabase에서 데이터 가져오기
   const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from').order('xp',{ascending:false}).limit(20);
-  if(!data||data.length===0){document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';return;}
+  if(!data||data.length===0){
+    document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';
+    return;
+  }
+  
   const medals=['🥇','🥈','🥉'];
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
+  
   document.getElementById('rank-list').innerHTML=data.map((r,i)=>{
-    const isMe=r.name===currentUser?.name;
-    const liked=myLikes.includes(r.name);
-    const likeFrom=r.like_from||[];
+    const isMe = r.name === currentUser?.name;
+    const liked = myLikes.includes(r.name);
+    
+    // DB의 likes 숫자 대신, 실제 응원단 명단(like_from)의 길이를 사용하여 데이터 불일치 해결
+    const likeFrom = r.like_from || [];
     const likes = likeFrom.length;
 
-// 타인일 경우: 엄지(좋아요 체크/취소) + 숫자(팝업)
+    // [타인일 경우] 엄지(좋아요 체크/취소) + 숫자(팝업 트리거)
     const otherLikeDisplay = `
       <div style="display:flex; align-items:center; gap:5px; background:#ffffff0a; padding:2px 8px; border-radius:20px; border:1px solid #ffffff15;">
         <button class="like-btn${liked?' liked':''}" 
@@ -534,7 +543,7 @@ async function loadRankings(){
               onclick="event.stopPropagation(); showLikePopup('${r.name}', ${JSON.stringify(likeFrom).replace(/"/g,'&quot;')})">${likes}</span>
       </div>`;
 
-    // 본인일 경우: 엄지(클릭 불가) + 숫자(팝업)
+    // [본인일 경우] 엄지(반투명/클릭불가) + 숫자(내 응원단 확인 팝업)
     const myLikeDisplay = `
       <div style="display:flex; align-items:center; gap:5px; padding:2px 8px;">
         <span style="font-size:16px; opacity:0.5;">👍</span>
@@ -542,6 +551,7 @@ async function loadRankings(){
               onclick="event.stopPropagation(); showLikePopup('${r.name}', ${JSON.stringify(likeFrom).replace(/"/g,'&quot;')})">${likes}</span>
       </div>`;
 
+    // 랭킹 카드 렌더링 (UI 밸런스 유지)
     return `<div class="rank-item${isMe?' my-rank':''}" style="display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; margin-bottom:10px; border:1px solid #ffffff12;">
       <div class="rank-num" style="font-family:'Black Han Sans'; font-size:20px; min-width:32px; text-align:center;">${medals[i]||(i+1)}</div>
       <div class="rank-info" style="flex:1;">
