@@ -811,7 +811,8 @@
         renderChapterGrid(sel.value);
     }
 
-window.onload = () => {
+// 이 부분이 index.html의 맨 마지막 script 내용이어야 합니다.
+    window.onload = () => {
         const savedName = localStorage.getItem('bq_saved_name');
         if(savedName){
             const nameInput = document.getElementById('user-name-input');
