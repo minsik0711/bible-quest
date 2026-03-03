@@ -817,18 +817,26 @@
         renderChapterGrid(sel.value);
     }
 
+// index.html의 727번 줄 근처, 혹은 window.onload 부분을 아래로 완전히 덮어쓰세요.
     window.onload = () => {
-        const savedName = localStorage.getItem('bq_saved_name');
-        if (savedName) {
-            const nameInput = document.getElementById('user-name-input');
-            if (nameInput) {
-                nameInput.value = savedName;
-                const rememberCheck = document.getElementById('remember-name');
-                if (rememberCheck) rememberCheck.checked = true;
+        try {
+            const savedName = localStorage.getItem('bq_saved_name');
+            if(savedName){
+                const nameInput = document.getElementById('user-name-input');
+                if(nameInput) {
+                    nameInput.value = savedName;
+                    const rememberCheck = document.getElementById('remember-name');
+                    if(rememberCheck) rememberCheck.checked = true;
+                }
             }
+            console.log("앱 로드 완료");
+        } catch (e) {
+            console.error("로드 중 에러 발생:", e);
         }
-        console.log("App loaded successfully without syntax errors.");
     };
+
+    // login 함수가 정상적으로 정의되었는지 확인하기 위해 
+    // 기존 login 함수 앞뒤에 중복된 중괄호가 없는지 꼭 확인하세요!
 </script>
 
 <script>
