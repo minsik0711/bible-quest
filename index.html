@@ -26,6 +26,17 @@ body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e8e
 .my-rank { border-color: #f4d03f !important; background: #f4d03f15 !important; }
 .like-btn { background: #ffffff08; border: 1px solid #ffffff20; border-radius: 20px; padding: 5px 10px; font-size: 12px; cursor: pointer; color: #aaa; transition: all 0.15s; white-space: nowrap; font-family: 'Noto Sans KR', sans-serif; }
 .like-btn.liked { background: #e74c3c22; border-color: #e74c3c55; color: #e74c3c; }
+.popup-overlay { display: none; position: fixed; inset: 0; background: #000000bb; align-items: flex-end; justify-content: center; z-index: 300; }
+.popup-overlay.show { display: flex; }
+.popup-sheet { background: #111827; border-radius: 24px 24px 0 0; padding: 20px 20px 40px; width: 100%; max-width: 430px; animation: slide-up 0.25s ease-out; max-height: 70vh; overflow-y: auto; }
+@keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.popup-handle { width: 40px; height: 4px; background: #ffffff22; border-radius: 99px; margin: 0 auto 16px; }
+.popup-title { font-family: 'Black Han Sans', sans-serif; font-size: 17px; color: #f4d03f; margin-bottom: 4px; }
+.popup-sub { font-size: 12px; color: #666; margin-bottom: 14px; }
+.like-person { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid #ffffff0d; }
+.like-person:last-child { border-bottom: none; }
+.like-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1e40af, #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.like-person-name { font-size: 14px; font-weight: 700; flex: 1; }
 .particle { position: fixed; top: 55%; font-size: 20px; pointer-events: none; z-index: 100; animation: float-up 1.5s ease-out forwards; }
 @keyframes float-up { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-130px) scale(0.3); opacity: 0; } }
 .overlay { display: none; position: fixed; inset: 0; background: #000000cc; align-items: center; justify-content: center; z-index: 200; }
@@ -119,6 +130,9 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 8px; max-height: 185px; overflow-y: auto; padding: 2px; }
 .ch-box { aspect-ratio: 1; border-radius: 7px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif; }
 .ch-box.selected { background: linear-gradient(135deg, #f4d03f, #f39c12); color: #0a0e1a; font-weight: 700; border-color: transparent; }
+.ch-box.read-done { background: linear-gradient(135deg, #f4d03f44, #f39c1233); color: #f4d03f; font-weight: 700; border-color: #f4d03f55; cursor: default; }
+.ch-box.read-done::after { content: '✓'; position: absolute; font-size: 7px; top: 2px; right: 2px; color: #f4d03f; }
+.ch-box { position: relative; }
 .ch-box:active { transform: scale(0.92); }
 .selected-summary { margin-top: 10px; padding: 9px 12px; background: #f4d03f12; border: 1px solid #f4d03f33; border-radius: 10px; font-size: 12px; color: #f4d03f; min-height: 34px; line-height: 1.6; }
 /* 캘린더 */
@@ -331,10 +345,17 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-size:12px;color:#888;margin-bottom:12px">성경을 읽으면 장당 10 XP를 획득해요!</div>
       <div id="level-guide-list"></div>
     </div>
-  </div>
-</div>
+    <!-- 좋아요 팝업 -->
+    <div class="popup-overlay" id="like-popup-overlay" onclick="closeLikePopup()">
+      <div class="popup-sheet" onclick="event.stopPropagation()">
+        <div class="popup-handle"></div>
+        <div class="popup-title" id="like-popup-title">응원한 사람들</div>
+        <div class="popup-sub" id="like-popup-sub"></div>
+        <div id="like-popup-list"></div>
+      </div>
+    </div>
 
-<script>
+  </div><!-- /app -->
 const SUPABASE_URL = 'https://jwmcjmmzhipbpgniofuk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IVDjIWSWV1u1Q-b0cVRfMQ_T-c-o1WT';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -431,7 +452,7 @@ function generateRandomBookQuests(seed){
 }
 
 let currentUser=null;
-let state={xp:0,level:1,totalCh:0,streak:0,bestStreak:0,lastDate:null,readBooks:[],badges:[],completedQuests:[],questDate:null,log:[],claimedBonuses:[],readDates:[]};
+let state={xp:0,level:1,totalCh:0,streak:0,bestStreak:0,lastDate:null,readBooks:[],badges:[],completedQuests:[],questDate:null,log:[],claimedBonuses:[],readDates:[],bookChapters:{}};
 let calYear,calMonth;
 
 function today(){return new Date().toDateString();}
@@ -460,7 +481,8 @@ async function loginWithName(name){
     xp:user.xp||0,level:user.level||1,totalCh:user.total_chapters||0,streak:user.streak||0,
     bestStreak:user.best_streak||0,lastDate:user.last_date,readBooks:user.read_books||[],
     badges:user.badges||[],completedQuests:user.completed_quests||[],questDate:user.quest_date,
-    log:user.log||[],claimedBonuses:user.claimed_bonuses||[],readDates:user.read_dates||[]
+    log:user.log||[],claimedBonuses:user.claimed_bonuses||[],readDates:user.read_dates||[],
+    bookChapters:user.book_chapters||{}
   };
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
@@ -486,13 +508,13 @@ async function saveToCloud(){
     total_chapters:state.totalCh,streak:state.streak,best_streak:state.bestStreak,
     last_date:state.lastDate,read_books:state.readBooks,badges:state.badges,
     completed_quests:state.completedQuests,quest_date:state.questDate,log:state.log,
-    claimed_bonuses:state.claimedBonuses,read_dates:state.readDates,updated_at:new Date()
+    claimed_bonuses:state.claimedBonuses,read_dates:state.readDates,book_chapters:state.bookChapters,updated_at:new Date()
   });
 }
 
 async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
-  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes').order('xp',{ascending:false}).limit(20);
+  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from').order('xp',{ascending:false}).limit(20);
   if(!data||data.length===0){document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';return;}
   const medals=['🥇','🥈','🥉'];
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
@@ -500,15 +522,20 @@ async function loadRankings(){
     const isMe=r.name===currentUser?.name;
     const liked=myLikes.includes(r.name);
     const likes=r.likes||0;
+    const likeFrom=r.like_from||[];
+    const likeCountBtn=likes>0
+      ?`<span style="font-size:11px;color:#e74c3c88;cursor:pointer;text-decoration:underline" onclick="showLikePopup('${r.name}',${JSON.stringify(likeFrom).replace(/"/g,'&quot;')})">👍 ${likes}명</span>`
+      :'';
     return `<div class="rank-item${isMe?' my-rank':''}">
       <div class="rank-num">${medals[i]||(i+1)}</div>
       <div class="rank-info">
         <div class="rank-name">${r.name}${isMe?' 👈 나':''}</div>
         <div style="font-size:11px;color:#888">Lv.${r.level} · ${r.total_chapters}장 읽음</div>
+        <div style="margin-top:4px">${likeCountBtn}</div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <div class="rank-xp">${r.xp} XP</div>
-        ${!isMe?`<button class="like-btn${liked?' liked':''}" onclick="toggleLike('${r.name}',this)">👍 ${likes}</button>`:''}
+        ${!isMe?`<button class="like-btn${liked?' liked':''}" onclick="toggleLike('${r.name}',this)">👍</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -518,18 +545,22 @@ async function toggleLike(targetName,btn){
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
   const liked=myLikes.includes(targetName);
   const cur=parseInt(btn.textContent.replace('👍 ',''))||0;
+  const myName=currentUser?.name||'익명';
+  const {data}=await _supabase.from('users').select('likes,like_from').eq('name',targetName).single();
+  const likeFrom=data?.like_from||[];
   if(liked){
     myLikes.splice(myLikes.indexOf(targetName),1);
-    btn.classList.remove('liked'); btn.textContent=`👍 ${Math.max(0,cur-1)}`;
-    const {data}=await _supabase.from('users').select('likes').eq('name',targetName).single();
-    await _supabase.from('users').update({likes:Math.max(0,(data?.likes||1)-1)}).eq('name',targetName);
+    btn.classList.remove('liked'); btn.textContent='👍 '+Math.max(0,cur-1);
+    const newFrom=likeFrom.filter(n=>n!==myName);
+    await _supabase.from('users').update({likes:Math.max(0,(data?.likes||1)-1),like_from:newFrom}).eq('name',targetName);
   } else {
     myLikes.push(targetName);
-    btn.classList.add('liked'); btn.textContent=`👍 ${cur+1}`;
-    const {data}=await _supabase.from('users').select('likes').eq('name',targetName).single();
-    await _supabase.from('users').update({likes:(data?.likes||0)+1}).eq('name',targetName);
+    btn.classList.add('liked'); btn.textContent='👍 '+(cur+1);
+    if(!likeFrom.includes(myName)) likeFrom.push(myName);
+    await _supabase.from('users').update({likes:(data?.likes||0)+1,like_from:likeFrom}).eq('name',targetName);
   }
   localStorage.setItem('bq_likes',JSON.stringify(myLikes));
+  loadRankings(); // 좋아요 후 랭킹 새로고침
 }
 
 function getLvInfo(xp){
@@ -562,6 +593,11 @@ async function recordReading(){
   if(state.streak>state.bestStreak) state.bestStreak=state.streak;
   state.xp+=gainedXp; state.totalCh+=ch; state.lastDate=today();
   if(!state.readBooks.includes(bookName)) state.readBooks.push(bookName);
+  // 누적 장 기록
+  if(!state.bookChapters[bookName]) state.bookChapters[bookName]=[];
+  selectedChapters.forEach(ch=>{
+    if(!state.bookChapters[bookName].includes(ch)) state.bookChapters[bookName].push(ch);
+  });
   state.log.unshift({date:today(),book:bookName,ch,chapters:selectedChapters,xp:gainedXp});
   if(state.log.length>50) state.log.pop();
   if(state.questDate!==today()){state.completedQuests=[];state.questDate=today();}
@@ -730,6 +766,22 @@ function renderBonusRow(){
   }).join('');
 }
 
+function showLikePopup(targetName, likeFrom){
+  const names = typeof likeFrom === 'string' ? JSON.parse(likeFrom) : likeFrom;
+  document.getElementById('like-popup-title').textContent = targetName+'님 응원 현황';
+  document.getElementById('like-popup-sub').textContent = '👍 '+names.length+'명이 응원했어요';
+  document.getElementById('like-popup-list').innerHTML = names.length===0
+    ? '<div style="text-align:center;color:#555;padding:24px 0">아직 응원한 사람이 없어요 🥲</div>'
+    : names.map(n=>`<div class="like-person">
+        <div class="like-avatar">${n.charAt(0)}</div>
+        <div class="like-person-name">${n}</div>
+      </div>`).join('');
+  document.getElementById('like-popup-overlay').classList.add('show');
+}
+function closeLikePopup(){
+  document.getElementById('like-popup-overlay').classList.remove('show');
+}
+
 function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -750,12 +802,16 @@ function renderChapterGrid(bookName){
   if(!book) return;
   const unit=bookName==='시편'?'편':'장';
   const grid=document.getElementById('chapter-grid');
+  const readChs=new Set(state.bookChapters[bookName]||[]);
   grid.innerHTML='';
   for(let i=1;i<=book.ch;i++){
     const div=document.createElement('div');
-    div.className='ch-box'+(selectedChs.has(i)?' selected':'');
+    const alreadyRead=readChs.has(i);
+    const isSelected=selectedChs.has(i);
+    div.className='ch-box'+(isSelected?' selected':alreadyRead?' read-done':'');
     div.textContent=i;
     div.onclick=()=>{
+      if(alreadyRead) return; // 이미 읽은 장은 클릭 무시
       if(selectedChs.has(i)){selectedChs.delete(i);div.classList.remove('selected');}
       else{selectedChs.add(i);div.classList.add('selected');}
       updateChapterSummary(bookName,unit);
