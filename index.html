@@ -178,6 +178,93 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .bm-name { font-size: 8px; line-height: 1.3; word-break: keep-all; margin-top: 1px; }
 .bm-cell.read .bm-name { color: #f4d03f; }
 .bm-cell.unread .bm-name { color: #333; }
+
+/* ─── 전투 시스템 CSS ─── */
+.battle-player-lv{display:flex;align-items:center;gap:8px;padding:8px 0 4px;}
+.plv-badge{font-family:'Black Han Sans';font-size:11px;background:linear-gradient(135deg,#f4d03f,#f39c12);color:#0a0e1a;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+.plv-xp-wrap{flex:1;height:5px;background:#ffffff10;border-radius:99px;overflow:hidden;}
+.plv-xp-bar{height:100%;background:linear-gradient(90deg,#f4d03f,#f39c12);border-radius:99px;transition:width 0.5s;}
+.plv-xp-text{font-size:9px;color:#f4d03f88;white-space:nowrap;}
+.bt-wave-label{text-align:center;font-family:'Black Han Sans';font-size:11px;color:#f4d03f88;padding:2px 0;}
+.bt-wave-bar{display:flex;justify-content:center;gap:5px;padding:3px 0 6px;}
+.bt-wave-dot{width:26px;height:5px;border-radius:99px;background:#ffffff12;transition:all 0.3s;}
+.bt-wave-dot.done{background:#22c55e;}
+.bt-wave-dot.current{background:#f4d03f;box-shadow:0 0 5px #f4d03f88;}
+.bt-hud{display:flex;align-items:flex-start;gap:8px;padding:4px 0 6px;}
+.bt-hud-box{flex:1;}
+.bt-hud-name{font-family:'Black Han Sans';font-size:11px;margin-bottom:3px;}
+.bt-hud-name.player{color:#f4d03f;}
+.bt-hud-name.enemy{color:#e74c3c;text-align:right;}
+.bt-hp-wrap{height:9px;background:#ffffff12;border-radius:99px;overflow:hidden;}
+.bt-hp-bar{height:100%;border-radius:99px;transition:width 0.5s;}
+.bt-hp-bar.player{background:linear-gradient(90deg,#22c55e,#86efac);}
+.bt-hp-bar.enemy{background:linear-gradient(90deg,#ef4444,#fca5a5);}
+.bt-hp-text{font-size:9px;color:#666;margin-top:2px;}
+.bt-hp-text.right{text-align:right;}
+.bt-vs{font-family:'Black Han Sans';font-size:14px;color:#f4d03f;align-self:center;padding:0 4px;}
+.bt-scene{position:relative;height:220px;border-radius:18px;overflow:hidden;border:1px solid #ffffff10;margin:0 0 6px;}
+.bt-scene-bg{position:absolute;inset:0;transition:background 1s;}
+.bt-ground{position:absolute;bottom:0;left:0;right:0;height:42px;transition:background 1s;}
+.bt-glow{position:absolute;width:160px;height:160px;border-radius:50%;filter:blur(45px);opacity:0.18;pointer-events:none;transition:background 1s;}
+.bt-glow.left{left:-40px;top:30px;}
+.bt-glow.right{right:-40px;top:30px;}
+.bt-flash{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 0.15s;}
+.bt-char{position:absolute;bottom:42px;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bt-char.player-side{left:18px;}
+.bt-char.enemy-side{right:18px;}
+.bt-shadow{width:34px;height:6px;background:#00000055;border-radius:50%;filter:blur(3px);}
+.bt-nametag{font-family:'Black Han Sans';font-size:9px;background:#00000099;padding:1px 6px;border-radius:99px;white-space:nowrap;}
+.bt-nametag.p{color:#f4d03f;}
+.bt-nametag.e{color:#e74c3c;}
+.bt-wave-clear{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:15;}
+.bt-wave-clear-txt{font-family:'Black Han Sans';font-size:24px;color:#f4d03f;text-shadow:0 0 15px #f4d03f;opacity:0;}
+.bt-lvup-popup{position:absolute;top:28%;left:50%;transform:translateX(-50%);font-family:'Black Han Sans';font-size:20px;color:#f4d03f;text-shadow:0 0 12px #f4d03f;pointer-events:none;white-space:nowrap;opacity:0;z-index:25;}
+.bt-result{position:absolute;inset:0;border-radius:18px;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:20;backdrop-filter:blur(4px);}
+.bt-result.show{display:flex;}
+.bt-result.win{background:#05302099;}
+.bt-result.lose{background:#30050899;}
+.bt-result-title{font-family:'Black Han Sans';font-size:28px;}
+.bt-result-title.win{color:#22c55e;text-shadow:0 0 15px #22c55e;}
+.bt-result-title.lose{color:#ef4444;text-shadow:0 0 15px #ef4444;}
+.bt-result-sub{font-size:11px;color:#aaa;margin-top:5px;text-align:center;padding:0 16px;}
+.bt-result-btn{margin-top:10px;padding:8px 20px;background:linear-gradient(135deg,#f4d03f,#f39c12);border:none;border-radius:10px;font-family:'Black Han Sans';font-size:13px;color:#0a0e1a;cursor:pointer;}
+.bt-log{background:#ffffff08;border:1px solid #ffffff10;border-radius:10px;padding:7px 11px;font-size:11px;color:#aaa;min-height:34px;line-height:1.6;margin-bottom:5px;}
+.bt-log .g{color:#f4d03f;font-weight:700;}.bt-log .r{color:#e74c3c;}.bt-log .gr{color:#22c55e;}.bt-log .p{color:#a78bfa;}
+.bt-bars{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
+.bt-bar-lbl{font-family:'Black Han Sans';font-size:10px;width:20px;}
+.bt-bar-lbl.mp{color:#8b5cf6;}.bt-bar-lbl.sp{color:#f59e0b;}
+.bt-bar-wrap{flex:1;height:5px;background:#ffffff10;border-radius:99px;overflow:hidden;}
+.bt-bar-fill{height:100%;border-radius:99px;transition:width 0.3s;}
+.bt-bar-fill.mp{background:linear-gradient(90deg,#8b5cf6,#a78bfa);}
+.bt-bar-fill.sp{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.bt-bar-val{font-size:9px;color:#ffffff33;width:40px;text-align:right;}
+.bt-skills{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.bt-skill{padding:9px 5px;border:none;border-radius:10px;font-family:'Black Han Sans';font-size:11px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.15s;}
+.bt-skill:disabled{opacity:0.35;cursor:not-allowed;}
+.bt-skill:active:not(:disabled){transform:scale(0.96);}
+.bt-skill.normal{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;}
+.bt-skill.special{background:linear-gradient(135deg,#92400e,#f59e0b);color:#fff;}
+.bt-skill.heal{background:linear-gradient(135deg,#14532d,#22c55e);color:#fff;}
+.bt-skill.ultimate{background:linear-gradient(135deg,#4c1d95,#8b5cf6);color:#fff;}
+.bt-skill-sub{font-size:8px;color:#ffffff88;display:block;margin-top:1px;}
+.bt-skill-cost{position:absolute;top:3px;right:4px;font-size:8px;color:#fbbf24;}
+.bt-dmg{position:absolute;font-family:'Black Han Sans';font-size:18px;pointer-events:none;z-index:10;animation:btDmgFloat 1s ease forwards;}
+@keyframes btDmgFloat{0%{opacity:1;transform:translateY(0) scale(1.2);}100%{opacity:0;transform:translateY(-50px) scale(0.8);}}
+.bt-dmg.pd{color:#fbbf24;text-shadow:0 0 8px #f4d03f;}
+.bt-dmg.ed{color:#ef4444;text-shadow:0 0 8px #e74c3c;}
+.bt-dmg.hl{color:#22c55e;text-shadow:0 0 8px #22c55e;}
+.bt-dmg.cr{font-size:24px;color:#fff;text-shadow:0 0 12px #f4d03f;}
+@keyframes btPlayerAtk{0%{transform:translateX(0);}40%{transform:translateX(52px);}70%{transform:translateX(52px);}100%{transform:translateX(0);}}
+@keyframes btEnemyHit{0%{transform:scaleX(-1);}25%{transform:scaleX(-1) translateX(12px);}100%{transform:scaleX(-1) translateX(0);}}
+@keyframes btEnemyAtk{0%{transform:scaleX(-1) translateX(0);}40%{transform:scaleX(-1) translateX(-52px);}70%{transform:scaleX(-1) translateX(-52px);}100%{transform:scaleX(-1) translateX(0);}}
+@keyframes btPlayerHit{0%{transform:translateX(0);}25%{transform:translateX(-12px);}100%{transform:translateX(0);}}
+@keyframes btIdleBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+@keyframes btEnemyIdle{0%,100%{transform:scaleX(-1) translateY(0);}50%{transform:scaleX(-1) translateY(-4px);}}
+@keyframes btShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+@keyframes btWaveClear{0%{opacity:0;transform:scale(0.8);}30%{opacity:1;transform:scale(1.1);}80%{opacity:1;}100%{opacity:0;transform:scale(0.9) translateY(-20px);}}
+@keyframes btLvUp{0%{opacity:0;transform:translateX(-50%) scale(0.5);}40%{opacity:1;transform:translateX(-50%) scale(1.2);}80%{opacity:1;transform:translateX(-50%) scale(1);}100%{opacity:0;transform:translateX(-50%) translateY(-30px) scale(0.8);}}
+.player-side{animation:btIdleBob 1.5s ease-in-out infinite;}
+.enemy-side{animation:btEnemyIdle 1.8s ease-in-out infinite;}
 </style>
 </head>
 <body>
@@ -190,6 +277,58 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
   <label class="remember-label"><input type="checkbox" id="remember-name"> 이름 저장하기</label>
   <button class="login-btn" onclick="login()">⚔️ 모험 시작하기</button>
   <div class="login-loading" id="login-loading">⏳ 접속 중...</div>
+
+<!-- 클래스 선택 화면 -->
+<div id="class-select-screen" style="display:none; max-width:430px; margin:0 auto; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:24px; background:#0a0e1a;">
+  <div style="text-align:center; margin-bottom:20px;">
+    <div style="font-size:36px; margin-bottom:6px;">⚔️</div>
+    <div style="font-family:'Black Han Sans',sans-serif; font-size:24px; color:#f4d03f; margin-bottom:4px;">클래스 선택</div>
+    <div style="font-size:12px; color:#888;">7일 후 변경 가능해요! 나에게 맞는 제자를 선택하세요</div>
+  </div>
+  <div id="class-grid" style="width:100%; display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:70vh; overflow-y:auto; padding-bottom:10px;"></div>
+</div>
+
+  <div style="width:100%; display:flex; flex-direction:column; gap:14px;">
+
+    <div onclick="selectClass('peter')" style="cursor:pointer; background:linear-gradient(135deg,#1e3a8a,#3b82f6); border-radius:16px; padding:20px; text-align:left; border:2px solid #3b82f688; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+        <div style="font-size:32px;">⚔️</div>
+        <div>
+          <div style="font-family:'Black Han Sans',sans-serif; font-size:18px; color:#fff;">베드로</div>
+          <div style="font-size:11px; color:#93c5fd;">반석의 사도</div>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#bfdbfe; line-height:1.5;">행동하는 믿음! 역사서·복음서 읽을 때 <strong style="color:#fbbf24;">XP 1.5배</strong></div>
+      <div style="margin-top:8px; font-size:11px; color:#93c5fd; background:#ffffff15; padding:6px 10px; border-radius:8px;">⚓ 반석의 고백 스킬 보유</div>
+    </div>
+
+    <div onclick="selectClass('john')" style="cursor:pointer; background:linear-gradient(135deg,#92400e,#f59e0b); border-radius:16px; padding:20px; text-align:left; border:2px solid #f59e0b88; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+        <div style="font-size:32px;">💛</div>
+        <div>
+          <div style="font-family:'Black Han Sans',sans-serif; font-size:18px; color:#fff;">요한</div>
+          <div style="font-size:11px; color:#fde68a;">사랑의 사도</div>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#fef3c7; line-height:1.5;">깊은 묵상! 시가서·요한 서신 읽을 때 <strong style="color:#fbbf24;">XP 1.5배</strong></div>
+      <div style="margin-top:8px; font-size:11px; color:#fde68a; background:#ffffff15; padding:6px 10px; border-radius:8px;">❤️ 사랑의 서신 스킬 보유</div>
+    </div>
+
+    <div onclick="selectClass('paul')" style="cursor:pointer; background:linear-gradient(135deg,#064e3b,#10b981); border-radius:16px; padding:20px; text-align:left; border:2px solid #10b98188; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+        <div style="font-size:32px;">✉️</div>
+        <div>
+          <div style="font-family:'Black Han Sans',sans-serif; font-size:18px; color:#fff;">바울</div>
+          <div style="font-size:11px; color:#6ee7b7;">전도의 사도</div>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#d1fae5; line-height:1.5;">말씀의 전파! 바울서신·선지서 읽을 때 <strong style="color:#fbbf24;">XP 1.5배</strong></div>
+      <div style="margin-top:8px; font-size:11px; color:#6ee7b7; background:#ffffff15; padding:6px 10px; border-radius:8px;">📜 바울의 서신 스킬 보유</div>
+    </div>
+
+  </div>
+</div>
+
 </div>
 
 <div id="app">
@@ -237,6 +376,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <button class="tab" onclick="showTab('map',this)"><span>📖</span><span class="tab-label">통독지도</span></button>
     <button class="tab" onclick="showTab('calendar',this)"><span>📅</span><span class="tab-label">캘린더</span></button>
     <button class="tab" onclick="showTab('levels',this)"><span>📊</span><span class="tab-label">레벨</span></button>
+    <button class="tab" onclick="showTab('battle',this);btInitIfNeeded()"><span>🛡️</span><span class="tab-label">전투</span></button>
   </div>
 
   <div class="content">
@@ -350,6 +490,76 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-size:12px;color:#888;margin-bottom:12px">성경을 읽으면 장당 10 XP를 획득해요!</div>
       <div id="level-guide-list"></div>
     </div>
+
+    <div class="page" id="page-battle">
+      <!-- 플레이어 레벨 -->
+      <div class="battle-player-lv">
+        <div class="plv-badge" id="bt-plv-badge">Lv.1 베드로</div>
+        <div class="plv-xp-wrap"><div class="plv-xp-bar" id="bt-plv-xp-bar" style="width:0%"></div></div>
+        <div class="plv-xp-text" id="bt-plv-xp-text">0 XP</div>
+      </div>
+      <!-- 웨이브 -->
+      <div class="bt-wave-label" id="bt-wave-label">⚔️ WAVE 1</div>
+      <div class="bt-wave-bar" id="bt-wave-bar"></div>
+      <!-- HUD -->
+      <div class="bt-hud">
+        <div class="bt-hud-box">
+          <div class="bt-hud-name player" id="bt-player-name">⚔️ 베드로</div>
+          <div class="bt-hp-wrap"><div class="bt-hp-bar player" id="bt-player-hp-bar" style="width:100%"></div></div>
+          <div class="bt-hp-text" id="bt-player-hp-text">HP 100/100</div>
+        </div>
+        <div class="bt-vs">VS</div>
+        <div class="bt-hud-box">
+          <div class="bt-hud-name enemy" id="bt-enemy-name">의심의 뱀 🐍</div>
+          <div class="bt-hp-wrap"><div class="bt-hp-bar enemy" id="bt-enemy-hp-bar" style="width:100%"></div></div>
+          <div class="bt-hp-text right" id="bt-enemy-hp-text">HP 60/60</div>
+        </div>
+      </div>
+      <!-- 씬 -->
+      <div class="bt-scene" id="bt-scene">
+        <div class="bt-scene-bg" id="bt-scene-bg"></div>
+        <div class="bt-ground" id="bt-ground"></div>
+        <div class="bt-glow left" id="bt-glow-l"></div>
+        <div class="bt-glow right" id="bt-glow-r"></div>
+        <div class="bt-flash" id="bt-flash"></div>
+        <div class="bt-char player-side" id="bt-player-char">
+          <div class="bt-nametag p" id="bt-player-tag">베드로 Lv.1</div>
+          <canvas id="bt-player-canvas" width="48" height="64" style="image-rendering:pixelated"></canvas>
+          <div class="bt-shadow"></div>
+        </div>
+        <div class="bt-char enemy-side" id="bt-enemy-char">
+          <div class="bt-nametag e" id="bt-enemy-tag">의심의 뱀</div>
+          <canvas id="bt-enemy-canvas" width="48" height="64" style="image-rendering:pixelated"></canvas>
+          <div class="bt-shadow"></div>
+        </div>
+        <div class="bt-wave-clear"><div id="bt-wave-clear-txt" class="bt-wave-clear-txt"></div></div>
+        <div class="bt-lvup-popup" id="bt-lvup-popup">LEVEL UP! ⬆️</div>
+        <div class="bt-result" id="bt-result">
+          <div class="bt-result-title" id="bt-result-title">승리!</div>
+          <div class="bt-result-sub" id="bt-result-sub"></div>
+          <button class="bt-result-btn" onclick="btReset()">🔄 다시 도전</button>
+        </div>
+      </div>
+      <!-- 로그 -->
+      <div class="bt-log" id="bt-log">⚔️ 전투를 시작하세요!</div>
+      <!-- 게이지 -->
+      <div class="bt-bars">
+        <span class="bt-bar-lbl mp">MP</span>
+        <div class="bt-bar-wrap"><div class="bt-bar-fill mp" id="bt-mp-bar" style="width:60%"></div></div>
+        <span class="bt-bar-val" id="bt-mp-val">60/100</span>
+        <span class="bt-bar-lbl sp">SP</span>
+        <div class="bt-bar-wrap"><div class="bt-bar-fill sp" id="bt-sp-bar" style="width:0%"></div></div>
+        <span class="bt-bar-val" id="bt-sp-val">0/100</span>
+      </div>
+      <!-- 스킬 -->
+      <div class="bt-skills">
+        <button class="bt-skill normal" id="btsk0" onclick="btAttack(0)">⚔️ 기본 공격<span class="bt-skill-sub">데미지 15~25</span></button>
+        <button class="bt-skill special" id="btsk1" onclick="btAttack(1)">⚓ 반석의 고백<span class="bt-skill-sub">강타 30~45</span><span class="bt-skill-cost">30MP</span></button>
+        <button class="bt-skill heal" id="btsk2" onclick="btAttack(2)">💚 믿음의 회복<span class="bt-skill-sub">HP +회복</span><span class="bt-skill-cost">20MP</span></button>
+        <button class="bt-skill ultimate" id="btsk3" onclick="btAttack(3)">✨ 성령의 검<span class="bt-skill-sub">필살기</span><span class="bt-skill-cost">SP 100</span></button>
+      </div>
+    </div>
+
     <!-- 좋아요 팝업 -->
     <div class="popup-overlay" id="like-popup-overlay" onclick="closeLikePopup()">
       <div class="popup-sheet" onclick="event.stopPropagation()">
@@ -364,6 +574,94 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 const SUPABASE_URL = 'https://jwmcjmmzhipbpgniofuk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IVDjIWSWV1u1Q-b0cVRfMQ_T-c-o1WT';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+const CLASSES = {
+  peter: {
+    id:'peter', icon:'⚔️', name:'베드로', title:'반석의 사도',
+    desc:'행동하는 믿음! 복음서·역사서 읽을 때 XP 1.5배',
+    color:'#3b82f6', bg:'linear-gradient(135deg,#1e3a8a,#3b82f6)',
+    bonus:['마태복음','마가복음','누가복음','요한복음','사도행전','여호수아','사사기','룻기','사무엘상','사무엘하','열왕기상','열왕기하','역대상','역대하','에스라','느헤미야','에스더'],
+    skill:'⚓ 반석의 고백 — 복음서·역사서 XP 1.5배'
+  },
+  john: {
+    id:'john', icon:'💛', name:'요한', title:'사랑의 사도',
+    desc:'깊은 묵상! 요한서신·시가서 읽을 때 XP 1.5배',
+    color:'#f59e0b', bg:'linear-gradient(135deg,#92400e,#f59e0b)',
+    bonus:['요한복음','요한일서','요한이서','요한삼서','요한계시록','욥기','시편','잠언','전도서','아가'],
+    skill:'❤️ 사랑의 서신 — 요한서신·시가서 XP 1.5배'
+  },
+  james: {
+    id:'james', icon:'🔥', name:'야고보', title:'인내의 사도',
+    desc:'믿음의 행함! 야고보서·대선지서 읽을 때 XP 1.5배',
+    color:'#ef4444', bg:'linear-gradient(135deg,#7f1d1d,#ef4444)',
+    bonus:['야고보서','이사야','예레미야','예레미야애가','에스겔','다니엘'],
+    skill:'🔥 순교의 믿음 — 야고보서·대선지서 XP 1.5배'
+  },
+  andrew: {
+    id:'andrew', icon:'🌊', name:'안드레', title:'전도의 사도',
+    desc:'첫 번째 제자! 소선지서 읽을 때 XP 1.5배',
+    color:'#06b6d4', bg:'linear-gradient(135deg,#164e63,#06b6d4)',
+    bonus:['호세아','요엘','아모스','오바댜','요나','미가','나훔','하박국','스바냐','학개','스가랴','말라기'],
+    skill:'🌊 첫 제자의 열심 — 소선지서 XP 1.5배'
+  },
+  philip: {
+    id:'philip', icon:'💡', name:'빌립', title:'지혜의 사도',
+    desc:'묻고 탐구하는 자! 잠언·전도서 읽을 때 XP 1.5배',
+    color:'#8b5cf6', bg:'linear-gradient(135deg,#4c1d95,#8b5cf6)',
+    bonus:['잠언','전도서','욥기','야고보서','히브리서'],
+    skill:'💡 지혜의 탐구 — 잠언·전도서·욥기 XP 1.5배'
+  },
+  bartholomew: {
+    id:'bartholomew', icon:'🌿', name:'바돌로매', title:'신실의 사도',
+    desc:'순수한 믿음! 율법서 읽을 때 XP 1.5배',
+    color:'#22c55e', bg:'linear-gradient(135deg,#14532d,#22c55e)',
+    bonus:['창세기','출애굽기','레위기','민수기','신명기'],
+    skill:'🌿 순수한 신앙 — 율법서 XP 1.5배'
+  },
+  matthew: {
+    id:'matthew', icon:'📝', name:'마태', title:'기록의 사도',
+    desc:'세리에서 제자로! 마태복음·역대기 읽을 때 XP 1.5배',
+    color:'#f97316', bg:'linear-gradient(135deg,#7c2d12,#f97316)',
+    bonus:['마태복음','역대상','역대하','에스라','느헤미야'],
+    skill:'📝 말씀의 기록 — 마태복음·역대기 XP 1.5배'
+  },
+  thomas: {
+    id:'thomas', icon:'🔍', name:'도마', title:'확신의 사도',
+    desc:'의심에서 확신으로! 요한복음·시편 읽을 때 XP 1.5배',
+    color:'#a78bfa', bg:'linear-gradient(135deg,#3b0764,#a78bfa)',
+    bonus:['요한복음','시편','전도서','욥기'],
+    skill:'🔍 확신의 고백 — 요한복음·시편 XP 1.5배'
+  },
+  simon: {
+    id:'simon', icon:'⚡', name:'시몬', title:'열심의 사도',
+    desc:'뜨거운 헌신! 민수기·신명기 읽을 때 XP 1.5배',
+    color:'#fbbf24', bg:'linear-gradient(135deg,#78350f,#fbbf24)',
+    bonus:['민수기','신명기','레위기','출애굽기'],
+    skill:'⚡ 열심당의 헌신 — 민수기·신명기 XP 1.5배'
+  },
+  thaddaeus: {
+    id:'thaddaeus', icon:'🕊️', name:'다대오', title:'겸손의 사도',
+    desc:'조용한 헌신! 일반서신 읽을 때 XP 1.5배',
+    color:'#e2e8f0', bg:'linear-gradient(135deg,#334155,#e2e8f0)',
+    bonus:['히브리서','베드로전서','베드로후서','유다서','요한일서','요한이서','요한삼서'],
+    skill:'🕊️ 겸손의 기도 — 일반서신 XP 1.5배'
+  },
+  james2: {
+    id:'james2', icon:'🌸', name:'작은 야고보', title:'온유의 사도',
+    desc:'온유한 섬김! 룻기·에스더 읽을 때 XP 1.5배',
+    color:'#f472b6', bg:'linear-gradient(135deg,#831843,#f472b6)',
+    bonus:['룻기','에스더','아가','욥기'],
+    skill:'🌸 온유한 섬김 — 룻기·에스더 XP 1.5배'
+  },
+  matthias: {
+    id:'matthias', icon:'👑', name:'맛디아', title:'순종의 사도',
+    desc:'부름에 응답! 사도행전·바울서신 읽을 때 XP 1.5배',
+    color:'#fcd34d', bg:'linear-gradient(135deg,#713f12,#fcd34d)',
+    bonus:['사도행전','로마서','고린도전서','고린도후서','갈라디아서','에베소서','빌립보서','골로새서','데살로니가전서','데살로니가후서','디모데전서','디모데후서','디도서','빌레몬서'],
+    skill:'👑 순종의 응답 — 사도행전·바울서신 XP 1.5배'
+  }
+};
 
 const BOOK_CATEGORIES = [
   { label:"📜 율법서 (창~신)", mapId:"율법서", books:[
@@ -457,7 +755,7 @@ function generateRandomBookQuests(seed){
 }
 
 let currentUser=null;
-let state={xp:0,level:1,totalCh:0,streak:0,bestStreak:0,lastDate:null,readBooks:[],badges:[],completedQuests:[],questDate:null,log:[],claimedBonuses:[],readDates:[],bookChapters:{}};
+let state={xp:0,level:1,totalCh:0,streak:0,bestStreak:0,lastDate:null,readBooks:[],badges:[],completedQuests:[],questDate:null,log:[],claimedBonuses:[],readDates:[],bookChapters:{},userClass:null};
 let calYear,calMonth;
 
 function today(){return new Date().toDateString();}
@@ -487,13 +785,73 @@ async function loginWithName(name){
     bestStreak:user.best_streak||0,lastDate:user.last_date,readBooks:user.read_books||[],
     badges:user.badges||[],completedQuests:user.completed_quests||[],questDate:user.quest_date,
     log:user.log||[],claimedBonuses:user.claimed_bonuses||[],readDates:user.read_dates||[],
-    bookChapters:user.book_chapters||{},likeFrom: user.like_from||[]
+    bookChapters:user.book_chapters||{},likeFrom:user.like_from||[],
+    userClass:user.user_class||null,
+    classChangedAt:user.class_changed_at||null
   };
+  if(!state.userClass){
+    document.getElementById('login-loading').style.display='none';
+    showClassSelect();
+    return;
+  }
+  enterApp(user);
+}
+
+
+function enterApp(user){
   document.getElementById('login-screen').style.display='none';
+  document.getElementById('class-select-screen').style.display='none';
   document.getElementById('app').style.display='block';
-  document.getElementById('header-display-name').textContent=`⚔️ ${user.name}님의 모험`;
+  const cls=CLASSES[state.userClass];
+  document.getElementById('header-display-name').textContent=`${cls?cls.icon:'⚔️'} ${user.name}님의 모험`;
   const now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
   initBookSelect(); renderAll();
+}
+
+function showClassSelect(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='none';
+  // 그리드 렌더링
+  document.getElementById('class-grid').innerHTML=Object.values(CLASSES).map(cls=>`
+    <div onclick="selectClass('${cls.id}')"
+      style="cursor:pointer; background:${cls.bg}; border-radius:14px; padding:14px 12px;
+             border:2px solid ${cls.color}55; text-align:center; transition:transform 0.15s;"
+      onmouseover="this.style.transform='scale(1.03)'"
+      onmouseout="this.style.transform='scale(1)'">
+      <div style="font-size:28px; margin-bottom:4px;">${cls.icon}</div>
+      <div style="font-family:'Black Han Sans',sans-serif; font-size:14px; color:#fff;">${cls.name}</div>
+      <div style="font-size:9px; color:#ffffffbb; margin-top:2px;">${cls.title}</div>
+      <div style="font-size:9px; color:#fbbf24; margin-top:6px; background:#00000022; border-radius:6px; padding:3px 6px; line-height:1.4;">${cls.skill.replace('— ','').replace('XP 1.5배','').trim()}</div>
+    </div>
+  `).join('');
+  document.getElementById('class-select-screen').style.display='flex';
+}
+
+async function selectClass(classId){
+  // 7일 변경 제한 체크
+  if(state.userClass && state.classChangedAt){
+    const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+    if(daysSince<7){
+      alert('클래스는 선택 후 7일이 지나야 변경할 수 있어요!\n(변경 가능까지 '+(7-daysSince)+'일 남음)');
+      return;
+    }
+  }
+  const now=new Date().toISOString();
+  state.userClass=classId;
+  state.classChangedAt=now;
+  await _supabase.from('users').update({user_class:classId,class_changed_at:now}).eq('id',currentUser.id);
+  enterApp(currentUser);
+}
+
+function openClassChange(){
+  if(state.userClass && state.classChangedAt){
+    const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+    if(daysSince<7){
+      alert('클래스 변경까지 '+(7-daysSince)+'일 남았어요!');
+      return;
+    }
+  }
+  showClassSelect();
 }
 
 function logout(){
@@ -513,7 +871,7 @@ async function saveToCloud(){
     total_chapters:state.totalCh,streak:state.streak,best_streak:state.bestStreak,
     last_date:state.lastDate,read_books:state.readBooks,badges:state.badges,
     completed_quests:state.completedQuests,quest_date:state.questDate,log:state.log,
-    claimed_bonuses:state.claimedBonuses,read_dates:state.readDates,book_chapters:state.bookChapters,updated_at:new Date()
+    claimed_bonuses:state.claimedBonuses,read_dates:state.readDates,book_chapters:state.bookChapters,user_class:state.userClass,class_changed_at:state.classChangedAt,updated_at:new Date()
   });
 }
 
@@ -521,7 +879,7 @@ async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
   
   // Supabase에서 데이터 가져오기
-  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from').order('xp',{ascending:false}).limit(20);
+  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from,user_class').order('xp',{ascending:false}).limit(20);
   if(!data||data.length===0){
     document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';
     return;
@@ -557,7 +915,9 @@ async function loadRankings(){
       </div>`;
 
     // 랭킹 카드 렌더링 (UI 밸런스 유지)
-    return `<div class="rank-item${isMe?' my-rank':''}" style="display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; margin-bottom:10px; border:1px solid #ffffff12;">
+    const rCls=CLASSES[r.user_class];
+    const clsIcon=rCls?`<span style="font-size:13px">${rCls.icon}</span>`:'';
+    return `<div class="rank-item${isMe?' my-rank':''}" style="display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; margin-bottom:10px; border:1px solid ${rCls?rCls.color+'44':'#ffffff12'};">
       <div class="rank-num" style="font-family:'Black Han Sans'; font-size:20px; min-width:32px; text-align:center;">${medals[i]||(i+1)}</div>
       <div class="rank-info" style="flex:1;">
         <div class="rank-name" style="font-weight:700; font-size:15px;">${r.name}${isMe?' 👈 나':''}</div>
@@ -615,7 +975,11 @@ async function recordReading(){
   const bookName=document.getElementById('book-select').value;
   const selectedChapters=[...selectedChs].sort((a,b)=>a-b);
   if(!selectedChapters.length){alert("읽은 장을 선택해주세요!");return;}
-  const ch=selectedChapters.length, gainedXp=ch*10;
+  const ch=selectedChapters.length;
+  const cls=CLASSES[state.userClass];
+  const isBonus=cls&&cls.bonus.includes(bookName);
+  const gainedXp=isBonus?Math.round(ch*15):ch*10;
+  const bonusMsg=isBonus?` (${cls.name} 보너스 1.5배! 🎉)`:'';
   const prevLv=getLvInfo(state.xp).cur.lv, prevStreak=state.streak;
   const yest=new Date(); yest.setDate(yest.getDate()-1);
   const isToday2=state.lastDate===today(), wasYest=state.lastDate===yest.toDateString();
@@ -628,7 +992,7 @@ async function recordReading(){
   selectedChapters.forEach(ch=>{
     if(!state.bookChapters[bookName].includes(ch)) state.bookChapters[bookName].push(ch);
   });
-  state.log.unshift({date:today(),book:bookName,ch,chapters:selectedChapters,xp:gainedXp});
+  state.log.unshift({date:today(),book:bookName,ch,chapters:selectedChapters,xp:gainedXp,bonus:isBonus});
   if(state.log.length>50) state.log.pop();
   if(state.questDate!==today()){state.completedQuests=[];state.questDate=today();}
   const ds=todayStr();
@@ -638,7 +1002,7 @@ async function recordReading(){
   const btn=document.getElementById('record-btn');
   btn.textContent='저장 중...'; btn.disabled=true;
   await saveToCloud();
-  btn.textContent='✅ 기록 완료!';
+  btn.textContent='✅ 기록 완료!'+bonusMsg;
   selectedChs.clear(); renderChapterGrid(bookName);
   setTimeout(()=>{btn.textContent='✅ 말씀 기록하기';btn.disabled=false;},1500);
   spawnParticles(); renderAll();
@@ -666,6 +1030,22 @@ function getTodayQuests(){
 function renderAll(){
   const {cur,next,pct}=getLvInfo(state.xp);
   document.getElementById('streak-badge').textContent=`🔥 ${state.streak}일 연속`;
+  // 클래스 카드
+  const cls=CLASSES[state.userClass];
+  if(cls){
+    document.getElementById('class-icon').textContent=cls.icon;
+    document.getElementById('class-name').textContent=cls.name+' · '+cls.title;
+    document.getElementById('class-skill').textContent=cls.skill;
+    const cc=document.getElementById('class-card');
+    if(cc) cc.style.borderColor=cls.color+'55';
+    const changeBtn=document.getElementById('class-change-btn');
+    if(changeBtn && state.classChangedAt){
+      const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+      changeBtn.textContent=daysSince>=7?'변경 가능':'변경 D-'+(7-daysSince);
+      changeBtn.style.color=daysSince>=7?'#f4d03f':'#888';
+      changeBtn.style.borderColor=daysSince>=7?'#f4d03f55':'#ffffff15';
+    }
+  }
   document.getElementById('level-icon').textContent=cur.icon;
   document.getElementById('level-num').textContent=`Lv. ${cur.lv}`;
   document.getElementById('level-name').textContent=cur.title;
@@ -690,7 +1070,8 @@ function renderAll(){
     ?state.log.map(l=>{
       const unit=l.book==='시편'?'편':'장';
       const chDetail=l.chapters?l.chapters.join(unit+', ')+unit:`${l.ch}${unit}`;
-      return `<div class="log-item"><div><div class="log-book">${l.book}</div><div class="log-date" style="font-size:10px;color:#555;margin-top:2px">${chDetail}</div><div class="log-date">${l.date}</div></div><div><div class="log-ch">${l.ch}${unit}</div><div class="log-xp">+${l.xp} XP</div></div></div>`;
+      const logCls=CLASSES[state.userClass]; const isLogBonus=l.bonus&&logCls;
+        return `<div class="log-item"><div><div class="log-book">${l.book}</div><div class="log-date" style="font-size:10px;color:#555;margin-top:2px">${chDetail}</div><div class="log-date">${l.date}</div></div><div><div class="log-ch">${l.ch}${unit}</div><div class="log-xp">+${l.xp} XP</div></div></div>`;
     }).join('')
     :'<div class="empty-msg">아직 기록이 없어요. 말씀을 읽고 기록해보세요! 🌱</div>';
 
@@ -943,6 +1324,271 @@ function initBookSelect(){
     sel.appendChild(grp);
   });
   renderChapterGrid(sel.value);
+}
+
+
+/* ════════════════════════════════
+   전투 시스템 JS
+════════════════════════════════ */
+const BT_BOSSES=[
+  {name:'의심의 뱀',icon:'🐍',wave:1,hp:60,atk:[6,12],special:'독 주입',spChance:0.3,color:'#22c55e',bg:'linear-gradient(180deg,#0d2b1a,#1a3a1a)',ground:'linear-gradient(180deg,#1a3a1a,#0d2210)',desc:'창세기 3장 — 에덴의 뱀',xp:30,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const G='#15803d',D='#14532d',Y='#fbbf24',R='#ef4444';const s=[['T','T',G,G,G,G,'T','T'],['T',G,G,G,G,G,G,'T'],[G,G,Y,G,Y,G,G,'T'],[G,G,G,G,G,G,G,'T'],['T',G,D,G,D,G,'T','T'],['T','T',G,G,G,'T','T','T'],['T','T',D,G,D,'T','T','T'],['T','T','T',G,'T','T','T','T'],['T','T','T',G,'T','T','T','T'],['T','T','T',D,'T','T','T','T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));ctx.fillStyle=R;ctx.fillRect(18,(4+b)*6,3,3);ctx.fillRect(24,(4+b)*6,3,3);}},
+  {name:'골리앗',icon:'👹',wave:2,hp:130,atk:[12,22],special:'대지 강타',spChance:0.35,color:'#f97316',bg:'linear-gradient(180deg,#1c1008,#2d1a08)',ground:'linear-gradient(180deg,#3d2408,#1c0a00)',desc:'사무엘상 17장 — 블레셋의 거인',xp:55,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const SK='#d4956a',HR='#5c3317',AR='#94a3b8',MT='#64748b',BR='#92400e';const s=[['T','T',HR,HR,HR,HR,'T','T'],['T',HR,SK,SK,SK,SK,HR,'T'],['T',SK,SK,'#333',SK,SK,SK,'T'],['T',SK,SK,SK,SK,SK,SK,'T'],[AR,AR,SK,SK,SK,AR,AR,'T'],[AR,MT,AR,AR,AR,MT,AR,'T'],[BR,BR,AR,AR,AR,BR,BR,'T'],[BR,'T','T','T','T','T',BR,'T'],[MT,'T','T','T','T','T',MT,'T'],[MT,'T','T','T','T','T',MT,'T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));ctx.fillStyle=MT;for(let i=0;i<9;i++)ctx.fillRect(42,i*6+b*6,3,6);ctx.fillStyle='#fbbf24';ctx.fillRect(39,b*6,6,6);}},
+  {name:'바알 제사장',icon:'🔥',wave:3,hp:170,atk:[14,24],special:'불의 저주',spChance:0.4,color:'#ef4444',bg:'linear-gradient(180deg,#1c0808,#2d0808)',ground:'linear-gradient(180deg,#3d0808,#200000)',desc:'열왕기상 18장 — 바알의 종',xp:80,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const RD='#dc2626',DR='#7f1d1d',SK='#c4956a',BK='#1c1c1c',GD='#fbbf24',PR='#9333ea';const s=[['T','T',BK,BK,BK,BK,'T','T'],['T',BK,SK,SK,SK,SK,BK,'T'],['T',SK,SK,RD,SK,SK,SK,'T'],['T',SK,SK,SK,SK,SK,SK,'T'],[RD,RD,PR,PR,PR,RD,RD,'T'],[RD,GD,RD,RD,RD,GD,RD,'T'],[DR,DR,RD,RD,RD,DR,DR,'T'],[DR,'T',BK,BK,BK,'T',DR,'T'],[BK,'T','T','T','T','T',BK,'T'],[BK,'T','T','T','T','T',BK,'T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));if(f%2===0){ctx.fillStyle='#f97316';ctx.fillRect(0,b*6,6,12);ctx.fillStyle='#fbbf24';ctx.fillRect(0,(b+1)*6,3,6);}}},
+  {name:'레비아탄',icon:'🐉',wave:4,hp:220,atk:[16,28],special:'심해 포효',spChance:0.35,color:'#06b6d4',bg:'linear-gradient(180deg,#020d1a,#0a1f3a)',ground:'linear-gradient(180deg,#0a2040,#020d20)',desc:'욥기 41장 — 바다의 괴수',xp:110,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const BL='#0e7490',DB='#164e63',CY='#22d3ee',SC='#0891b2',EY='#f0f9ff';const s=[['T',BL,BL,BL,BL,BL,BL,'T'],[BL,SC,SC,SC,SC,SC,SC,BL],[BL,SC,EY,SC,EY,SC,SC,BL],[DB,BL,BL,BL,BL,BL,DB,'T'],[DB,SC,CY,CY,CY,SC,DB,'T'],[BL,BL,DB,DB,DB,BL,BL,'T'],['T',DB,DB,'T',DB,DB,'T','T'],['T',BL,BL,'T',BL,BL,'T','T'],['T','T',DB,'T',DB,'T','T','T'],['T','T',BL,'T',BL,'T','T','T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));ctx.fillStyle=CY;ctx.fillRect(6,b*6,3,6);ctx.fillRect(36,b*6,3,6);}},
+  {name:'아볼루온',icon:'👿',wave:5,hp:270,atk:[18,32],special:'지옥의 군단',spChance:0.45,color:'#7c3aed',bg:'linear-gradient(180deg,#0d0620,#1a0a35)',ground:'linear-gradient(180deg,#200d40,#0d0220)',desc:'요한계시록 9장 — 무저갱의 사자',xp:150,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const PR='#7c3aed',DP='#4c1d95',RD='#dc2626',BK='#1c1c1c',GD='#fbbf24',WG='#6d28d9';const s=[[PR,'T',DP,DP,DP,'T',PR,'T'],['T',PR,PR,PR,PR,PR,'T','T'],['T',PR,GD,PR,GD,PR,'T','T'],['T',PR,PR,RD,PR,PR,'T','T'],[WG,WG,DP,DP,DP,WG,WG,'T'],[WG,GD,WG,WG,WG,GD,WG,'T'],[DP,DP,WG,WG,WG,DP,DP,'T'],[DP,'T',BK,BK,BK,'T',DP,'T'],[RD,'T','T','T','T','T',RD,'T'],[RD,'T','T','T','T','T',RD,'T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));if(f%2===0){ctx.fillStyle=WG+'88';ctx.fillRect(0,2*6+b*6,6,18);ctx.fillRect(42,2*6+b*6,6,18);}}},
+  {name:'바알세불',icon:'😈',wave:6,hp:340,atk:[20,36],special:'파리떼 저주',spChance:0.5,color:'#10b981',bg:'linear-gradient(180deg,#041a0e,#082a18)',ground:'linear-gradient(180deg,#0a3020,#041008)',desc:'마태복음 12장 — 귀신의 왕',xp:200,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const GR='#15803d',DG='#14532d',RD='#dc2626',GD='#fbbf24',BK='#111',SK='#86efac';const s=[[GR,GR,'T','T','T',GR,GR,'T'],['T',GR,GR,GR,GR,GR,'T','T'],['T',GR,SK,GR,SK,GR,'T','T'],['T',SK,GR,GR,GR,SK,'T','T'],[DG,DG,GR,GR,GR,DG,DG,'T'],[DG,GD,DG,DG,DG,GD,DG,'T'],[BK,BK,DG,DG,DG,BK,BK,'T'],[BK,'T',GR,GR,GR,'T',BK,'T'],[RD,'T','T',GR,'T','T',RD,'T'],[RD,'T','T',DG,'T','T',RD,'T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));}},
+  {name:'붉은 용',icon:'🐲',wave:7,hp:500,atk:[24,42],special:'용의 불꽃',spChance:0.55,color:'#ef4444',bg:'linear-gradient(180deg,#1c0000,#3d0000)',ground:'linear-gradient(180deg,#4d0000,#200000)',desc:'요한계시록 12장 — 일곱 머리 열 뿔의 용 ★최종보스★',xp:350,isBoss:true,
+    draw(ctx,f){ctx.clearRect(0,0,48,64);const b=f%2===0?0:1;const R='#dc2626',DR='#7f1d1d',OR='#f97316',GD='#fbbf24',BK='#111',WH='#fef2f2';const s=[[R,R,BK,DR,BK,R,R,'T'],[DR,R,R,R,R,R,DR,'T'],[R,R,WH,R,WH,R,R,'T'],[DR,R,OR,R,OR,R,DR,'T'],[R,GD,R,DR,R,GD,R,'T'],[DR,R,DR,DR,DR,R,DR,'T'],[BK,BK,R,R,R,BK,BK,'T'],[BK,'T',DR,DR,DR,'T',BK,'T'],[OR,'T','T',R,'T','T',OR,'T'],[OR,'T','T',DR,'T','T',OR,'T']];s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));if(f%2===0){ctx.fillStyle='#f97316';ctx.fillRect(0,b*6,6,18);ctx.fillRect(42,b*6,6,18);}ctx.fillStyle=GD;[0,6,12,18,24,30,36].forEach(x=>ctx.fillRect(x,b*6,3,3));}}
+];
+
+function btGetPlayerStats(lv){
+  const armorColors=['#3b82f6','#3b82f6','#6366f1','#8b5cf6','#a855f7','#ec4899','#f97316','#ef4444'];
+  return {hp:80+lv*20, atk:[10+lv*3,20+lv*5], armor:armorColors[Math.min(lv-1,7)]};
+}
+
+function btDrawPlayer(ctx,f,lv){
+  ctx.clearRect(0,0,48,64);
+  const b=f%2===0?0:1;
+  const SK='#f5cba7',HR='#8B4513',GD='#fbbf24';
+  const AC=['#3b82f6','#3b82f6','#6366f1','#8b5cf6','#a855f7','#ec4899','#f97316','#ef4444'];
+  const MC=['#94a3b8','#94a3b8','#a78bfa','#c084fc','#e879f9','#fb7185','#fbbf24','#fef08a'];
+  const AR=AC[Math.min(lv-1,7)], MT=MC[Math.min(lv-1,7)];
+  const s=[['T','T',HR,HR,HR,HR,'T','T'],['T',HR,SK,SK,SK,SK,HR,'T'],['T',SK,SK,'#5c3317',SK,SK,SK,'T'],['T',SK,SK,SK,SK,SK,SK,'T'],[AR,AR,AR,AR,AR,AR,AR,AR],[AR,MT,AR,AR,AR,MT,AR,AR],[AR,AR,MT,AR,AR,MT,AR,AR],['#1e293b','#1e293b','T','T','T','T','#1e293b','#1e293b'],['#1e293b','#1e293b','T','T','T','T','#1e293b','#1e293b'],['T','#1e293b','T','T','T','T','#1e293b','T']];
+  s.forEach((r,y)=>r.forEach((c,x)=>{if(c!=='T'){ctx.fillStyle=c;ctx.fillRect(x*6,(y+b)*6,6,6);}}));
+  for(let i=0;i<8;i++){ctx.fillStyle=i===0?GD:MT;ctx.fillRect(42,i*6+b*6,4,6);}
+  if(lv>=4){ctx.fillStyle=AR+'33';ctx.beginPath();ctx.arc(24,20+b*3,20,0,Math.PI*2);ctx.fill();}
+}
+
+let btWave=0,btPlayerLv=1,btPlayerXP=0,btXPNeeded=50;
+let btPlayerHP,btPlayerMaxHP,btMP=100,btSP=0;
+let btEnemyHP,btEnemyMaxHP;
+let btBusy=false,btOver=false,btAnimF=0,btInitialized=false,btAnimTimer=null;
+const BT_XP_TABLE=[0,50,120,220,360,550,800,1100,1500,2000];
+
+function btInitIfNeeded(){
+  if(!btInitialized){btInitialized=true;btInit();}
+}
+
+function btInit(){
+  const boss=BT_BOSSES[btWave];
+  const ps=btGetPlayerStats(btPlayerLv);
+  btPlayerMaxHP=ps.hp;
+  if(!btPlayerHP||btPlayerHP>btPlayerMaxHP) btPlayerHP=btPlayerMaxHP;
+  btEnemyMaxHP=boss.hp; btEnemyHP=boss.hp;
+  btMP=Math.min(btMP+30,100); btSP=0; btOver=false; btBusy=false;
+
+  // 씬 배경
+  document.getElementById('bt-scene-bg').style.background=boss.bg;
+  document.getElementById('bt-ground').style.background=boss.ground;
+  document.getElementById('bt-glow-l').style.background=boss.color;
+  document.getElementById('bt-glow-r').style.background='#e74c3c';
+
+  // HUD 텍스트
+  document.getElementById('bt-wave-label').textContent=(boss.isBoss?'👑 ':'⚔️ ')+'WAVE '+boss.wave+' — '+boss.name+' '+boss.icon;
+  document.getElementById('bt-player-name').textContent='⚔️ 베드로 Lv.'+btPlayerLv;
+  document.getElementById('bt-enemy-name').textContent=boss.name+' '+boss.icon;
+  document.getElementById('bt-player-tag').textContent='베드로 Lv.'+btPlayerLv;
+  document.getElementById('bt-enemy-tag').textContent=boss.name;
+  document.getElementById('bt-result').className='bt-result';
+
+  // 웨이브 바
+  document.getElementById('bt-wave-bar').innerHTML=BT_BOSSES.map((_,i)=>'<div class="bt-wave-dot '+(i<btWave?'done':i===btWave?'current':'')+'"></div>').join('');
+
+  // 설명
+  btSetLog('📖 <span class="g">'+boss.desc+'</span>');
+  btUpdateHUD(); btUpdateLvUI();
+
+  // 애니메이션 루프
+  if(btAnimTimer) clearInterval(btAnimTimer);
+  const pc=document.getElementById('bt-player-canvas');
+  const ec=document.getElementById('bt-enemy-canvas');
+  if(pc&&ec){
+    btAnimTimer=setInterval(()=>{
+      btAnimF++;
+      if(!btBusy){
+        btDrawPlayer(pc.getContext('2d'),btAnimF,btPlayerLv);
+        if(btWave<BT_BOSSES.length) BT_BOSSES[btWave].draw(ec.getContext('2d'),btAnimF);
+      }
+    },400);
+  }
+  btSetButtons(false);
+}
+
+function btUpdateLvUI(){
+  const pct=Math.min(100,(btPlayerXP/btXPNeeded)*100);
+  document.getElementById('bt-plv-badge').textContent='Lv.'+btPlayerLv+' 베드로';
+  document.getElementById('bt-plv-xp-bar').style.width=pct+'%';
+  document.getElementById('bt-plv-xp-text').textContent=btPlayerXP+' XP';
+}
+
+function btUpdateHUD(){
+  document.getElementById('bt-player-hp-bar').style.width=(Math.max(0,btPlayerHP)/btPlayerMaxHP*100)+'%';
+  document.getElementById('bt-enemy-hp-bar').style.width=(Math.max(0,btEnemyHP)/btEnemyMaxHP*100)+'%';
+  document.getElementById('bt-player-hp-text').textContent='HP '+Math.max(0,btPlayerHP)+'/'+btPlayerMaxHP;
+  document.getElementById('bt-enemy-hp-text').textContent='HP '+Math.max(0,btEnemyHP)+'/'+btEnemyMaxHP;
+  document.getElementById('bt-mp-bar').style.width=(btMP)+'%';
+  document.getElementById('bt-mp-val').textContent=btMP+'/100';
+  document.getElementById('bt-sp-bar').style.width=btSP+'%';
+  document.getElementById('bt-sp-val').textContent=Math.floor(btSP)+'/100';
+  document.getElementById('btsk1').disabled=btMP<30;
+  document.getElementById('btsk2').disabled=btMP<20;
+  document.getElementById('btsk3').disabled=btSP<100;
+}
+
+function btSetLog(html){document.getElementById('bt-log').innerHTML=html;}
+function btSetButtons(d){
+  ['btsk0','btsk1','btsk2','btsk3'].forEach(id=>{
+    if(d){document.getElementById(id).disabled=true;}
+  });
+  if(!d) btUpdateHUD();
+}
+
+function btSpawnDmg(x,y,txt,cls){
+  const sc=document.getElementById('bt-scene');
+  if(!sc) return;
+  const el=document.createElement('div');
+  el.className='bt-dmg '+cls;el.style.left=x+'px';el.style.top=y+'px';el.textContent=txt;
+  sc.appendChild(el);setTimeout(()=>el.remove(),1000);
+}
+
+function btFlash(color){
+  const el=document.getElementById('bt-flash');
+  el.style.background=color;el.style.opacity='1';
+  setTimeout(()=>el.style.opacity='0',250);
+}
+
+function btShake(){
+  const s=document.getElementById('bt-scene');
+  s.style.animation='btShake 0.3s ease';
+  setTimeout(()=>s.style.animation='',300);
+}
+
+function btWait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function btAttack(skillIdx){
+  if(btBusy||btOver) return;
+  btBusy=true; btSetButtons(true);
+  const boss=BT_BOSSES[btWave];
+  const ps=btGetPlayerStats(btPlayerLv);
+  const pEl=document.getElementById('bt-player-char');
+  const eEl=document.getElementById('bt-enemy-char');
+  let dmg=0,healAmt=0,isCrit=false;
+
+  if(skillIdx===0){
+    dmg=ps.atk[0]+Math.floor(Math.random()*(ps.atk[1]-ps.atk[0]+1));
+    isCrit=Math.random()<0.15; if(isCrit) dmg=Math.floor(dmg*1.8);
+  } else if(skillIdx===1){
+    if(btMP<30){btBusy=false;btSetButtons(false);return;}
+    dmg=Math.floor(ps.atk[1]*1.5)+Math.floor(Math.random()*15); btMP-=30;
+  } else if(skillIdx===2){
+    if(btMP<20){btBusy=false;btSetButtons(false);return;}
+    healAmt=20+btPlayerLv*5; btMP-=20;
+  } else if(skillIdx===3){
+    if(btSP<100){btBusy=false;btSetButtons(false);return;}
+    dmg=Math.floor(ps.atk[1]*2.5)+Math.floor(Math.random()*20); btSP=0;
+  }
+
+  if(healAmt>0){
+    btPlayerHP=Math.min(btPlayerMaxHP,btPlayerHP+healAmt);
+    btFlash('radial-gradient(circle,#22c55e44,transparent)');
+    btSpawnDmg(30,80,'+'+healAmt,'hl');
+    btSetLog('💚 <span class="gr">믿음의 회복</span>으로 HP <span class="gr">+'+healAmt+'</span> 회복!');
+    btSP=Math.min(100,btSP+10);
+  } else {
+    pEl.style.animation='btPlayerAtk 0.6s ease forwards';
+    await btWait(300);
+    btFlash(skillIdx===3?'radial-gradient(circle,#8b5cf688,transparent)':'radial-gradient(circle,#f4d03f44,transparent)');
+    btShake();
+    eEl.style.animation='btEnemyHit 0.4s ease';
+    btEnemyHP-=dmg;
+    btSpawnDmg(220,70,isCrit?'💥'+dmg:'-'+dmg,isCrit?'cr':'pd');
+    const sn=['기본 공격','반석의 고백','','성령의 검'][skillIdx];
+    btSetLog('⚔️ <span class="g">베드로</span>의 <span class="g">'+sn+'</span>'+(isCrit?' <span class="p">크리티컬!</span>':'')+'  <span class="g">'+dmg+'</span> 데미지!');
+    btSP=Math.min(100,btSP+15);
+    await btWait(600);
+    pEl.style.animation='btIdleBob 1.5s ease-in-out infinite';
+  }
+
+  btMP=Math.min(100,btMP+12);
+  if(btEnemyHP<=0){await btVictory();return;}
+
+  // 적 반격
+  await btWait(400);
+  let eDmg=boss.atk[0]+Math.floor(Math.random()*(boss.atk[1]-boss.atk[0]+1));
+  eEl.style.animation='btEnemyAtk 0.6s ease forwards';
+  await btWait(300);
+  if(Math.random()<boss.spChance){
+    eDmg=Math.floor(eDmg*1.5);
+    btFlash('radial-gradient(circle,#ef444466,transparent)');
+    btSetLog('💥 <span class="r">'+boss.name+'</span>의 <span class="r">'+boss.special+'</span>! <span class="r">'+eDmg+'</span> 데미지!');
+  } else {
+    btFlash('radial-gradient(circle,#ef444433,transparent)');
+    btSetLog('👿 <span class="r">'+boss.name+'</span>의 반격! <span class="r">'+eDmg+'</span> 데미지!');
+  }
+  btShake();
+  pEl.style.animation='btPlayerHit 0.4s ease';
+  btPlayerHP-=eDmg;
+  btSpawnDmg(50,80,'-'+eDmg,'ed');
+  btUpdateHUD();
+  await btWait(600);
+  eEl.style.animation='btEnemyIdle 1.8s ease-in-out infinite';
+  pEl.style.animation='btIdleBob 1.5s ease-in-out infinite';
+
+  if(btPlayerHP<=0){btDefeat();return;}
+  btBusy=false; btSetButtons(false);
+}
+
+async function btVictory(){
+  const boss=BT_BOSSES[btWave];
+  btPlayerXP+=boss.xp;
+  let lvUp=false;
+  while(btPlayerXP>=btXPNeeded&&btPlayerLv<8){
+    btPlayerXP-=btXPNeeded; btPlayerLv++;
+    btXPNeeded=BT_XP_TABLE[Math.min(btPlayerLv,BT_XP_TABLE.length-1)];
+    lvUp=true;
+  }
+  if(lvUp){
+    const lp=document.getElementById('bt-lvup-popup');
+    lp.style.animation='btLvUp 1.5s ease forwards';
+    lp.textContent='LEVEL UP! Lv.'+btPlayerLv+' ⬆️';
+    await btWait(1500);
+    lp.style.animation='';
+    btPlayerHP=Math.min(btPlayerMaxHP,btPlayerHP+30);
+  }
+  btUpdateLvUI();
+  if(btWave>=6){
+    document.getElementById('bt-result-title').textContent='👑 완전 승리!';
+    document.getElementById('bt-result-title').className='bt-result-title win';
+    document.getElementById('bt-result-sub').textContent='모든 악을 물리쳤습니다! +'+boss.xp+' XP';
+    document.getElementById('bt-result').className='bt-result show win';
+    btOver=true; return;
+  }
+  const wt=document.getElementById('bt-wave-clear-txt');
+  wt.textContent='WAVE '+(btWave+1)+' CLEAR! +'+boss.xp+'XP';
+  wt.style.animation='btWaveClear 2s ease forwards';
+  await btWait(2000);
+  wt.style.animation='';
+  btWave++;
+  btInit();
+  btSetLog('⚔️ <span class="g">WAVE '+(btWave+1)+' 시작!</span> <span class="r">'+BT_BOSSES[btWave].name+'</span> 등장!');
+}
+
+function btDefeat(){
+  document.getElementById('bt-result-title').textContent='💀 패배...';
+  document.getElementById('bt-result-title').className='bt-result-title lose';
+  document.getElementById('bt-result-sub').textContent=BT_BOSSES[btWave].name+'에게 쓰러졌습니다.';
+  document.getElementById('bt-result').className='bt-result show lose';
+  btOver=true;
+}
+
+function btReset(){
+  btWave=0; btPlayerHP=null; btInit();
 }
 
 window.onload=()=>{
