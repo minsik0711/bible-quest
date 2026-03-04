@@ -130,8 +130,12 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 8px; max-height: 185px; overflow-y: auto; padding: 2px; }
 .ch-box { aspect-ratio: 1; border-radius: 7px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif; }
 .ch-box.selected { background: linear-gradient(135deg, #f4d03f, #f39c12); color: #0a0e1a; font-weight: 700; border-color: transparent; }
-.ch-box.read-done { background: linear-gradient(135deg, #f4d03f44, #f39c1233); color: #f4d03f; font-weight: 700; border-color: #f4d03f55; cursor: default; }
+.ch-box.read-done { background: linear-gradient(135deg, #f4d03f44, #f39c1233); color: #f4d03f; font-weight: 700; border-color: #f4d03f55; cursor: pointer; }
 .ch-box.read-done::after { content: '✓'; position: absolute; font-size: 7px; top: 2px; right: 2px; color: #f4d03f; }
+.ch-box.read-selected { background: linear-gradient(135deg, #e74c3c44, #c0392b33); color: #e74c3c; font-weight: 700; border-color: #e74c3c55; cursor: pointer; }
+.ch-box.read-selected::after { content: '✕'; position: absolute; font-size: 7px; top: 2px; right: 2px; color: #e74c3c; }
+.cancel-btn { width: 100%; padding: 10px; margin-top: 6px; background: linear-gradient(135deg, #c0392b, #e74c3c); border: none; border-radius: 10px; font-family: 'Black Han Sans', sans-serif; font-size: 14px; color: #fff; cursor: pointer; display: none; }
+.cancel-btn.show { display: block; }
 .ch-box { position: relative; }
 .ch-box:active { transform: scale(0.92); }
 .selected-summary { margin-top: 10px; padding: 9px 12px; background: #f4d03f12; border: 1px solid #f4d03f33; border-radius: 10px; font-size: 12px; color: #f4d03f; min-height: 34px; line-height: 1.6; }
@@ -250,6 +254,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div class="selected-summary" id="selected-summary">읽은 장을 선택해주세요 📖</div>
         <div class="xp-preview" id="xp-preview"></div>
         <button class="record-btn" id="record-btn" onclick="recordReading()">✅ 말씀 기록하기</button>
+        <button class="cancel-btn" id="cancel-btn" onclick="cancelReading()">🗑️ 읽은 기록 취소하기</button>
       </div>
       <div class="card-title">⚡ 오늘의 퀘스트</div>
       <div id="home-quests"></div>
@@ -332,7 +337,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div class="streak-row">
           <div class="streak-mini"><div class="streak-mini-val" id="cal-streak">🔥 0일</div><div class="streak-mini-label">현재 연속</div></div>
           <div class="streak-mini"><div class="streak-mini-val" id="cal-month-count">✨ 0일</div><div class="streak-mini-label">이번 달 출석</div></div>
-          <div class="streak-mini"><div class="streak-mini-val" id="cal-best">🏆 0일</div><div class="streak-mini-label">최장 기록</div></div>
+          <div class="streak-mini"><div class="streak-mini-val" id="cal-best">🏆 0일</div><div class="streak-mini-label">최다 읽은 장</div></div>
         </div>
       </div>
       <div class="card-title">🎁 연속 읽기 보너스</div>
@@ -726,7 +731,7 @@ function renderAll(){
 }
 
 function renderBibleMap(){
-  const completed=new Set([...getCompletedBooks(state.log),...state.readBooks]);
+  const completed=new Set(getCompletedBooks(state.log));
   let total=0;
   BOOK_CATEGORIES.forEach(cat=>{
     const grid=document.getElementById('bmap-'+cat.mapId);
@@ -772,7 +777,9 @@ function renderCalendar(){
   const monthCount=[...readSet].filter(d=>d.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)).length;
   document.getElementById('cal-streak').textContent=`🔥 ${state.streak}일`;
   document.getElementById('cal-month-count').textContent=`✨ ${monthCount}일`;
-  document.getElementById('cal-best').textContent=`🏆 ${state.bestStreak}일`;
+  // 최다 읽은 장수 계산
+  const maxCh = state.log.reduce((max,l)=>Math.max(max,l.ch||0),0);
+  document.getElementById('cal-best').textContent=`🏆 ${maxCh}장`;
 }
 
 function renderBonusRow(){
@@ -816,9 +823,11 @@ function showTab(name,btn){
 }
 
 let selectedChs=new Set();
+let cancelChs=new Set();
 
 function onBookChange(){
   selectedChs.clear();
+  cancelChs.clear();
   renderChapterGrid(document.getElementById('book-select').value);
 }
 
@@ -833,10 +842,17 @@ function renderChapterGrid(bookName){
     const div=document.createElement('div');
     const alreadyRead=readChs.has(i);
     const isSelected=selectedChs.has(i);
-    div.className='ch-box'+(isSelected?' selected':alreadyRead?' read-done':'');
+    const isCancelSelected=cancelChs.has(i);
+    div.className='ch-box'+(isSelected?' selected':isCancelSelected?' read-selected':alreadyRead?' read-done':'');
     div.textContent=i;
     div.onclick=()=>{
-      if(alreadyRead) return; // 이미 읽은 장은 클릭 무시
+      if(alreadyRead || isCancelSelected){
+        // 골드 장 클릭 → 취소 선택 토글
+        if(cancelChs.has(i)){cancelChs.delete(i);div.className='ch-box read-done';}
+        else{cancelChs.add(i);div.className='ch-box read-selected';}
+        updateCancelBtn();
+        return;
+      }
       if(selectedChs.has(i)){selectedChs.delete(i);div.classList.remove('selected');}
       else{selectedChs.add(i);div.classList.add('selected');}
       updateChapterSummary(bookName,unit);
@@ -844,6 +860,46 @@ function renderChapterGrid(bookName){
     grid.appendChild(div);
   }
   updateChapterSummary(bookName,unit);
+  updateCancelBtn();
+}
+
+function updateCancelBtn(){
+  const btn=document.getElementById('cancel-btn');
+  if(!btn) return;
+  if(cancelChs.size>0){
+    btn.classList.add('show');
+    btn.textContent='🗑️ '+cancelChs.size+'장 기록 취소하기';
+  } else {
+    btn.classList.remove('show');
+  }
+}
+
+async function cancelReading(){
+  const bookName=document.getElementById('book-select').value;
+  if(!cancelChs.size) return;
+  if(!confirm(cancelChs.size+'장의 읽기 기록을 취소할까요?')) return;
+  const chsToRemove=[...cancelChs];
+  // bookChapters에서 제거
+  if(state.bookChapters[bookName]){
+    state.bookChapters[bookName]=state.bookChapters[bookName].filter(c=>!chsToRemove.includes(c));
+  }
+  // log에서 해당 장 제거
+  state.log=state.log.map(l=>{
+    if(l.book!==bookName) return l;
+    const newChs=(l.chapters||[]).filter(c=>!chsToRemove.includes(c));
+    const removed=(l.chapters||[]).length-newChs.length;
+    if(removed===0) return l;
+    const newXp=newChs.length*10;
+    return {...l,chapters:newChs,ch:newChs.length,xp:newXp};
+  }).filter(l=>l.ch>0);
+  // xp, totalCh 재계산
+  state.xp=Math.max(0,state.xp-chsToRemove.length*10);
+  state.totalCh=Math.max(0,state.totalCh-chsToRemove.length);
+  state.level=getLvInfo(state.xp).cur.lv;
+  cancelChs.clear();
+  await saveToCloud();
+  renderAll();
+  renderChapterGrid(bookName);
 }
 
 function updateChapterSummary(bookName,unit){
