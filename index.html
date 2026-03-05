@@ -360,6 +360,25 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       </div>
     </div>
 
+
+    <!-- 기록 팝업 -->
+    <div class="popup-overlay" id="record-popup-overlay" onclick="closeRecordPopup()">
+      <div class="popup-sheet" onclick="event.stopPropagation()">
+        <div class="popup-handle"></div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+          <div style="font-size:22px;" id="record-popup-icon">📖</div>
+          <div>
+            <div class="popup-title" id="record-popup-name">이름</div>
+            <div style="font-size:11px; color:#888;" id="record-popup-stats"></div>
+          </div>
+        </div>
+        <div style="height:1px; background:#ffffff12; margin:12px 0;"></div>
+        <div id="record-popup-list">
+          <div class="empty-msg">불러오는 중... ⏳</div>
+        </div>
+      </div>
+    </div>
+
   </div><script><!-- /app -->
 const SUPABASE_URL = 'https://jwmcjmmzhipbpgniofuk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IVDjIWSWV1u1Q-b0cVRfMQ_T-c-o1WT';
@@ -521,7 +540,7 @@ async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
   
   // Supabase에서 데이터 가져오기
-  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from').order('xp',{ascending:false}).limit(20);
+  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from,log').order('xp',{ascending:false}).limit(20);
   if(!data||data.length===0){
     document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';
     return;
@@ -560,7 +579,7 @@ async function loadRankings(){
     return `<div class="rank-item${isMe?' my-rank':''}" style="display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; margin-bottom:10px; border:1px solid #ffffff12;">
       <div class="rank-num" style="font-family:'Black Han Sans'; font-size:20px; min-width:32px; text-align:center;">${medals[i]||(i+1)}</div>
       <div class="rank-info" style="flex:1;">
-        <div class="rank-name" style="font-weight:700; font-size:15px;">${r.name}${isMe?' 👈 나':''}</div>
+        <div class="rank-name" style="font-weight:700; font-size:15px; ${!isMe?'cursor:pointer; text-decoration:underline dotted #f4d03f44;':''}" ${!isMe?`onclick="event.stopPropagation(); showRecordPopup('${r.name}')"`:''}>${r.name}${isMe?' 👈 나':''}</div>
         <div style="font-size:11px;color:#888">Lv.${r.level} · ${r.total_chapters}장 읽음</div>
         <div style="margin-top:6px">${isMe ? myLikeDisplay : otherLikeDisplay}</div>
       </div>
@@ -796,6 +815,53 @@ function renderBonusRow(){
       }
     </div>`;
   }).join('');
+}
+
+
+async function showRecordPopup(targetName){
+  // 팝업 열기
+  document.getElementById('record-popup-name').textContent=targetName+'님의 읽기 기록';
+  document.getElementById('record-popup-stats').textContent='';
+  document.getElementById('record-popup-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
+  document.getElementById('record-popup-overlay').classList.add('show');
+
+  // Supabase에서 해당 유저 데이터 가져오기
+  const {data,error}=await _supabase.from('users').select('name,xp,level,total_chapters,log').eq('name',targetName).single();
+  if(error||!data){
+    document.getElementById('record-popup-list').innerHTML='<div class="empty-msg">기록을 불러올 수 없어요 😢</div>';
+    return;
+  }
+
+  document.getElementById('record-popup-stats').textContent=`Lv.${data.level} · ${data.total_chapters}장 · ${data.xp} XP`;
+
+  const log=data.log||[];
+  if(log.length===0){
+    document.getElementById('record-popup-list').innerHTML='<div class="empty-msg">아직 읽기 기록이 없어요 🌱</div>';
+    return;
+  }
+
+  document.getElementById('record-popup-list').innerHTML=log.slice(0,20).map(l=>{
+    const unit=l.book==='시편'?'편':'장';
+    const chDetail=l.chapters&&l.chapters.length>0
+      ? l.chapters.join(unit+', ')+unit
+      : l.ch+unit;
+    const bonusBadge=l.bonus?'<span style="font-size:9px;background:#f59e0b22;color:#f59e0b;padding:1px 5px;border-radius:4px;margin-left:4px;">1.5배</span>':'';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff08;border-radius:10px;padding:10px 12px;margin-bottom:7px;border:1px solid #ffffff10;">
+      <div>
+        <div style="font-weight:700;font-size:13px;color:#e8e8e8;">📖 ${l.book}</div>
+        <div style="font-size:10px;color:#666;margin-top:2px;">${chDetail}</div>
+        <div style="font-size:10px;color:#555;margin-top:1px;">${l.date}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'Black Han Sans';font-size:13px;color:#f4d03f;">${l.ch}${unit}</div>
+        <div style="font-size:10px;color:#888;">+${l.xp} XP${bonusBadge}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function closeRecordPopup(){
+  document.getElementById('record-popup-overlay').classList.remove('show');
 }
 
 function showLikePopup(targetName, likeFrom){
