@@ -178,6 +178,45 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .bm-name { font-size: 8px; line-height: 1.3; word-break: keep-all; margin-top: 1px; }
 .bm-cell.read .bm-name { color: #f4d03f; }
 .bm-cell.unread .bm-name { color: #333; }
+
+/* ── 구절 나눔 CSS ── */
+.verse-share-card { background: #f4d03f0d; border: 1px dashed #f4d03f33; border-radius: 12px; padding: 12px 14px; margin-top: 10px; }
+.verse-share-label { font-size: 12px; color: #f4d03f; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.verse-ref-badge { font-size: 12px; color: #f4d03f; background: #f4d03f15; padding: 3px 10px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+.verse-text-input { width: 100%; background: #ffffff08; border: 1px solid #ffffff15; border-radius: 10px; padding: 10px 12px; color: #e8e8e8; font-size: 13px; resize: none; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; }
+.verse-text-input:focus { outline: none; border-color: #f4d03f44; background: #ffffff0d; }
+.verse-text-input::placeholder { color: #3a3a3a; }
+.verse-char-count { text-align: right; font-size: 10px; color: #444; margin-top: 3px; }
+.verse-feed-item { background: #ffffff08; border-radius: 14px; padding: 14px; margin-bottom: 10px; border: 1px solid #ffffff10; }
+.verse-feed-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.verse-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Black Han Sans'; font-size: 13px; color: #0a0e1a; flex-shrink: 0; }
+.verse-user-name { font-weight: 700; font-size: 13px; }
+.verse-ref-info { font-size: 10px; color: #f4d03f; background: #f4d03f15; padding: 2px 7px; border-radius: 99px; margin-top: 2px; display: inline-block; }
+.verse-body { font-size: 13px; color: #d4d4d4; line-height: 1.8; border-left: 3px solid #f4d03f55; padding: 8px 12px; background: #ffffff05; border-radius: 0 8px 8px 0; margin-bottom: 10px; font-style: italic; }
+.verse-footer { display: flex; align-items: center; justify-content: space-between; }
+.verse-date { font-size: 10px; color: #3a3a3a; }
+.verse-actions { display: flex; gap: 6px; align-items: center; }
+.verse-like-btn { background: none; border: 1px solid #ffffff15; border-radius: 20px; padding: 3px 10px; font-size: 11px; color: #666; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 3px; }
+.verse-like-btn.liked { color: #e74c3c; border-color: #e74c3c55; background: #e74c3c11; }
+.verse-comment-toggle { background: none; border: 1px solid #ffffff10; border-radius: 20px; padding: 3px 10px; font-size: 11px; color: #555; cursor: pointer; transition: all 0.2s; }
+.verse-comment-toggle:hover, .verse-comment-toggle.open { color: #f4d03f; border-color: #f4d03f33; }
+.verse-delete-btn { background: none; border: none; color: #333; cursor: pointer; font-size: 13px; padding: 2px 4px; }
+.verse-comments { margin-top: 10px; border-top: 1px solid #ffffff0a; padding-top: 10px; display: none; }
+.verse-comments.open { display: block; }
+.verse-comment-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.verse-comment-avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'Black Han Sans'; color: #0a0e1a; flex-shrink: 0; }
+.verse-comment-bubble { background: #ffffff08; border-radius: 0 10px 10px 10px; padding: 7px 10px; flex: 1; }
+.verse-comment-user { font-size: 11px; font-weight: 700; color: #aaa; margin-bottom: 2px; }
+.verse-comment-text { font-size: 12px; color: #ccc; line-height: 1.5; }
+.verse-comment-date { font-size: 9px; color: #333; margin-top: 3px; }
+.verse-comment-input-row { display: flex; gap: 6px; margin-top: 8px; }
+.verse-comment-input { flex: 1; background: #ffffff08; border: 1px solid #ffffff12; border-radius: 20px; padding: 7px 12px; color: #e8e8e8; font-size: 12px; font-family: 'Noto Sans KR', sans-serif; }
+.verse-comment-input:focus { outline: none; border-color: #f4d03f33; }
+.verse-comment-send { background: linear-gradient(135deg,#f4d03f,#f39c12); border: none; border-radius: 20px; padding: 7px 14px; color: #0a0e1a; font-family: 'Black Han Sans'; font-size: 12px; cursor: pointer; }
+.verse-filter-btn { background: #ffffff08; border: 1px solid #ffffff12; border-radius: 20px; padding: 5px 12px; font-size: 11px; color: #666; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all 0.2s; }
+.verse-filter-btn.active { background: #f4d03f22; border-color: #f4d03f55; color: #f4d03f; }
+.verse-empty { text-align: center; padding: 30px 0; color: #444; font-size: 13px; line-height: 2; }
+
 </style>
 </head>
 <body>
@@ -237,6 +276,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <button class="tab" onclick="showTab('map',this)"><span>📖</span><span class="tab-label">통독지도</span></button>
     <button class="tab" onclick="showTab('calendar',this)"><span>📅</span><span class="tab-label">캘린더</span></button>
     <button class="tab" onclick="showTab('levels',this)"><span>📊</span><span class="tab-label">레벨</span></button>
+    <button class="tab" onclick="showTab('verses',this)"><span>💬</span><span class="tab-label">나눔</span></button>
   </div>
 
   <div class="content">
@@ -253,6 +293,13 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div class="chapter-grid" id="chapter-grid"></div>
         <div class="selected-summary" id="selected-summary">읽은 장을 선택해주세요 📖</div>
         <div class="xp-preview" id="xp-preview"></div>
+        <div class="verse-share-card" id="verse-share-card" style="display:none">
+          <div class="verse-share-label">✨ 인상깊은 구절 나누기 <span style="font-size:10px;color:#666;font-weight:400;">(선택사항)</span></div>
+          <div class="verse-ref-badge" id="verse-ref-badge">📖 -</div>
+          <textarea class="verse-text-input" id="verse-text" rows="3" maxlength="150"
+            placeholder="인상깊었던 구절을 입력해보세요 ✍️&#10;예) 태초에 하나님이 천지를 창조하시니라" oninput="updateVerseCount()"></textarea>
+          <div class="verse-char-count"><span id="verse-char-cnt">0</span>/150</div>
+        </div>
         <button class="record-btn" id="record-btn" onclick="recordReading()">✅ 말씀 기록하기</button>
         <button class="cancel-btn" id="cancel-btn" onclick="cancelReading()">🗑️ 읽은 기록 취소하기</button>
       </div>
@@ -350,6 +397,18 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-size:12px;color:#888;margin-bottom:12px">성경을 읽으면 장당 10 XP를 획득해요!</div>
       <div id="level-guide-list"></div>
     </div>
+
+    <!-- 구절 나눔 -->
+    <div class="page" id="page-verses">
+      <div class="card-title">💬 말씀 나눔</div>
+      <div style="font-size:12px;color:#666;margin-bottom:12px;">청년부원들이 나눈 인상깊은 구절이에요<br><span style="color:#f4d03f88;font-size:11px;">홈에서 장 선택 후 구절 입력 → 기록하기로 올릴 수 있어요 ✨</span></div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="verse-filter-btn active" onclick="setVerseFilter('all',this)">전체</button>
+        <button class="verse-filter-btn" onclick="setVerseFilter('mine',this)">내 나눔</button>
+      </div>
+      <div id="verse-post-count" style="font-size:11px;color:#444;text-align:right;margin-bottom:8px;"></div>
+      <div id="verse-feed-list"><div class="verse-empty">불러오는 중... ⏳</div></div>
+    </div>
     <!-- 좋아요 팝업 -->
     <div class="popup-overlay" id="like-popup-overlay" onclick="closeLikePopup()">
       <div class="popup-sheet" onclick="event.stopPropagation()">
@@ -357,25 +416,6 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div class="popup-title" id="like-popup-title">응원한 사람들</div>
         <div class="popup-sub" id="like-popup-sub"></div>
         <div id="like-popup-list"></div>
-      </div>
-    </div>
-
-
-    <!-- 기록 팝업 -->
-    <div class="popup-overlay" id="record-popup-overlay" onclick="closeRecordPopup()">
-      <div class="popup-sheet" onclick="event.stopPropagation()">
-        <div class="popup-handle"></div>
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-          <div style="font-size:22px;" id="record-popup-icon">📖</div>
-          <div>
-            <div class="popup-title" id="record-popup-name">이름</div>
-            <div style="font-size:11px; color:#888;" id="record-popup-stats"></div>
-          </div>
-        </div>
-        <div style="height:1px; background:#ffffff12; margin:12px 0;"></div>
-        <div id="record-popup-list">
-          <div class="empty-msg">불러오는 중... ⏳</div>
-        </div>
       </div>
     </div>
 
@@ -416,13 +456,23 @@ const BOOK_CATEGORIES = [
 const BOOKS = BOOK_CATEGORIES.flatMap(c=>c.books);
 
 function getCompletedBooks(log) {
-  const bc={};
-  log.forEach(l=>{
-    if(!bc[l.book]) bc[l.book]=new Set();
-    if(l.chapters) l.chapters.forEach(ch=>bc[l.book].add(ch));
-    else for(let i=1;i<=l.ch;i++) bc[l.book].add(i);
-  });
-  return BOOKS.filter(b=>bc[b.name]&&bc[b.name].size>=b.ch).map(b=>b.name);
+  // bookChapters 기반으로 체크 (취소 기록도 정확히 반영)
+  const bc = state?.bookChapters || {};
+  const fromChapters = BOOKS.filter(b => {
+    const read = bc[b.name];
+    return read && read.length >= b.ch;
+  }).map(b => b.name);
+  // log 기반 fallback (state 없을 때)
+  if(!state?.bookChapters || Object.keys(bc).length === 0) {
+    const lbc={};
+    log.forEach(l=>{
+      if(!lbc[l.book]) lbc[l.book]=new Set();
+      if(l.chapters) l.chapters.forEach(ch=>lbc[l.book].add(ch));
+      else for(let i=1;i<=l.ch;i++) lbc[l.book].add(i);
+    });
+    return BOOKS.filter(b=>lbc[b.name]&&lbc[b.name].size>=b.ch).map(b=>b.name);
+  }
+  return fromChapters;
 }
 
 const LEVELS=[
@@ -540,7 +590,7 @@ async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
   
   // Supabase에서 데이터 가져오기
-  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from,log').order('xp',{ascending:false}).limit(20);
+  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from').order('xp',{ascending:false}).limit(20);
   if(!data||data.length===0){
     document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';
     return;
@@ -579,7 +629,7 @@ async function loadRankings(){
     return `<div class="rank-item${isMe?' my-rank':''}" style="display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; margin-bottom:10px; border:1px solid #ffffff12;">
       <div class="rank-num" style="font-family:'Black Han Sans'; font-size:20px; min-width:32px; text-align:center;">${medals[i]||(i+1)}</div>
       <div class="rank-info" style="flex:1;">
-        <div class="rank-name" style="font-weight:700; font-size:15px; ${!isMe?'cursor:pointer; text-decoration:underline dotted #f4d03f44;':''}" ${!isMe?`onclick="event.stopPropagation(); showRecordPopup('${r.name}')"`:''}>${r.name}${isMe?' 👈 나':''}</div>
+        <div class="rank-name" style="font-weight:700; font-size:15px;">${r.name}${isMe?' 👈 나':''}</div>
         <div style="font-size:11px;color:#888">Lv.${r.level} · ${r.total_chapters}장 읽음</div>
         <div style="margin-top:6px">${isMe ? myLikeDisplay : otherLikeDisplay}</div>
       </div>
@@ -658,7 +708,19 @@ async function recordReading(){
   btn.textContent='저장 중...'; btn.disabled=true;
   await saveToCloud();
   btn.textContent='✅ 기록 완료!';
-  selectedChs.clear(); renderChapterGrid(bookName);
+  // 구절 나눔 저장 (입력한 경우)
+  const verseText=document.getElementById('verse-text')?.value.trim();
+  if(verseText){
+    const chap=selectedChapters[0];
+    _supabase.from('verses').insert([{
+      user_name:currentUser.name, book:bookName,
+      chapter:chap, verse_text:verseText
+    }]).then(()=>{});
+    document.getElementById('verse-text').value='';
+    document.getElementById('verse-char-cnt').textContent='0';
+    document.getElementById('verse-share-card').style.display='none';
+  }
+  selectedChs.clear(); cancelChs.clear(); renderChapterGrid(bookName);
   setTimeout(()=>{btn.textContent='✅ 말씀 기록하기';btn.disabled=false;},1500);
   spawnParticles(); renderAll();
   if(state.level>prevLv) showLevelUp(getLvInfo(state.xp).cur);
@@ -750,7 +812,11 @@ function renderAll(){
 }
 
 function renderBibleMap(){
-  const completed=new Set(getCompletedBooks(state.log));
+  // bookChapters 기반으로 완독 체크 (가장 정확)
+  const completed=new Set(BOOKS.filter(b=>{
+    const read=state.bookChapters[b.name];
+    return read && read.length>=b.ch;
+  }).map(b=>b.name));
   let total=0;
   BOOK_CATEGORIES.forEach(cat=>{
     const grid=document.getElementById('bmap-'+cat.mapId);
@@ -817,53 +883,6 @@ function renderBonusRow(){
   }).join('');
 }
 
-
-async function showRecordPopup(targetName){
-  // 팝업 열기
-  document.getElementById('record-popup-name').textContent=targetName+'님의 읽기 기록';
-  document.getElementById('record-popup-stats').textContent='';
-  document.getElementById('record-popup-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
-  document.getElementById('record-popup-overlay').classList.add('show');
-
-  // Supabase에서 해당 유저 데이터 가져오기
-  const {data,error}=await _supabase.from('users').select('name,xp,level,total_chapters,log').eq('name',targetName).single();
-  if(error||!data){
-    document.getElementById('record-popup-list').innerHTML='<div class="empty-msg">기록을 불러올 수 없어요 😢</div>';
-    return;
-  }
-
-  document.getElementById('record-popup-stats').textContent=`Lv.${data.level} · ${data.total_chapters}장 · ${data.xp} XP`;
-
-  const log=data.log||[];
-  if(log.length===0){
-    document.getElementById('record-popup-list').innerHTML='<div class="empty-msg">아직 읽기 기록이 없어요 🌱</div>';
-    return;
-  }
-
-  document.getElementById('record-popup-list').innerHTML=log.slice(0,20).map(l=>{
-    const unit=l.book==='시편'?'편':'장';
-    const chDetail=l.chapters&&l.chapters.length>0
-      ? l.chapters.join(unit+', ')+unit
-      : l.ch+unit;
-    const bonusBadge=l.bonus?'<span style="font-size:9px;background:#f59e0b22;color:#f59e0b;padding:1px 5px;border-radius:4px;margin-left:4px;">1.5배</span>':'';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;background:#ffffff08;border-radius:10px;padding:10px 12px;margin-bottom:7px;border:1px solid #ffffff10;">
-      <div>
-        <div style="font-weight:700;font-size:13px;color:#e8e8e8;">📖 ${l.book}</div>
-        <div style="font-size:10px;color:#666;margin-top:2px;">${chDetail}</div>
-        <div style="font-size:10px;color:#555;margin-top:1px;">${l.date}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-family:'Black Han Sans';font-size:13px;color:#f4d03f;">${l.ch}${unit}</div>
-        <div style="font-size:10px;color:#888;">+${l.xp} XP${bonusBadge}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function closeRecordPopup(){
-  document.getElementById('record-popup-overlay').classList.remove('show');
-}
-
 function showLikePopup(targetName, likeFrom){
   const names = typeof likeFrom === 'string' ? JSON.parse(likeFrom) : likeFrom;
   document.getElementById('like-popup-title').textContent = targetName+'님 응원 현황';
@@ -886,6 +905,7 @@ function showTab(name,btn){
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
   if(name==='rank') loadRankings();
+  if(name==='verses') loadVerses();
 }
 
 let selectedChs=new Set();
@@ -971,9 +991,17 @@ async function cancelReading(){
 function updateChapterSummary(bookName,unit){
   const sorted=[...selectedChs].sort((a,b)=>a-b);
   const sum=document.getElementById('selected-summary'), xp=document.getElementById('xp-preview');
-  if(!sorted.length){sum.textContent='읽은 장을 선택해주세요 📖';xp.textContent='';return;}
+  const card=document.getElementById('verse-share-card');
+  const badge=document.getElementById('verse-ref-badge');
+  if(!sorted.length){
+    sum.textContent='읽은 장을 선택해주세요 📖';xp.textContent='';
+    if(card) card.style.display='none';
+    return;
+  }
   sum.textContent=`${bookName} ${sorted.join(unit+', ')}${unit} (총 ${sorted.length}${unit})`;
   xp.textContent=`+${sorted.length*10} XP 획득 예정`;
+  if(card){ card.style.display='block'; }
+  if(badge){ badge.textContent=`📖 ${bookName} ${sorted[0]}${unit}`; }
 }
 
 function spawnParticles(){
@@ -1009,6 +1037,144 @@ function initBookSelect(){
     sel.appendChild(grp);
   });
   renderChapterGrid(sel.value);
+}
+
+
+/* ══════════════════════════════
+   구절 나눔 + 댓글 시스템
+══════════════════════════════ */
+let verseFilter='all';
+
+function updateVerseCount(){
+  const v=document.getElementById('verse-text').value;
+  document.getElementById('verse-char-cnt').textContent=v.length;
+}
+
+function getAvatarColor(name){
+  const c=['#f4d03f','#3b82f6','#22c55e','#e74c3c','#a78bfa','#f97316','#06b6d4','#ec4899','#10b981','#fbbf24'];
+  let h=0; for(const ch of name) h=(h*31+ch.charCodeAt(0))%c.length;
+  return c[h];
+}
+
+function setVerseFilter(filter,btn){
+  verseFilter=filter;
+  document.querySelectorAll('.verse-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadVerses();
+}
+
+async function loadVerses(){
+  const list=document.getElementById('verse-feed-list');
+  list.innerHTML='<div class="verse-empty">불러오는 중... ⏳</div>';
+  let q=_supabase.from('verses').select('*').order('created_at',{ascending:false}).limit(50);
+  if(verseFilter==='mine') q=q.eq('user_name',currentUser?.name||'');
+  const {data,error}=await q;
+  if(error||!data||data.length===0){
+    list.innerHTML='<div class="verse-empty">아직 나눈 말씀이 없어요 🌱<br><span style="font-size:11px;color:#3a3a3a;">홈에서 장 선택 후 구절을 입력해보세요!</span></div>';
+    document.getElementById('verse-post-count').textContent='';
+    return;
+  }
+  document.getElementById('verse-post-count').textContent='총 '+data.length+'개의 나눔';
+  list.innerHTML=data.map(v=>{
+    const likedBy=Array.isArray(v.liked_by)?v.liked_by:[];
+    const iLiked=likedBy.includes(currentUser?.name||'');
+    const isMe=v.user_name===currentUser?.name;
+    const ac=getAvatarColor(v.user_name);
+    const ref=`${v.book} ${v.chapter}장`;
+    const dt=new Date(v.created_at);
+    const dateStr=dt.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})+' '+dt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    const comments=Array.isArray(v.comments)?v.comments:[];
+    const cmtHtml=comments.map(c=>{
+      const cac=getAvatarColor(c.user);
+      const cdt=new Date(c.created_at);
+      const cdts=cdt.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})+' '+cdt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      return `<div class="verse-comment-item">
+        <div class="verse-comment-avatar" style="background:${cac}">${c.user.charAt(0)}</div>
+        <div class="verse-comment-bubble">
+          <div class="verse-comment-user">${c.user}${c.user===currentUser?.name?' <span style="font-size:9px;color:#444;">나</span>':''}</div>
+          <div class="verse-comment-text">${c.text}</div>
+          <div class="verse-comment-date">${cdts}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="verse-feed-item" id="vitem-${v.id}">
+      <div class="verse-feed-top">
+        <div class="verse-avatar" style="background:${ac}">${v.user_name.charAt(0)}</div>
+        <div style="flex:1">
+          <div class="verse-user-name">${v.user_name}${isMe?' <span style="font-size:10px;color:#555;">나</span>':''}</div>
+          <div class="verse-ref-info">📖 ${ref}</div>
+        </div>
+        ${isMe?`<button class="verse-delete-btn" onclick="deleteVerse('${v.id}')">🗑️</button>`:''}
+      </div>
+      <div class="verse-body">${v.verse_text}</div>
+      <div class="verse-footer">
+        <span class="verse-date">${dateStr}</span>
+        <div class="verse-actions">
+          <button class="verse-like-btn${iLiked?' liked':''}" onclick="toggleVerseLike('${v.id}','${v.user_name}',this)">❤️ <span>${likedBy.length}</span></button>
+          <button class="verse-comment-toggle${comments.length>0?' open':''}" onclick="toggleComments('${v.id}')">💬 <span id="vcnt-${v.id}">${comments.length}</span></button>
+        </div>
+      </div>
+      <div class="verse-comments${comments.length>0?' open':''}" id="vcmt-${v.id}">
+        <div id="vcmt-list-${v.id}">${cmtHtml}</div>
+        <div class="verse-comment-input-row">
+          <input class="verse-comment-input" id="vcmt-input-${v.id}" placeholder="댓글 남기기..." maxlength="80"
+            onkeydown="if(event.key==='Enter')sendComment('${v.id}')">
+          <button class="verse-comment-send" onclick="sendComment('${v.id}')">전송</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleComments(verseId){
+  const el=document.getElementById('vcmt-'+verseId);
+  const btn=el?.previousElementSibling?.querySelector('.verse-comment-toggle');
+  el?.classList.toggle('open');
+  btn?.classList.toggle('open');
+  if(el?.classList.contains('open')) document.getElementById('vcmt-input-'+verseId)?.focus();
+}
+
+async function sendComment(verseId){
+  const input=document.getElementById('vcmt-input-'+verseId);
+  const text=input?.value.trim();
+  if(!text||!currentUser) return;
+  const {data}=await _supabase.from('verses').select('comments').eq('id',verseId).single();
+  const comments=Array.isArray(data?.comments)?data.comments:[];
+  comments.push({user:currentUser.name,text,created_at:new Date().toISOString()});
+  await _supabase.from('verses').update({comments}).eq('id',verseId);
+  input.value='';
+  const ac=getAvatarColor(currentUser.name);
+  const now=new Date();
+  const dts=now.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})+' '+now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('vcmt-list-'+verseId).insertAdjacentHTML('beforeend',
+    `<div class="verse-comment-item">
+      <div class="verse-comment-avatar" style="background:${ac}">${currentUser.name.charAt(0)}</div>
+      <div class="verse-comment-bubble">
+        <div class="verse-comment-user">${currentUser.name} <span style="font-size:9px;color:#444;">나</span></div>
+        <div class="verse-comment-text">${text}</div>
+        <div class="verse-comment-date">${dts}</div>
+      </div>
+    </div>`);
+  const cntEl=document.getElementById('vcnt-'+verseId);
+  if(cntEl) cntEl.textContent=comments.length;
+}
+
+async function toggleVerseLike(verseId,authorName,btn){
+  if(!currentUser||authorName===currentUser.name) return;
+  const {data}=await _supabase.from('verses').select('liked_by').eq('id',verseId).single();
+  const likedBy=Array.isArray(data?.liked_by)?data.liked_by:[];
+  const iLiked=likedBy.includes(currentUser.name);
+  const newLikedBy=iLiked?likedBy.filter(n=>n!==currentUser.name):[...likedBy,currentUser.name];
+  await _supabase.from('verses').update({liked_by:newLikedBy,likes:newLikedBy.length}).eq('id',verseId);
+  btn.classList.toggle('liked',!iLiked);
+  btn.querySelector('span').textContent=newLikedBy.length;
+}
+
+async function deleteVerse(verseId){
+  if(!confirm('이 나눔을 삭제할까요?')) return;
+  await _supabase.from('verses').delete().eq('id',verseId);
+  document.getElementById('vitem-'+verseId)?.remove();
+  if(!document.querySelectorAll('.verse-feed-item').length) loadVerses();
 }
 
 window.onload=()=>{
