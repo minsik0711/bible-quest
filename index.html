@@ -60,13 +60,19 @@
     serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  // 자동로그인: Auth 상태 감지
+  // 자동로그인: 사용자가 체크한 경우에만
   window._auth.onAuthStateChanged(async (user)=>{
     if(user && !window.currentUser){
-      if(document.getElementById('login-loading')){
-        document.getElementById('login-loading').style.display='block';
+      const autoLogin=localStorage.getItem('bq_auto_login')==='true';
+      if(autoLogin){
+        if(document.getElementById('login-loading')){
+          document.getElementById('login-loading').style.display='block';
+        }
+        if(typeof enterApp==='function') await enterApp(user);
+      } else {
+        // 자동로그인 미설정 시 로그아웃 상태 유지
+        await window._auth.signOut();
       }
-      if(typeof enterApp==='function') await enterApp(user);
     }
   });
 </script>
@@ -348,7 +354,17 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
   <div id="form-signin" style="width:100%">
     <input type="email" id="signin-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;" onkeydown="if(event.key==='Enter')login()">
     <input type="password" id="signin-password" class="login-input" placeholder="비밀번호" style="font-size:15px;" onkeydown="if(event.key==='Enter')login()">
-    <button class="login-btn" onclick="login()" style="margin-top:14px;">⚔️ 모험 시작하기</button>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;margin-bottom:4px;text-align:left;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#aaa;font-size:13px;">
+        <input type="checkbox" id="chk-save-id" style="width:16px;height:16px;accent-color:#f4d03f;cursor:pointer;">
+        아이디 저장
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#aaa;font-size:13px;">
+        <input type="checkbox" id="chk-auto-login" style="width:16px;height:16px;accent-color:#f4d03f;cursor:pointer;">
+        자동 로그인
+      </label>
+    </div>
+    <button class="login-btn" onclick="login()" style="margin-top:10px;">⚔️ 모험 시작하기</button>
   </div>
 
   <!-- 회원가입 폼 -->
@@ -356,7 +372,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <input type="text" id="signup-name" class="login-input" placeholder="이름 (닉네임)" style="font-size:15px;margin-bottom:10px;">
     <input type="email" id="signup-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;">
     <input type="password" id="signup-password" class="login-input" placeholder="비밀번호 (6자 이상)" style="font-size:15px;margin-bottom:10px;">
-    <input type="text" id="signup-church-code" class="login-input" placeholder="교회 코드 (예: SINGANG2024)" style="font-size:14px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+    <input type="text" id="signup-church-code" class="login-input" placeholder="교회 코드 (예: SINGANG2026)" style="font-size:14px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
     <div style="font-size:10px;color:#555;margin-bottom:14px;text-align:left;">교회 코드는 담당자에게 문의하세요</div>
     <button class="login-btn" onclick="signup()">✨ 새 모험 시작하기</button>
   </div>
@@ -745,6 +761,14 @@ async function login(){
   const email=document.getElementById('signin-email').value.trim();
   const password=document.getElementById('signin-password').value;
   if(!email||!password){showLoginError('이메일과 비밀번호를 입력하세요!');return;}
+  const saveId=document.getElementById('chk-save-id')?.checked;
+  const autoLogin=document.getElementById('chk-auto-login')?.checked;
+  // 아이디 저장
+  if(saveId) localStorage.setItem('bq_saved_email',email);
+  else localStorage.removeItem('bq_saved_email');
+  // 자동 로그인
+  if(autoLogin) localStorage.setItem('bq_auto_login','true');
+  else localStorage.removeItem('bq_auto_login');
   document.getElementById('login-loading').style.display='block';
   try{
     const cred=await window._auth.signInWithEmailAndPassword(email,password);
@@ -764,7 +788,7 @@ async function signup(){
   const churchCode=document.getElementById('signup-church-code').value.trim().toUpperCase();
   if(!name||!email||!password||!churchCode){showLoginError('모든 항목을 입력하세요!');return;}
   if(password.length<6){showLoginError('비밀번호는 6자 이상이에요!');return;}
-  const validCodes=['SINGANG2024','SINGANG','TEST2024'];
+  const validCodes=['SINGANG2026','SINGANG','TEST2026'];
   if(!validCodes.includes(churchCode)){showLoginError('유효하지 않은 교회 코드예요!');return;}
   document.getElementById('login-loading').style.display='block';
   try{
@@ -814,6 +838,7 @@ async function enterApp(firebaseUser){
 
 async function logout(){
   if(!confirm("로그아웃 하시겠어요?")) return;
+  localStorage.removeItem('bq_auto_login');
   await window._auth.signOut();
   currentUser=null;
   if(notifPoller) clearInterval(notifPoller);
