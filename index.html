@@ -1446,13 +1446,11 @@ async function markNotifsRead(types){
   lastNotifCount=updated.filter(n=>!n.read).length;
 }
 
-window.onload=async()=>{
+window.onload=()=>{
   const savedName=localStorage.getItem('bq_saved_name');
   if(savedName){
     document.getElementById('user-name-input').value=savedName;
     document.getElementById('remember-name').checked=true;
-    document.getElementById('login-loading').style.display='block';
-    await loginWithName(savedName);
   }
 };
 </script>
