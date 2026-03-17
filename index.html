@@ -4,9 +4,39 @@
 <link rel="manifest" href="./manifest.json">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>⚔️ Bible Quest - 신광청년부 레벨업</title>
+<title>📖 성경읽고 레벨업</title>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs, addDoc, deleteDoc, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgMspfEMeJ0vYe7amXwaEDw7_D35vBLzc",
+    authDomain: "sungjang-levelup.firebaseapp.com",
+    projectId: "sungjang-levelup",
+    storageBucket: "sungjang-levelup.firebasestorage.app",
+    messagingSenderId: "387043727525",
+    appId: "1:387043727525:web:59d707d26bec3e0b51154c",
+    measurementId: "G-X0Z0THGB9Z"
+  };
+
+  const _app = initializeApp(firebaseConfig);
+  const _auth = getAuth(_app);
+  const _db = getFirestore(_app);
+  const _analytics = getAnalytics(_app);
+
+  // 전역으로 노출
+  window._auth = _auth;
+  window._db = _db;
+  window._fbFns = {
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+    onAuthStateChanged, doc, getDoc, setDoc, updateDoc, collection,
+    query, orderBy, limit, getDocs, addDoc, deleteDoc, where, serverTimestamp
+  };
+</script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e8e8e8; min-height: 100vh; }
@@ -270,7 +300,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 
 <div id="login-screen">
   <div style="font-size:60px;margin-bottom:12px">⚔️</div>
-  <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:36px;margin-bottom:8px">Bible Quest</h1>
+  <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:32px;margin-bottom:8px">📖 성경읽고 레벨업</h1>
   <p style="margin-bottom:28px;color:#888;font-size:14px;line-height:1.6">성경 읽고 레벨업!<br>이름을 입력하고 시작하세요.</p>
   <input type="text" id="user-name-input" class="login-input" placeholder="이름을 입력하세요" onkeydown="if(event.key==='Enter') login()">
   <label class="remember-label"><input type="checkbox" id="remember-name"> 이름 저장하기</label>
@@ -292,8 +322,8 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
   <header>
     <div class="header-top">
       <div>
-        <div class="header-title" id="header-display-name">⚔️ Bible Quest</div>
-        <div class="header-sub">신광청년부 레벨업 프로젝트</div>
+        <div class="header-title" id="header-display-name">📖 성경읽고 레벨업</div>
+        <div class="header-sub" id="header-church-name">교회 이름</div>
       </div>
       <div class="streak-badge" id="streak-badge">🔥 0일 연속</div>
     </div>
@@ -358,7 +388,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 
     <!-- 랭킹 -->
     <div class="page" id="page-rank">
-      <div class="card-title">🏆 신광청년부 실시간 랭킹</div>
+      <div class="card-title">🏆 실시간 랭킹</div>
       <div id="rank-list"><div class="empty-msg">불러오는 중... ⏳</div></div>
     </div>
 
@@ -493,9 +523,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     </div>
 
   </div><script><!-- /app -->
-const SUPABASE_URL = 'https://jwmcjmmzhipbpgniofuk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_IVDjIWSWV1u1Q-b0cVRfMQ_T-c-o1WT';
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Firebase initialized via module script above
 
 const BOOK_CATEGORIES = [
   { label:"📜 율법서 (창~신)", mapId:"율법서", books:[
@@ -603,71 +631,145 @@ let calYear,calMonth;
 function today(){return new Date().toDateString();}
 function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 
-async function login(){
-  const name=document.getElementById('user-name-input').value.trim();
-  if(!name){alert("이름을 입력하세요!");return;}
-  const remember=document.getElementById('remember-name').checked;
-  if(remember) localStorage.setItem('bq_saved_name',name);
-  else localStorage.removeItem('bq_saved_name');
-  await loginWithName(name);
+// ── Firebase 로그인 ──
+function switchAuthTab(tab){
+  const signin=tab==='signin';
+  document.getElementById('form-signin').style.display=signin?'block':'none';
+  document.getElementById('form-signup').style.display=signin?'none':'block';
+  document.getElementById('tab-signin').style.background=signin?'linear-gradient(135deg,#f4d03f,#f39c12)':'none';
+  document.getElementById('tab-signin').style.color=signin?'#0a0e1a':'#888';
+  document.getElementById('tab-signup').style.background=signin?'none':'linear-gradient(135deg,#f4d03f,#f39c12)';
+  document.getElementById('tab-signup').style.color=signin?'#888':'#0a0e1a';
 }
 
-async function loginWithName(name){
+function showLoginError(msg){
+  const el=document.getElementById('login-error');
+  el.textContent=msg; el.style.display='block';
+  setTimeout(()=>el.style.display='none',4000);
+}
+
+async function login(){
+  const email=document.getElementById('signin-email').value.trim();
+  const password=document.getElementById('signin-password').value;
+  if(!email||!password){showLoginError('이메일과 비밀번호를 입력하세요!');return;}
   document.getElementById('login-loading').style.display='block';
-  let {data:user,error}=await _supabase.from('users').select('*').eq('name',name).maybeSingle();
-  if(error){alert("접속 에러! 잠시 후 다시 시도해주세요.");document.getElementById('login-loading').style.display='none';return;}
-  if(!user){
-    const {data:newUser,error:insError}=await _supabase.from('users').insert([{name}]).select().single();
-    if(insError){alert("계정 생성 실패!");document.getElementById('login-loading').style.display='none';return;}
-    user=newUser;
+  try{
+    const {signInWithEmailAndPassword}=window._fbFns;
+    const cred=await signInWithEmailAndPassword(window._auth,email,password);
+    await enterApp(cred.user);
+  }catch(e){
+    document.getElementById('login-loading').style.display='none';
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')
+      showLoginError('이메일 또는 비밀번호가 틀렸어요!');
+    else showLoginError('로그인 오류: '+e.message);
   }
-  currentUser=user;
+}
+
+async function signup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const password=document.getElementById('signup-password').value;
+  const churchCode=document.getElementById('signup-church-code').value.trim().toUpperCase();
+  if(!name||!email||!password||!churchCode){showLoginError('모든 항목을 입력하세요!');return;}
+  if(password.length<6){showLoginError('비밀번호는 6자 이상이에요!');return;}
+  const validCodes=['SINGANG2024','SINGANG','TEST2024'];
+  if(!validCodes.includes(churchCode)){showLoginError('유효하지 않은 교회 코드예요!');return;}
+  document.getElementById('login-loading').style.display='block';
+  try{
+    const {createUserWithEmailAndPassword,doc,setDoc,serverTimestamp}=window._fbFns;
+    const cred=await createUserWithEmailAndPassword(window._auth,email,password);
+    await setDoc(doc(window._db,'users',cred.user.uid),{
+      uid:cred.user.uid,name,email,churchCode,
+      xp:0,level:1,totalCh:0,streak:0,bestStreak:0,
+      lastDate:null,readBooks:[],badges:[],completedQuests:[],
+      questDate:null,log:[],claimedBonuses:[],readDates:[],
+      bookChapters:{},likes:0,likeFrom:[],notifs:[],userClass:null,classChangedAt:null,
+      createdAt:serverTimestamp()
+    });
+    await enterApp(cred.user);
+  }catch(e){
+    document.getElementById('login-loading').style.display='none';
+    if(e.code==='auth/email-already-in-use') showLoginError('이미 사용 중인 이메일이에요!');
+    else showLoginError('가입 오류: '+e.message);
+  }
+}
+
+async function enterApp(firebaseUser){
+  const {doc,getDoc}=window._fbFns;
+  const snap=await getDoc(doc(window._db,'users',firebaseUser.uid));
+  if(!snap.exists()){
+    document.getElementById('login-loading').style.display='none';
+    showLoginError('유저 정보를 찾을 수 없어요!'); return;
+  }
+  const user=snap.data();
+  currentUser={uid:firebaseUser.uid,name:user.name,email:user.email,churchCode:user.churchCode||''};
   state={
-    xp:user.xp||0,level:user.level||1,totalCh:user.total_chapters||0,streak:user.streak||0,
-    bestStreak:user.best_streak||0,lastDate:user.last_date,readBooks:user.read_books||[],
-    badges:user.badges||[],completedQuests:user.completed_quests||[],questDate:user.quest_date,
-    log:user.log||[],claimedBonuses:user.claimed_bonuses||[],readDates:user.read_dates||[],
-    bookChapters:user.book_chapters||{},likeFrom: user.like_from||[]
+    xp:user.xp||0,level:user.level||1,totalCh:user.totalCh||0,streak:user.streak||0,
+    bestStreak:user.bestStreak||0,lastDate:user.lastDate||null,readBooks:user.readBooks||[],
+    badges:user.badges||[],completedQuests:user.completedQuests||[],questDate:user.questDate||null,
+    log:user.log||[],claimedBonuses:user.claimedBonuses||[],readDates:user.readDates||[],
+    bookChapters:user.bookChapters||{},likeFrom:user.likeFrom||[],
+    userClass:user.userClass||null,classChangedAt:user.classChangedAt||null
   };
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
-  document.getElementById('header-display-name').textContent=`⚔️ ${user.name}님의 모험`;
+  const cls=CLASSES[state.userClass];
+  document.getElementById('header-display-name').textContent=`${cls?cls.icon:'📖'} ${user.name}님의 모험`;
+  document.getElementById('header-church-name').textContent=user.churchCode||'성경읽고 레벨업';
+  if(!state.userClass){showClassSelect();return;}
   const now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
   initBookSelect(); renderAll();
-  startNotifPoller();
-  renderNotices();
+  startNotifPoller(); renderNotices();
 }
 
-function logout(){
+async function logout(){
   if(!confirm("로그아웃 하시겠어요?")) return;
-  localStorage.removeItem('bq_saved_name'); currentUser=null;
+  const {signOut}=window._fbFns;
+  await signOut(window._auth);
+  currentUser=null;
+  if(notifPoller) clearInterval(notifPoller);
   document.getElementById('app').style.display='none';
+  document.getElementById('class-select-screen').style.display='none';
   document.getElementById('login-screen').style.display='flex';
-  document.getElementById('user-name-input').value='';
-  document.getElementById('remember-name').checked=false;
+  document.getElementById('signin-email').value='';
+  document.getElementById('signin-password').value='';
   document.getElementById('login-loading').style.display='none';
+  document.getElementById('login-error').style.display='none';
+  switchAuthTab('signin');
 }
 
 async function saveToCloud(){
   if(!currentUser) return;
-  await _supabase.from('users').upsert({
-    id:currentUser.id,name:currentUser.name,xp:state.xp,level:state.level,
-    total_chapters:state.totalCh,streak:state.streak,best_streak:state.bestStreak,
-    last_date:state.lastDate,read_books:state.readBooks,badges:state.badges,
-    completed_quests:state.completedQuests,quest_date:state.questDate,log:state.log,
-    claimed_bonuses:state.claimedBonuses,read_dates:state.readDates,book_chapters:state.bookChapters,updated_at:new Date()
-  });
+  const {doc,setDoc,serverTimestamp}=window._fbFns;
+  await setDoc(doc(window._db,'users',currentUser.uid),{
+    uid:currentUser.uid,
+    name:currentUser.displayName||currentUser.name,
+    email:currentUser.email,
+    churchCode:currentUser.churchCode||'',
+    xp:state.xp,level:state.level,
+    totalCh:state.totalCh,streak:state.streak,bestStreak:state.bestStreak,
+    lastDate:state.lastDate,readBooks:state.readBooks,badges:state.badges,
+    completedQuests:state.completedQuests,questDate:state.questDate,log:state.log,
+    claimedBonuses:state.claimedBonuses,readDates:state.readDates,bookChapters:state.bookChapters,
+    updatedAt:serverTimestamp()
+  },{merge:true});
 }
 
 async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
-  
-  // Supabase에서 데이터 가져오기
-  const {data}=await _supabase.from('users').select('name,xp,level,total_chapters,likes,like_from,log').order('xp',{ascending:false}).limit(20);
-  if(!data||data.length===0){
+  const {collection,query,orderBy,limit,getDocs,where}=window._fbFns;
+  let q=query(collection(window._db,'users'),orderBy('xp','desc'),limit(20));
+  if(currentUser?.churchCode){
+    q=query(collection(window._db,'users'),where('churchCode','==',currentUser.churchCode),orderBy('xp','desc'),limit(20));
+  }
+  const snap=await getDocs(q);
+  if(snap.empty){
     document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';
     return;
   }
+  const data=snap.docs.map(d=>({...d.data(),id:d.id}));
+  // 기존 변수명 호환
+  data.forEach(r=>{r.total_chapters=r.totalCh||0; r.like_from=r.likeFrom||[];});
   
   const medals=['🥇','🥈','🥉'];
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
@@ -685,7 +787,7 @@ async function loadRankings(){
       <div style="display:flex; align-items:center; gap:5px; background:#ffffff0a; padding:2px 8px; border-radius:20px; border:1px solid #ffffff15;">
         <button class="like-btn${liked?' liked':''}" 
                 style="border:none; background:none; cursor:pointer; padding:0; font-size:16px;" 
-                onclick="event.stopPropagation(); toggleLike('${r.name}', this)">👍</button>
+                onclick="event.stopPropagation(); toggleLike('${r.uid||r.id}', this)">👍</button>
         <span style="font-size:12px; color:#f4d03f; cursor:pointer; text-decoration:underline; font-weight:700;" 
               onclick="event.stopPropagation(); showLikePopup('${r.name}', ${JSON.stringify(likeFrom).replace(/"/g,'&quot;')})">${likes}</span>
       </div>`;
@@ -702,7 +804,7 @@ async function loadRankings(){
     return `<div class="rank-item${isMe?' my-rank':''}" style="display:flex; align-items:center; gap:12px; padding:14px; border-radius:12px; margin-bottom:10px; border:1px solid #ffffff12;">
       <div class="rank-num" style="font-family:'Black Han Sans'; font-size:20px; min-width:32px; text-align:center;">${medals[i]||(i+1)}</div>
       <div class="rank-info" style="flex:1;">
-        <div class="rank-name" style="font-weight:700;font-size:15px;${!isMe?'cursor:pointer;text-decoration:underline dotted #f4d03f44;':''}" ${!isMe?`onclick="event.stopPropagation();showRecordPopup('${r.name}')"`:''}>${r.name}${isMe?' 👈 나':''}</div>
+        <div class="rank-name" style="font-weight:700;font-size:15px;${!isMe?'cursor:pointer;text-decoration:underline dotted #f4d03f44;':''}" ${!isMe?`onclick="event.stopPropagation();showRecordPopup('${r.uid||r.id}')"`:''}>${r.name}${isMe?' 👈 나':''}</div>
         <div style="font-size:11px;color:#888">Lv.${r.level} · ${r.total_chapters}장 읽음</div>
         <div style="margin-top:6px">${isMe ? myLikeDisplay : otherLikeDisplay}</div>
       </div>
@@ -713,24 +815,26 @@ async function loadRankings(){
   }).join('');
 }
 
-async function toggleLike(targetName,btn){
+async function toggleLike(targetUid,btn){
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
-  const liked=myLikes.includes(targetName);
-  const cur=parseInt(btn.textContent.replace('👍 ',''))||0;
+  const liked=myLikes.includes(targetUid);
   const myName=currentUser?.name||'익명';
-  const {data}=await _supabase.from('users').select('likes,like_from').eq('name',targetName).single();
-  const likeFrom=data?.like_from||[];
+  const {doc,getDoc,updateDoc}=window._fbFns;
+  const snap=await getDoc(doc(window._db,'users',targetUid));
+  if(!snap.exists()) return;
+  const data=snap.data();
+  const likeFrom=data.likeFrom||[];
   if(liked){
-    myLikes.splice(myLikes.indexOf(targetName),1);
-    btn.classList.remove('liked'); btn.textContent='👍 '+Math.max(0,cur-1);
+    myLikes.splice(myLikes.indexOf(targetUid),1);
+    btn.classList.remove('liked'); btn.textContent='👍 '+Math.max(0,likeFrom.length-1);
     const newFrom=likeFrom.filter(n=>n!==myName);
-    await _supabase.from('users').update({likes:Math.max(0,(data?.likes||1)-1),like_from:newFrom}).eq('name',targetName);
+    await updateDoc(doc(window._db,'users',targetUid),{likes:Math.max(0,likeFrom.length-1),likeFrom:newFrom});
   } else {
-    myLikes.push(targetName);
-    btn.classList.add('liked'); btn.textContent='👍 '+(cur+1);
+    myLikes.push(targetUid);
+    btn.classList.add('liked'); btn.textContent='👍 '+(likeFrom.length+1);
     if(!likeFrom.includes(myName)) likeFrom.push(myName);
-    await _supabase.from('users').update({likes:(data?.likes||0)+1,like_from:likeFrom}).eq('name',targetName);
-    saveNotif(targetName,'like',`${myName}님이 응원을 눌렀어요!`,'👍');
+    await updateDoc(doc(window._db,'users',targetUid),{likes:likeFrom.length+1,likeFrom});
+    saveNotif(targetUid,'like',`${myName}님이 응원을 눌렀어요!`,'👍');
   }
   localStorage.setItem('bq_likes',JSON.stringify(myLikes));
   loadRankings();
@@ -784,7 +888,8 @@ async function recordReading(){
   btn.textContent='✅ 기록 완료!';
   const verseText=document.getElementById('verse-text')?.value.trim();
   if(verseText){
-    _supabase.from('verses').insert([{user_name:currentUser.name,book:bookName,chapter:selectedChapters[0],verse_text:verseText}]).then(()=>{});
+    const {collection:vc,addDoc:va,serverTimestamp:vs}=window._fbFns;
+    va(vc(window._db,'verses'),{userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:selectedChapters[0],verseText,likedBy:[],likes:0,comments:[],createdAt:vs()});
     document.getElementById('verse-text').value='';
     document.getElementById('verse-char-cnt').textContent='0';
     document.getElementById('verse-share-card').style.display='none';
@@ -1179,17 +1284,18 @@ function getAvatarColor(name){
   const c=['#f4d03f','#3b82f6','#22c55e','#e74c3c','#a78bfa','#f97316','#06b6d4','#ec4899','#10b981','#fbbf24'];
   let h=0; for(const ch of name) h=(h*31+ch.charCodeAt(0))%c.length; return c[h];
 }
-async function showRecordPopup(targetName){
-  document.getElementById('rec-popup-name').textContent=targetName+'님의 읽기 기록';
-  document.getElementById('rec-popup-stats').textContent='';
+async function showRecordPopup(targetUid){
   document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
-  const ac=getAvatarColor(targetName);
-  document.getElementById('rec-popup-avatar').style.background=ac;
-  document.getElementById('rec-popup-avatar').textContent=targetName.charAt(0);
   document.getElementById('record-popup-overlay').classList.add('show');
-  const {data,error}=await _supabase.from('users').select('name,xp,level,total_chapters,log').eq('name',targetName).single();
-  if(error||!data){document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">기록을 불러올 수 없어요 😢</div>';return;}
-  document.getElementById('rec-popup-stats').textContent=`Lv.${data.level} · ${data.total_chapters}장 · ${data.xp} XP`;
+  const {doc,getDoc}=window._fbFns;
+  const snap=await getDoc(doc(window._db,'users',targetUid));
+  if(!snap.exists()){document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">기록을 불러올 수 없어요 😢</div>';return;}
+  const data=snap.data();
+  const ac=getAvatarColor(data.name);
+  document.getElementById('rec-popup-name').textContent=data.name+'님의 읽기 기록';
+  document.getElementById('rec-popup-stats').textContent=`Lv.${data.level} · ${data.totalCh||0}장 · ${data.xp} XP`;
+  document.getElementById('rec-popup-avatar').style.background=ac;
+  document.getElementById('rec-popup-avatar').textContent=data.name.charAt(0);
   const log=data.log||[];
   if(!log.length){document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">아직 읽기 기록이 없어요 🌱</div>';return;}
   document.getElementById('rec-popup-list').innerHTML=log.map(l=>{
@@ -1225,7 +1331,8 @@ async function shareVerseOnly(){
   const verseText=document.getElementById('verse-text')?.value.trim();
   if(!verseText){alert('구절을 입력해주세요!');return;}
   const chap=[...cancelChs][0]||1;
-  await _supabase.from('verses').insert([{user_name:currentUser.name,book:bookName,chapter:parseInt(chap),verse_text:verseText}]);
+  const {collection:col,addDoc:aDoc,serverTimestamp:sts}=window._fbFns;
+  await aDoc(col(window._db,'verses'),{userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:parseInt(chap),verseText,likedBy:[],likes:0,comments:[],createdAt:sts()});
   document.getElementById('verse-text').value='';
   document.getElementById('verse-char-cnt').textContent='0';
   document.getElementById('verse-share-card').style.display='none';
@@ -1254,17 +1361,20 @@ function closeVerseLikedPopup(){document.getElementById('verse-liked-popup').cla
 async function loadVerses(){
   const list=document.getElementById('verse-feed-list');
   list.innerHTML='<div class="verse-empty">불러오는 중... ⏳</div>';
-  let q=_supabase.from('verses').select('*').order('created_at',{ascending:false}).limit(50);
-  if(verseFilter==='mine') q=q.eq('user_name',currentUser?.name||'');
-  const {data,error}=await q;
-  if(error||!data||data.length===0){
+  const {collection:vc,query:vq,orderBy:vo,limit:vl,getDocs:vg,where:vw}=window._fbFns;
+  let q=vq(vc(window._db,'verses'),vo('createdAt','desc'),vl(50));
+  if(verseFilter==='mine') q=vq(vc(window._db,'verses'),vw('uid','==',currentUser?.uid||''),vo('createdAt','desc'),vl(50));
+  else if(currentUser?.churchCode) q=vq(vc(window._db,'verses'),vw('churchCode','==',currentUser.churchCode),vo('createdAt','desc'),vl(50));
+  const snap=await vg(q);
+  const data=snap.docs.map(d=>({...d.data(),id:d.id,user_name:d.data().userName,verse_text:d.data().verseText,liked_by:d.data().likedBy||[],created_at:d.data().createdAt?.toDate?.()?.toISOString()||new Date().toISOString()}));
+  if(!data||data.length===0){
     list.innerHTML='<div class="verse-empty">아직 나눈 말씀이 없어요 🌱<br><span style="font-size:11px;color:#3a3a3a;">홈에서 장 선택 후 구절을 남겨보세요!</span></div>';
     document.getElementById('verse-post-count').textContent=''; return;
   }
   document.getElementById('verse-post-count').textContent='총 '+data.length+'개의 나눔';
   list.innerHTML=data.map(v=>{
     const likedBy=Array.isArray(v.liked_by)?v.liked_by:[];
-    const iLiked=likedBy.includes(currentUser?.name||'');
+    const iLiked=likedBy.includes(currentUser?.uid||'');
     const isMe=v.user_name===currentUser?.name;
     const ac=getAvatarColor(v.user_name);
     const unit=v.book==='시편'?'편':'장';
@@ -1299,7 +1409,7 @@ async function loadVerses(){
       <div class="verse-footer">
         <span class="verse-date">${dts}</span>
         <div class="verse-actions">
-          <button class="verse-like-btn${iLiked?' liked':''}" onclick="toggleVerseLike('${v.id}','${v.user_name}',this)">❤️ <span>${likedBy.length}</span></button>
+          <button class="verse-like-btn${iLiked?' liked':''}" onclick="toggleVerseLike('${v.id}','${v.uid||''}',this)">❤️ <span>${likedBy.length}</span></button>
           ${likedBy.length>0?`<button style="background:none;border:none;font-size:10px;color:#888;cursor:pointer;padding:2px 6px;" onclick="showVerseLikedPopup(JSON.parse(this.dataset.lb),'${ref}')" data-lb="${likedByJson}">누가?</button>`:''}
           <button class="verse-comment-toggle${comments.length>0?' open':''}" onclick="toggleComments('${v.id}')">💬 <span id="vcnt-${v.id}">${comments.length}</span></button>
         </div>
@@ -1325,11 +1435,14 @@ async function sendComment(verseId){
   const input=document.getElementById('vcmt-input-'+verseId);
   const text=input?.value.trim();
   if(!text||!currentUser) return;
-  const {data}=await _supabase.from('verses').select('comments,user_name').eq('id',verseId).single();
-  const comments=Array.isArray(data?.comments)?data.comments:[];
-  comments.push({user:currentUser.name,text,created_at:new Date().toISOString()});
-  await _supabase.from('verses').update({comments}).eq('id',verseId);
-  if(data?.user_name) saveNotif(data.user_name,'comment',`${currentUser.name}님이 댓글을 남겼어요 💬`,'💬');
+  const {doc:vd,getDoc:vgd,updateDoc:vud}=window._fbFns;
+  const vsnap=await vgd(vd(window._db,'verses',verseId));
+  if(!vsnap.exists()) return;
+  const vdata=vsnap.data();
+  const comments=Array.isArray(vdata.comments)?vdata.comments:[];
+  comments.push({user:currentUser.name,uid:currentUser.uid,text,created_at:new Date().toISOString()});
+  await vud(vd(window._db,'verses',verseId),{comments});
+  if(vdata.uid) saveNotif(vdata.uid,'comment',`${currentUser.name}님이 댓글을 남겼어요 💬`,'💬');
   input.value='';
   const ac=getAvatarColor(currentUser.name);
   const now=new Date();
@@ -1346,14 +1459,17 @@ async function sendComment(verseId){
   const cntEl=document.getElementById('vcnt-'+verseId);
   if(cntEl) cntEl.textContent=comments.length;
 }
-async function toggleVerseLike(verseId,authorName,btn){
-  if(!currentUser||authorName===currentUser.name) return;
-  const {data}=await _supabase.from('verses').select('liked_by').eq('id',verseId).single();
-  const likedBy=Array.isArray(data?.liked_by)?data.liked_by:[];
-  const iLiked=likedBy.includes(currentUser.name);
-  const newLikedBy=iLiked?likedBy.filter(n=>n!==currentUser.name):[...likedBy,currentUser.name];
-  await _supabase.from('verses').update({liked_by:newLikedBy,likes:newLikedBy.length}).eq('id',verseId);
-  if(!iLiked) saveNotif(authorName,'verse_like',`${currentUser.name}님이 구절에 공감했어요 ❤️`,'❤️');
+async function toggleVerseLike(verseId,authorUid,btn){
+  if(!currentUser||authorUid===currentUser.uid) return;
+  const {doc:vd2,getDoc:vgd2,updateDoc:vud2}=window._fbFns;
+  const vsnap2=await vgd2(vd2(window._db,'verses',verseId));
+  if(!vsnap2.exists()) return;
+  const vdata2=vsnap2.data();
+  const likedBy=Array.isArray(vdata2.likedBy)?vdata2.likedBy:[];
+  const iLiked=likedBy.includes(currentUser.uid);
+  const newLikedBy=iLiked?likedBy.filter(n=>n!==currentUser.uid):[...likedBy,currentUser.uid];
+  await vud2(vd2(window._db,'verses',verseId),{likedBy:newLikedBy,likes:newLikedBy.length});
+  if(!iLiked) saveNotif(authorUid,'verse_like',`${currentUser.name}님이 구절에 공감했어요 ❤️`,'❤️');
   btn.classList.toggle('liked',!iLiked);
   btn.querySelector('span').textContent=newLikedBy.length;
   // 누가 버튼 갱신
@@ -1375,7 +1491,8 @@ async function toggleVerseLike(verseId,authorName,btn){
 }
 async function deleteVerse(verseId){
   if(!confirm('이 나눔을 삭제할까요?')) return;
-  await _supabase.from('verses').delete().eq('id',verseId);
+  const {doc:dd,deleteDoc:ddoc}=window._fbFns;
+  await ddoc(dd(window._db,'verses',verseId));
   document.getElementById('vitem-'+verseId)?.remove();
   if(!document.querySelectorAll('.verse-feed-item').length) loadVerses();
 }
@@ -1395,12 +1512,14 @@ function showToast(icon,title,sub){
   toastTimer=setTimeout(()=>hideToast(),4000);
 }
 function hideToast(){document.getElementById('notif-toast')?.classList.remove('show');}
-async function saveNotif(targetName,type,msg,icon){
-  if(!targetName||targetName===currentUser?.name) return;
-  const {data}=await _supabase.from('users').select('notifs').eq('name',targetName).single();
-  const notifs=Array.isArray(data?.notifs)?data.notifs:[];
+async function saveNotif(targetUid,type,msg,icon){
+  if(!targetUid||targetUid===currentUser?.uid) return;
+  const {doc,getDoc,updateDoc}=window._fbFns;
+  const snap=await getDoc(doc(window._db,'users',targetUid));
+  if(!snap.exists()) return;
+  const notifs=Array.isArray(snap.data().notifs)?snap.data().notifs:[];
   notifs.unshift({type,msg,icon,from:currentUser.name,read:false,at:new Date().toISOString()});
-  await _supabase.from('users').update({notifs:notifs.slice(0,50)}).eq('name',targetName);
+  await updateDoc(doc(window._db,'users',targetUid),{notifs:notifs.slice(0,50)});
 }
 let notifPoller=null,lastNotifCount=0;
 function startNotifPoller(){
@@ -1410,8 +1529,10 @@ function startNotifPoller(){
 }
 async function checkNotifs(){
   if(!currentUser) return;
-  const {data}=await _supabase.from('users').select('notifs').eq('name',currentUser.name).single();
-  const notifs=Array.isArray(data?.notifs)?data.notifs:[];
+  const {doc,getDoc}=window._fbFns;
+  const snap=await getDoc(doc(window._db,'users',currentUser.uid));
+  if(!snap.exists()) return;
+  const notifs=Array.isArray(snap.data().notifs)?snap.data().notifs:[];
   const unread=notifs.filter(n=>!n.read);
   updateBadge('tab-verses',unread.filter(n=>n.type==='verse_like'||n.type==='comment').length);
   updateBadge('tab-rank',unread.filter(n=>n.type==='like').length);
@@ -1439,18 +1560,24 @@ function clearRankBadge(){
 }
 async function markNotifsRead(types){
   if(!currentUser) return;
-  const {data}=await _supabase.from('users').select('notifs').eq('name',currentUser.name).single();
-  const notifs=Array.isArray(data?.notifs)?data.notifs:[];
+  const {doc,getDoc,updateDoc}=window._fbFns;
+  const snap=await getDoc(doc(window._db,'users',currentUser.uid));
+  if(!snap.exists()) return;
+  const notifs=Array.isArray(snap.data().notifs)?snap.data().notifs:[];
   const updated=notifs.map(n=>types.includes(n.type)?{...n,read:true}:n);
-  await _supabase.from('users').update({notifs:updated}).eq('name',currentUser.name);
+  await updateDoc(doc(window._db,'users',currentUser.uid),{notifs:updated});
   lastNotifCount=updated.filter(n=>!n.read).length;
 }
 
 window.onload=()=>{
-  const savedName=localStorage.getItem('bq_saved_name');
-  if(savedName){
-    document.getElementById('user-name-input').value=savedName;
-    document.getElementById('remember-name').checked=true;
+  // Firebase Auth 상태 자동 감지
+  if(window._auth && window._fbFns){
+    window._fbFns.onAuthStateChanged(window._auth, async (user)=>{
+      if(user && !currentUser){
+        document.getElementById('login-loading').style.display='block';
+        await enterApp(user);
+      }
+    });
   }
 };
 </script>
