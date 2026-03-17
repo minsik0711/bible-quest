@@ -6,13 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>📖 성경읽고 레벨업</title>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs, addDoc, deleteDoc, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-
+<!-- Firebase SDK (compat - 동기 로드 보장) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyDgMspfEMeJ0vYe7amXwaEDw7_D35vBLzc",
     authDomain: "sungjang-levelup.firebaseapp.com",
@@ -22,20 +21,54 @@
     appId: "1:387043727525:web:59d707d26bec3e0b51154c",
     measurementId: "G-X0Z0THGB9Z"
   };
+  firebase.initializeApp(firebaseConfig);
+  window._auth = firebase.auth();
+  window._db = firebase.firestore();
+  window._analytics = firebase.analytics();
 
-  const _app = initializeApp(firebaseConfig);
-  const _auth = getAuth(_app);
-  const _db = getFirestore(_app);
-  const _analytics = getAnalytics(_app);
-
-  // 전역으로 노출
-  window._auth = _auth;
-  window._db = _db;
+  // compat 방식 함수들을 fbFns로 래핑
   window._fbFns = {
-    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
-    onAuthStateChanged, doc, getDoc, setDoc, updateDoc, collection,
-    query, orderBy, limit, getDocs, addDoc, deleteDoc, where, serverTimestamp
+    // Auth
+    createUserWithEmailAndPassword: (auth,email,pw) => auth.createUserWithEmailAndPassword(email,pw),
+    signInWithEmailAndPassword: (auth,email,pw) => auth.signInWithEmailAndPassword(email,pw),
+    signOut: (auth) => auth.signOut(),
+    onAuthStateChanged: (auth,cb) => auth.onAuthStateChanged(cb),
+    // Firestore helpers
+    doc: (db,...args) => {
+      if(args.length===1) return db.doc(args[0]);
+      let ref=db.collection(args[0]);
+      for(let i=1;i<args.length;i++) ref=(i%2===1)?ref.doc(args[i]):ref.collection(args[i]);
+      return ref;
+    },
+    getDoc: (ref) => ref.get().then(snap=>({exists:()=>snap.exists,data:()=>snap.data(),id:snap.id})),
+    setDoc: (ref,data,opts) => opts?.merge ? ref.set(data,{merge:true}) : ref.set(data),
+    updateDoc: (ref,data) => ref.update(data),
+    collection: (db,path) => db.collection(path),
+    query: (ref,...constraints) => {
+      constraints.forEach(c=>{ ref=c(ref); });
+      return ref;
+    },
+    orderBy: (field,dir='asc') => (ref) => ref.orderBy(field,dir),
+    limit: (n) => (ref) => ref.limit(n),
+    where: (field,op,val) => (ref) => ref.where(field,op,val),
+    getDocs: (ref) => ref.get().then(snap=>({
+      empty:snap.empty,
+      docs:snap.docs.map(d=>({id:d.id,data:()=>d.data(),exists:d.exists,...d}))
+    })),
+    addDoc: (ref,data) => ref.add(data),
+    deleteDoc: (ref) => ref.delete(),
+    serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp()
   };
+
+  // 자동로그인: Auth 상태 감지
+  window._auth.onAuthStateChanged(async (user)=>{
+    if(user && !window.currentUser){
+      if(document.getElementById('login-loading')){
+        document.getElementById('login-loading').style.display='block';
+      }
+      if(typeof enterApp==='function') await enterApp(user);
+    }
+  });
 </script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -654,8 +687,7 @@ async function login(){
   if(!email||!password){showLoginError('이메일과 비밀번호를 입력하세요!');return;}
   document.getElementById('login-loading').style.display='block';
   try{
-    const {signInWithEmailAndPassword}=window._fbFns;
-    const cred=await signInWithEmailAndPassword(window._auth,email,password);
+    const cred=await window._auth.signInWithEmailAndPassword(email,password);
     await enterApp(cred.user);
   }catch(e){
     document.getElementById('login-loading').style.display='none';
@@ -676,15 +708,14 @@ async function signup(){
   if(!validCodes.includes(churchCode)){showLoginError('유효하지 않은 교회 코드예요!');return;}
   document.getElementById('login-loading').style.display='block';
   try{
-    const {createUserWithEmailAndPassword,doc,setDoc,serverTimestamp}=window._fbFns;
-    const cred=await createUserWithEmailAndPassword(window._auth,email,password);
-    await setDoc(doc(window._db,'users',cred.user.uid),{
+    const cred=await window._auth.createUserWithEmailAndPassword(email,password);
+    await window._db.collection('users').doc(cred.user.uid).set({
       uid:cred.user.uid,name,email,churchCode,
       xp:0,level:1,totalCh:0,streak:0,bestStreak:0,
       lastDate:null,readBooks:[],badges:[],completedQuests:[],
       questDate:null,log:[],claimedBonuses:[],readDates:[],
       bookChapters:{},likes:0,likeFrom:[],notifs:[],userClass:null,classChangedAt:null,
-      createdAt:serverTimestamp()
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     await enterApp(cred.user);
   }catch(e){
@@ -695,8 +726,7 @@ async function signup(){
 }
 
 async function enterApp(firebaseUser){
-  const {doc,getDoc}=window._fbFns;
-  const snap=await getDoc(doc(window._db,'users',firebaseUser.uid));
+  const snap=await window._db.collection('users').doc(firebaseUser.uid).get().then(s=>({exists:()=>s.exists,data:()=>s.data(),id:s.id}));
   if(!snap.exists()){
     document.getElementById('login-loading').style.display='none';
     showLoginError('유저 정보를 찾을 수 없어요!'); return;
@@ -724,8 +754,7 @@ async function enterApp(firebaseUser){
 
 async function logout(){
   if(!confirm("로그아웃 하시겠어요?")) return;
-  const {signOut}=window._fbFns;
-  await signOut(window._auth);
+  await window._auth.signOut();
   currentUser=null;
   if(notifPoller) clearInterval(notifPoller);
   document.getElementById('app').style.display='none';
@@ -740,8 +769,8 @@ async function logout(){
 
 async function saveToCloud(){
   if(!currentUser) return;
-  const {doc,setDoc,serverTimestamp}=window._fbFns;
-  await setDoc(doc(window._db,'users',currentUser.uid),{
+  const _uref=window._db.collection('users').doc(currentUser.uid);
+  await _uref.set({
     uid:currentUser.uid,
     name:currentUser.displayName||currentUser.name,
     email:currentUser.email,
@@ -751,23 +780,20 @@ async function saveToCloud(){
     lastDate:state.lastDate,readBooks:state.readBooks,badges:state.badges,
     completedQuests:state.completedQuests,questDate:state.questDate,log:state.log,
     claimedBonuses:state.claimedBonuses,readDates:state.readDates,bookChapters:state.bookChapters,
-    updatedAt:serverTimestamp()
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true});
 }
 
 async function loadRankings(){
   document.getElementById('rank-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
-  const {collection,query,orderBy,limit,getDocs,where}=window._fbFns;
-  let q=query(collection(window._db,'users'),orderBy('xp','desc'),limit(20));
-  if(currentUser?.churchCode){
-    q=query(collection(window._db,'users'),where('churchCode','==',currentUser.churchCode),orderBy('xp','desc'),limit(20));
-  }
-  const snap=await getDocs(q);
+  let _rq=window._db.collection('users').orderBy('xp','desc').limit(20);
+  if(currentUser?.churchCode) _rq=window._db.collection('users').where('churchCode','==',currentUser.churchCode).orderBy('xp','desc').limit(20);
+  const snap=await _rq.get();
   if(snap.empty){
     document.getElementById('rank-list').innerHTML='<div class="empty-msg">아직 참여자가 없어요 🌱</div>';
     return;
   }
-  const data=snap.docs.map(d=>({...d.data(),id:d.id}));
+  const data=snap.docs.map(d=>({...d.data(),id:d.id,uid:d.id}));
   // 기존 변수명 호환
   data.forEach(r=>{r.total_chapters=r.totalCh||0; r.like_from=r.likeFrom||[];});
   
@@ -819,21 +845,20 @@ async function toggleLike(targetUid,btn){
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
   const liked=myLikes.includes(targetUid);
   const myName=currentUser?.name||'익명';
-  const {doc,getDoc,updateDoc}=window._fbFns;
-  const snap=await getDoc(doc(window._db,'users',targetUid));
-  if(!snap.exists()) return;
-  const data=snap.data();
+  const _tlsnap=await window._db.collection('users').doc(targetUid).get();
+  if(!_tlsnap.exists) return;
+  const data=_tlsnap.data();
   const likeFrom=data.likeFrom||[];
   if(liked){
     myLikes.splice(myLikes.indexOf(targetUid),1);
     btn.classList.remove('liked'); btn.textContent='👍 '+Math.max(0,likeFrom.length-1);
     const newFrom=likeFrom.filter(n=>n!==myName);
-    await updateDoc(doc(window._db,'users',targetUid),{likes:Math.max(0,likeFrom.length-1),likeFrom:newFrom});
+    await window._db.collection('users').doc(targetUid).update({likes:Math.max(0,likeFrom.length-1),likeFrom:newFrom});
   } else {
     myLikes.push(targetUid);
     btn.classList.add('liked'); btn.textContent='👍 '+(likeFrom.length+1);
     if(!likeFrom.includes(myName)) likeFrom.push(myName);
-    await updateDoc(doc(window._db,'users',targetUid),{likes:likeFrom.length+1,likeFrom});
+    await window._db.collection('users').doc(targetUid).update({likes:likeFrom.length+1,likeFrom});
     saveNotif(targetUid,'like',`${myName}님이 응원을 눌렀어요!`,'👍');
   }
   localStorage.setItem('bq_likes',JSON.stringify(myLikes));
@@ -888,8 +913,7 @@ async function recordReading(){
   btn.textContent='✅ 기록 완료!';
   const verseText=document.getElementById('verse-text')?.value.trim();
   if(verseText){
-    const {collection:vc,addDoc:va,serverTimestamp:vs}=window._fbFns;
-    va(vc(window._db,'verses'),{userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:selectedChapters[0],verseText,likedBy:[],likes:0,comments:[],createdAt:vs()});
+    window._db.collection('verses').add({userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:selectedChapters[0],verseText,likedBy:[],likes:0,comments:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
     document.getElementById('verse-text').value='';
     document.getElementById('verse-char-cnt').textContent='0';
     document.getElementById('verse-share-card').style.display='none';
@@ -1287,10 +1311,9 @@ function getAvatarColor(name){
 async function showRecordPopup(targetUid){
   document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
   document.getElementById('record-popup-overlay').classList.add('show');
-  const {doc,getDoc}=window._fbFns;
-  const snap=await getDoc(doc(window._db,'users',targetUid));
-  if(!snap.exists()){document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">기록을 불러올 수 없어요 😢</div>';return;}
-  const data=snap.data();
+  const _rpSnap=await window._db.collection('users').doc(targetUid).get();
+  if(!_rpSnap.exists){document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">기록을 불러올 수 없어요 😢</div>';return;}
+  const data=_rpSnap.data();
   const ac=getAvatarColor(data.name);
   document.getElementById('rec-popup-name').textContent=data.name+'님의 읽기 기록';
   document.getElementById('rec-popup-stats').textContent=`Lv.${data.level} · ${data.totalCh||0}장 · ${data.xp} XP`;
@@ -1331,8 +1354,7 @@ async function shareVerseOnly(){
   const verseText=document.getElementById('verse-text')?.value.trim();
   if(!verseText){alert('구절을 입력해주세요!');return;}
   const chap=[...cancelChs][0]||1;
-  const {collection:col,addDoc:aDoc,serverTimestamp:sts}=window._fbFns;
-  await aDoc(col(window._db,'verses'),{userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:parseInt(chap),verseText,likedBy:[],likes:0,comments:[],createdAt:sts()});
+  await window._db.collection('verses').add({userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:parseInt(chap),verseText,likedBy:[],likes:0,comments:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   document.getElementById('verse-text').value='';
   document.getElementById('verse-char-cnt').textContent='0';
   document.getElementById('verse-share-card').style.display='none';
@@ -1361,12 +1383,11 @@ function closeVerseLikedPopup(){document.getElementById('verse-liked-popup').cla
 async function loadVerses(){
   const list=document.getElementById('verse-feed-list');
   list.innerHTML='<div class="verse-empty">불러오는 중... ⏳</div>';
-  const {collection:vc,query:vq,orderBy:vo,limit:vl,getDocs:vg,where:vw}=window._fbFns;
-  let q=vq(vc(window._db,'verses'),vo('createdAt','desc'),vl(50));
-  if(verseFilter==='mine') q=vq(vc(window._db,'verses'),vw('uid','==',currentUser?.uid||''),vo('createdAt','desc'),vl(50));
-  else if(currentUser?.churchCode) q=vq(vc(window._db,'verses'),vw('churchCode','==',currentUser.churchCode),vo('createdAt','desc'),vl(50));
-  const snap=await vg(q);
-  const data=snap.docs.map(d=>({...d.data(),id:d.id,user_name:d.data().userName,verse_text:d.data().verseText,liked_by:d.data().likedBy||[],created_at:d.data().createdAt?.toDate?.()?.toISOString()||new Date().toISOString()}));
+  let _vq=window._db.collection('verses').orderBy('createdAt','desc').limit(50);
+  if(verseFilter==='mine') _vq=window._db.collection('verses').where('uid','==',currentUser?.uid||'').orderBy('createdAt','desc').limit(50);
+  else if(currentUser?.churchCode) _vq=window._db.collection('verses').where('churchCode','==',currentUser.churchCode).orderBy('createdAt','desc').limit(50);
+  const vsnap=await _vq.get();
+  const data=vsnap.docs.map(d=>({...d.data(),id:d.id,user_name:d.data().userName,verse_text:d.data().verseText,liked_by:d.data().likedBy||[],created_at:d.data().createdAt?.toDate?.()?.toISOString()||new Date().toISOString()}));
   if(!data||data.length===0){
     list.innerHTML='<div class="verse-empty">아직 나눈 말씀이 없어요 🌱<br><span style="font-size:11px;color:#3a3a3a;">홈에서 장 선택 후 구절을 남겨보세요!</span></div>';
     document.getElementById('verse-post-count').textContent=''; return;
@@ -1435,13 +1456,13 @@ async function sendComment(verseId){
   const input=document.getElementById('vcmt-input-'+verseId);
   const text=input?.value.trim();
   if(!text||!currentUser) return;
-  const {doc:vd,getDoc:vgd,updateDoc:vud}=window._fbFns;
-  const vsnap=await vgd(vd(window._db,'verses',verseId));
-  if(!vsnap.exists()) return;
-  const vdata=vsnap.data();
+  const _vcref=window._db.collection('verses').doc(verseId);
+  const _vcsnap=await _vcref.get();
+  if(!_vcsnap.exists) return;
+  const vdata=_vcsnap.data();
   const comments=Array.isArray(vdata.comments)?vdata.comments:[];
   comments.push({user:currentUser.name,uid:currentUser.uid,text,created_at:new Date().toISOString()});
-  await vud(vd(window._db,'verses',verseId),{comments});
+  await _vcref.update({comments});
   if(vdata.uid) saveNotif(vdata.uid,'comment',`${currentUser.name}님이 댓글을 남겼어요 💬`,'💬');
   input.value='';
   const ac=getAvatarColor(currentUser.name);
@@ -1461,14 +1482,14 @@ async function sendComment(verseId){
 }
 async function toggleVerseLike(verseId,authorUid,btn){
   if(!currentUser||authorUid===currentUser.uid) return;
-  const {doc:vd2,getDoc:vgd2,updateDoc:vud2}=window._fbFns;
-  const vsnap2=await vgd2(vd2(window._db,'verses',verseId));
-  if(!vsnap2.exists()) return;
-  const vdata2=vsnap2.data();
+  const _vvref=window._db.collection('verses').doc(verseId);
+  const _vvsnap=await _vvref.get();
+  if(!_vvsnap.exists) return;
+  const vdata2=_vvsnap.data();
   const likedBy=Array.isArray(vdata2.likedBy)?vdata2.likedBy:[];
   const iLiked=likedBy.includes(currentUser.uid);
   const newLikedBy=iLiked?likedBy.filter(n=>n!==currentUser.uid):[...likedBy,currentUser.uid];
-  await vud2(vd2(window._db,'verses',verseId),{likedBy:newLikedBy,likes:newLikedBy.length});
+  await _vvref.update({likedBy:newLikedBy,likes:newLikedBy.length});
   if(!iLiked) saveNotif(authorUid,'verse_like',`${currentUser.name}님이 구절에 공감했어요 ❤️`,'❤️');
   btn.classList.toggle('liked',!iLiked);
   btn.querySelector('span').textContent=newLikedBy.length;
@@ -1491,8 +1512,7 @@ async function toggleVerseLike(verseId,authorUid,btn){
 }
 async function deleteVerse(verseId){
   if(!confirm('이 나눔을 삭제할까요?')) return;
-  const {doc:dd,deleteDoc:ddoc}=window._fbFns;
-  await ddoc(dd(window._db,'verses',verseId));
+  await window._db.collection('verses').doc(verseId).delete();
   document.getElementById('vitem-'+verseId)?.remove();
   if(!document.querySelectorAll('.verse-feed-item').length) loadVerses();
 }
@@ -1514,12 +1534,12 @@ function showToast(icon,title,sub){
 function hideToast(){document.getElementById('notif-toast')?.classList.remove('show');}
 async function saveNotif(targetUid,type,msg,icon){
   if(!targetUid||targetUid===currentUser?.uid) return;
-  const {doc,getDoc,updateDoc}=window._fbFns;
-  const snap=await getDoc(doc(window._db,'users',targetUid));
-  if(!snap.exists()) return;
-  const notifs=Array.isArray(snap.data().notifs)?snap.data().notifs:[];
+  const _nref=window._db.collection('users').doc(targetUid);
+  const _nsnap=await _nref.get();
+  if(!_nsnap.exists) return;
+  const notifs=Array.isArray(_nsnap.data().notifs)?_nsnap.data().notifs:[];
   notifs.unshift({type,msg,icon,from:currentUser.name,read:false,at:new Date().toISOString()});
-  await updateDoc(doc(window._db,'users',targetUid),{notifs:notifs.slice(0,50)});
+  await _nref.update({notifs:notifs.slice(0,50)});
 }
 let notifPoller=null,lastNotifCount=0;
 function startNotifPoller(){
@@ -1529,10 +1549,9 @@ function startNotifPoller(){
 }
 async function checkNotifs(){
   if(!currentUser) return;
-  const {doc,getDoc}=window._fbFns;
-  const snap=await getDoc(doc(window._db,'users',currentUser.uid));
-  if(!snap.exists()) return;
-  const notifs=Array.isArray(snap.data().notifs)?snap.data().notifs:[];
+  const _csnap=await window._db.collection('users').doc(currentUser.uid).get();
+  if(!_csnap.exists) return;
+  const notifs=Array.isArray(_csnap.data().notifs)?_csnap.data().notifs:[];
   const unread=notifs.filter(n=>!n.read);
   updateBadge('tab-verses',unread.filter(n=>n.type==='verse_like'||n.type==='comment').length);
   updateBadge('tab-rank',unread.filter(n=>n.type==='like').length);
@@ -1560,25 +1579,18 @@ function clearRankBadge(){
 }
 async function markNotifsRead(types){
   if(!currentUser) return;
-  const {doc,getDoc,updateDoc}=window._fbFns;
-  const snap=await getDoc(doc(window._db,'users',currentUser.uid));
-  if(!snap.exists()) return;
-  const notifs=Array.isArray(snap.data().notifs)?snap.data().notifs:[];
+  const _mref=window._db.collection('users').doc(currentUser.uid);
+  const _msnap=await _mref.get();
+  if(!_msnap.exists) return;
+  const notifs=Array.isArray(_msnap.data().notifs)?_msnap.data().notifs:[];
   const updated=notifs.map(n=>types.includes(n.type)?{...n,read:true}:n);
-  await updateDoc(doc(window._db,'users',currentUser.uid),{notifs:updated});
+  await _mref.update({notifs:updated});
   lastNotifCount=updated.filter(n=>!n.read).length;
 }
 
 window.onload=()=>{
   // Firebase Auth 상태 자동 감지
-  if(window._auth && window._fbFns){
-    window._fbFns.onAuthStateChanged(window._auth, async (user)=>{
-      if(user && !currentUser){
-        document.getElementById('login-loading').style.display='block';
-        await enterApp(user);
-      }
-    });
-  }
+  // onAuthStateChanged는 Firebase SDK 로드 시 이미 등록됨
 };
 </script>
 <div class="notif-toast" id="notif-toast">
