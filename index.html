@@ -365,6 +365,17 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
   <div id="login-error" style="color:#e74c3c;font-size:12px;margin-top:10px;display:none;min-height:18px;"></div>
 </div>
 
+
+<!-- 클래스 선택 화면 -->
+<div id="class-select-screen" style="display:none;max-width:430px;margin:0 auto;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#0a0e1a;">
+  <div style="text-align:center;margin-bottom:20px;">
+    <div style="font-size:36px;margin-bottom:6px;">⚔️</div>
+    <div style="font-family:'Black Han Sans',sans-serif;font-size:24px;color:#f4d03f;margin-bottom:4px;">클래스 선택</div>
+    <div style="font-size:12px;color:#888;">7일 후 변경 가능해요! 나에게 맞는 제자를 선택하세요</div>
+  </div>
+  <div id="class-grid" style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:70vh;overflow-y:auto;padding-bottom:10px;"></div>
+</div>
+
 <div id="app">
   <div class="overlay" id="levelup-overlay" onclick="closeLevelUp()">
     <div class="levelup-box">
@@ -420,6 +431,15 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <button class="logout-btn-small" onclick="logout()">🚪 로그아웃</button>
       </div>
       <div id="notice-wrap"></div>
+      <!-- 클래스 정보 카드 -->
+      <div id="class-card" style="background:#ffffff08;border-radius:12px;padding:12px 16px;margin-bottom:10px;border:1px solid #ffffff12;display:flex;align-items:center;gap:12px;">
+        <div id="class-icon" style="font-size:28px;">⚔️</div>
+        <div style="flex:1">
+          <div id="class-name" style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#f4d03f;"></div>
+          <div id="class-skill" style="font-size:11px;color:#888;margin-top:2px;"></div>
+        </div>
+        <button onclick="openClassChange()" id="class-change-btn" style="font-size:10px;color:#888;background:#ffffff0a;border:1px solid #ffffff15;border-radius:8px;padding:4px 8px;cursor:pointer;white-space:nowrap;">변경</button>
+      </div>
       <div class="card-title">📖 오늘 읽은 말씀 기록</div>
       <div class="card">
         <label class="label">성경책 선택</label>
@@ -581,6 +601,22 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 
   </div><script><!-- /app -->
 // Firebase initialized via module script above
+
+
+const CLASSES = {
+  peter:{id:'peter',icon:'⚔️',name:'베드로',title:'반석의 사도',desc:'행동하는 믿음! 복음서·역사서 읽을 때 XP 1.5배',color:'#3b82f6',bg:'linear-gradient(135deg,#1e3a8a,#3b82f6)',bonus:['마태복음','마가복음','누가복음','요한복음','사도행전','여호수아','사사기','룻기','사무엘상','사무엘하','열왕기상','열왕기하','역대상','역대하','에스라','느헤미야','에스더'],skill:'⚓ 반석의 고백 — 복음서·역사서 XP 1.5배'},
+  john:{id:'john',icon:'💛',name:'요한',title:'사랑의 사도',desc:'깊은 묵상! 요한서신·시가서 읽을 때 XP 1.5배',color:'#f59e0b',bg:'linear-gradient(135deg,#92400e,#f59e0b)',bonus:['요한복음','요한일서','요한이서','요한삼서','요한계시록','욥기','시편','잠언','전도서','아가'],skill:'❤️ 사랑의 서신 — 요한서신·시가서 XP 1.5배'},
+  james:{id:'james',icon:'🔥',name:'야고보',title:'인내의 사도',desc:'믿음의 행함! 야고보서·대선지서 읽을 때 XP 1.5배',color:'#ef4444',bg:'linear-gradient(135deg,#7f1d1d,#ef4444)',bonus:['야고보서','이사야','예레미야','예레미야애가','에스겔','다니엘'],skill:'🔥 순교의 믿음 — 야고보서·대선지서 XP 1.5배'},
+  andrew:{id:'andrew',icon:'🌊',name:'안드레',title:'전도의 사도',desc:'첫 번째 제자! 소선지서 읽을 때 XP 1.5배',color:'#06b6d4',bg:'linear-gradient(135deg,#164e63,#06b6d4)',bonus:['호세아','요엘','아모스','오바댜','요나','미가','나훔','하박국','스바냐','학개','스가랴','말라기'],skill:'🌊 첫 제자의 열심 — 소선지서 XP 1.5배'},
+  philip:{id:'philip',icon:'💡',name:'빌립',title:'지혜의 사도',desc:'묻고 탐구하는 자! 잠언·전도서 읽을 때 XP 1.5배',color:'#8b5cf6',bg:'linear-gradient(135deg,#4c1d95,#8b5cf6)',bonus:['잠언','전도서','욥기','야고보서','히브리서'],skill:'💡 지혜의 탐구 — 잠언·전도서·욥기 XP 1.5배'},
+  bartholomew:{id:'bartholomew',icon:'🌿',name:'바돌로매',title:'신실의 사도',desc:'순수한 믿음! 율법서 읽을 때 XP 1.5배',color:'#22c55e',bg:'linear-gradient(135deg,#14532d,#22c55e)',bonus:['창세기','출애굽기','레위기','민수기','신명기'],skill:'🌿 순수한 신앙 — 율법서 XP 1.5배'},
+  matthew:{id:'matthew',icon:'📝',name:'마태',title:'기록의 사도',desc:'세리에서 제자로! 마태복음·역대기 읽을 때 XP 1.5배',color:'#f97316',bg:'linear-gradient(135deg,#7c2d12,#f97316)',bonus:['마태복음','역대상','역대하','에스라','느헤미야'],skill:'📝 말씀의 기록 — 마태복음·역대기 XP 1.5배'},
+  thomas:{id:'thomas',icon:'🔍',name:'도마',title:'확신의 사도',desc:'의심에서 확신으로! 요한복음·시편 읽을 때 XP 1.5배',color:'#a78bfa',bg:'linear-gradient(135deg,#3b0764,#a78bfa)',bonus:['요한복음','시편','전도서','욥기'],skill:'🔍 확신의 고백 — 요한복음·시편 XP 1.5배'},
+  simon:{id:'simon',icon:'⚡',name:'시몬',title:'열심의 사도',desc:'뜨거운 헌신! 민수기·신명기 읽을 때 XP 1.5배',color:'#fbbf24',bg:'linear-gradient(135deg,#78350f,#fbbf24)',bonus:['민수기','신명기','레위기','출애굽기'],skill:'⚡ 열심당의 헌신 — 민수기·신명기 XP 1.5배'},
+  thaddaeus:{id:'thaddaeus',icon:'🕊️',name:'다대오',title:'겸손의 사도',desc:'조용한 헌신! 일반서신 읽을 때 XP 1.5배',color:'#e2e8f0',bg:'linear-gradient(135deg,#334155,#e2e8f0)',bonus:['히브리서','베드로전서','베드로후서','유다서','요한일서','요한이서','요한삼서'],skill:'🕊️ 겸손의 기도 — 일반서신 XP 1.5배'},
+  james2:{id:'james2',icon:'🌸',name:'작은 야고보',title:'온유의 사도',desc:'온유한 섬김! 룻기·에스더 읽을 때 XP 1.5배',color:'#f472b6',bg:'linear-gradient(135deg,#831843,#f472b6)',bonus:['룻기','에스더','아가','욥기'],skill:'🌸 온유한 섬김 — 룻기·에스더 XP 1.5배'},
+  matthias:{id:'matthias',icon:'👑',name:'맛디아',title:'순종의 사도',desc:'부름에 응답! 사도행전·바울서신 읽을 때 XP 1.5배',color:'#fcd34d',bg:'linear-gradient(135deg,#713f12,#fcd34d)',bonus:['사도행전','로마서','고린도전서','고린도후서','갈라디아서','에베소서','빌립보서','골로새서','데살로니가전서','데살로니가후서','디모데전서','디모데후서','디도서','빌레몬서'],skill:'👑 순종의 응답 — 사도행전·바울서신 XP 1.5배'}
+};
 
 const BOOK_CATEGORIES = [
   { label:"📜 율법서 (창~신)", mapId:"율법서", books:[
@@ -911,7 +947,11 @@ async function recordReading(){
   const bookName=document.getElementById('book-select').value;
   const selectedChapters=[...selectedChs].sort((a,b)=>a-b);
   if(!selectedChapters.length){alert("읽은 장을 선택해주세요!");return;}
-  const ch=selectedChapters.length, gainedXp=ch*10;
+  const ch=selectedChapters.length;
+  const cls=CLASSES[state.userClass];
+  const isBonus=cls&&cls.bonus.includes(bookName);
+  const gainedXp=isBonus?Math.round(ch*15):ch*10;
+  const bonusMsg=isBonus?` (${cls.name} 보너스 1.5배! 🎉)`:'';
   const prevLv=getLvInfo(state.xp).cur.lv, prevStreak=state.streak;
   const yest=new Date(); yest.setDate(yest.getDate()-1);
   const isToday2=state.lastDate===today(), wasYest=state.lastDate===yest.toDateString();
@@ -924,7 +964,7 @@ async function recordReading(){
   selectedChapters.forEach(ch=>{
     if(!state.bookChapters[bookName].includes(ch)) state.bookChapters[bookName].push(ch);
   });
-  state.log.unshift({date:today(),book:bookName,ch,chapters:selectedChapters,xp:gainedXp});
+  state.log.unshift({date:today(),book:bookName,ch,chapters:selectedChapters,xp:gainedXp,bonus:typeof isBonus!=='undefined'?isBonus:false});
   if(state.log.length>50) state.log.pop();
   if(state.questDate!==today()){state.completedQuests=[];state.questDate=today();}
   const ds=todayStr();
@@ -934,7 +974,7 @@ async function recordReading(){
   const btn=document.getElementById('record-btn');
   btn.textContent='저장 중...'; btn.disabled=true;
   await saveToCloud();
-  btn.textContent='✅ 기록 완료!';
+  btn.textContent='✅ 기록 완료!'+(typeof bonusMsg!=='undefined'?bonusMsg:'');
   const verseText=document.getElementById('verse-text')?.value.trim();
   if(verseText){
     window._db.collection('verses').add({userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:selectedChapters[0],verseText,likedBy:[],likes:0,comments:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
@@ -969,6 +1009,22 @@ function getTodayQuests(){
 function renderAll(){
   const {cur,next,pct}=getLvInfo(state.xp);
   document.getElementById('streak-badge').textContent=`🔥 ${state.streak}일 연속`;
+  // 클래스 카드 업데이트
+  const _cls=CLASSES[state.userClass];
+  if(_cls && document.getElementById('class-icon')){
+    document.getElementById('class-icon').textContent=_cls.icon;
+    document.getElementById('class-name').textContent=_cls.name+' · '+_cls.title;
+    document.getElementById('class-skill').textContent=_cls.skill;
+    const cc=document.getElementById('class-card');
+    if(cc) cc.style.borderColor=_cls.color+'55';
+    const cb=document.getElementById('class-change-btn');
+    if(cb&&state.classChangedAt){
+      const ds=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+      cb.textContent=ds>=7?'변경 가능':'변경 D-'+(7-ds);
+      cb.style.color=ds>=7?'#f4d03f':'#888';
+      cb.style.borderColor=ds>=7?'#f4d03f55':'#ffffff15';
+    }
+  }
   document.getElementById('level-icon').textContent=cur.icon;
   document.getElementById('level-num').textContent=`Lv. ${cur.lv}`;
   document.getElementById('level-name').textContent=cur.title;
@@ -1610,6 +1666,57 @@ async function markNotifsRead(types){
   const updated=notifs.map(n=>types.includes(n.type)?{...n,read:true}:n);
   await _mref.update({notifs:updated});
   lastNotifCount=updated.filter(n=>!n.read).length;
+}
+
+
+function showClassSelect(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='none';
+  const grid=document.getElementById('class-grid');
+  grid.innerHTML=Object.values(CLASSES).map(cls=>`
+    <div onclick="selectClass('${cls.id}')"
+      style="cursor:pointer;background:${cls.bg};border-radius:14px;padding:14px 12px;border:2px solid ${cls.color}55;text-align:center;transition:transform 0.15s;"
+      onmouseover="this.style.transform='scale(1.03)'"
+      onmouseout="this.style.transform='scale(1)'">
+      <div style="font-size:28px;margin-bottom:4px;">${cls.icon}</div>
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#fff;">${cls.name}</div>
+      <div style="font-size:9px;color:#ffffffbb;margin-top:2px;">${cls.title}</div>
+      <div style="font-size:9px;color:#fbbf24;margin-top:6px;background:#00000022;border-radius:6px;padding:3px 6px;line-height:1.4;">${cls.skill.split('—')[0].trim()}</div>
+    </div>
+  `).join('');
+  document.getElementById('class-select-screen').style.display='flex';
+}
+
+async function selectClass(classId){
+  if(state.userClass && state.classChangedAt){
+    const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+    if(daysSince<7){
+      alert('클래스는 선택 후 7일이 지나야 변경할 수 있어요!\n(변경 가능까지 '+(7-daysSince)+'일 남음)');
+      return;
+    }
+  }
+  const now=new Date().toISOString();
+  state.userClass=classId;
+  state.classChangedAt=now;
+  await window._db.collection('users').doc(currentUser.uid).update({userClass:classId,classChangedAt:now});
+  document.getElementById('class-select-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const cls=CLASSES[classId];
+  document.getElementById('header-display-name').textContent=`${cls.icon} ${currentUser.name}님의 모험`;
+  const now2=new Date(); calYear=now2.getFullYear(); calMonth=now2.getMonth();
+  initBookSelect(); renderAll();
+  startNotifPoller(); renderNotices();
+}
+
+function openClassChange(){
+  if(state.userClass && state.classChangedAt){
+    const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+    if(daysSince<7){
+      alert('클래스 변경까지 '+(7-daysSince)+'일 남았어요!');
+      return;
+    }
+  }
+  showClassSelect();
 }
 
 window.onload=()=>{
