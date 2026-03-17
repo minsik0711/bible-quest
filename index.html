@@ -180,7 +180,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .bm-cell.unread .bm-name { color: #333; }
 
 /* ── 공지 배너 ── */
-.notice-banner{margin:8px 0 4px;border-radius:12px;overflow:hidden;}
+.notice-banner{margin:8px 0 4px;border-radius:12px;}
 .notice-slide{display:flex;background:linear-gradient(135deg,#1a2340,#1e2d4a);border:1px solid #f4d03f22;border-radius:12px;padding:10px 14px;align-items:flex-start;gap:10px;animation:notice-in 0.4s ease;}
 @keyframes notice-in{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
 .notice-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
@@ -188,7 +188,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .notice-tag{font-size:9px;color:#f4d03f;background:#f4d03f22;border-radius:4px;padding:1px 5px;font-family:'Black Han Sans';display:inline-block;margin-bottom:3px;}
 .notice-title{font-size:13px;font-weight:700;color:#e8e8e8;margin-bottom:2px;}
 .notice-desc{font-size:11px;color:#888;line-height:1.5;}
-.notice-close{background:none;border:none;color:#444;cursor:pointer;font-size:16px;padding:2px;align-self:flex-start;flex-shrink:0;transition:color 0.2s;}
+.notice-close{background:none;border:none;color:#444;cursor:pointer;font-size:16px;padding:2px;align-self:flex-start;flex-shrink:0;}
 .notice-close:hover{color:#888;}
 .notice-dots{display:flex;justify-content:center;gap:5px;margin-top:6px;}
 .notice-dot{width:6px;height:6px;border-radius:50%;background:#ffffff15;cursor:pointer;transition:all 0.2s;}
@@ -242,6 +242,14 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .verse-filter-btn{background:#ffffff08;border:1px solid #ffffff12;border-radius:20px;padding:5px 12px;font-size:11px;color:#666;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;}
 .verse-filter-btn.active{background:#f4d03f22;border-color:#f4d03f55;color:#f4d03f;}
 .verse-empty{text-align:center;padding:30px 0;color:#444;font-size:13px;line-height:2;}
+/* ── 하트 누른 사람 팝업 ── */
+.verse-liked-popup{position:fixed;inset:0;background:#000000bb;display:none;align-items:flex-end;justify-content:center;z-index:400;}
+.verse-liked-popup.show{display:flex;}
+.verse-liked-sheet{background:#111827;border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:430px;animation:slide-up 0.25s ease-out;max-height:60vh;overflow-y:auto;}
+.verse-liked-person{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #ffffff08;}
+.verse-liked-person:last-child{border-bottom:none;}
+.verse-liked-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Black Han Sans';font-size:14px;color:#0a0e1a;flex-shrink:0;}
+.verse-liked-name{font-size:13px;font-weight:700;}
 /* ── 알림 뱃지 ── */
 .tab{position:relative;}
 .notif-badge{position:absolute;top:4px;right:6px;min-width:16px;height:16px;background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;font-size:9px;font-family:'Black Han Sans';border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 8px #ff4b2b99;border:1.5px solid #0a0e1a;animation:badge-pop 0.4s cubic-bezier(0.36,0.07,0.19,0.97);pointer-events:none;z-index:10;}
@@ -465,6 +473,15 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div id="rec-popup-list"><div class="empty-msg">불러오는 중... ⏳</div></div>
       </div>
     </div>
+    <!-- 구절 하트 누른 사람 팝업 -->
+    <div class="verse-liked-popup" id="verse-liked-popup" onclick="closeVerseLikedPopup()">
+      <div class="verse-liked-sheet" onclick="event.stopPropagation()">
+        <div class="popup-handle"></div>
+        <div class="popup-title" id="verse-liked-title">❤️ 공감한 사람들</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;" id="verse-liked-sub"></div>
+        <div id="verse-liked-list"></div>
+      </div>
+    </div>
     <!-- 좋아요 팝업 -->
     <div class="popup-overlay" id="like-popup-overlay" onclick="closeLikePopup()">
       <div class="popup-sheet" onclick="event.stopPropagation()">
@@ -512,6 +529,14 @@ const BOOK_CATEGORIES = [
 const BOOKS = BOOK_CATEGORIES.flatMap(c=>c.books);
 
 function getCompletedBooks(log) {
+  // ★ bookChapters 기준으로 완독 체크 (가장 정확, log 50개 제한 영향 없음)
+  if(state && state.bookChapters && Object.keys(state.bookChapters).length > 0) {
+    return BOOKS.filter(b => {
+      const read = state.bookChapters[b.name];
+      return Array.isArray(read) && read.length >= b.ch;
+    }).map(b => b.name);
+  }
+  // fallback: state 없을 때만 log 사용
   const bc={};
   log.forEach(l=>{
     if(!bc[l.book]) bc[l.book]=new Set();
@@ -856,7 +881,11 @@ function renderAll(){
 }
 
 function renderBibleMap(){
-  const completed=new Set(getCompletedBooks(state.log));
+  // ★ bookChapters 직접 사용 - 가장 정확한 완독 체크
+  const completed=new Set(BOOKS.filter(b=>{
+    const read=state.bookChapters[b.name];
+    return Array.isArray(read) && read.length>=b.ch;
+  }).map(b=>b.name));
   let total=0;
   BOOK_CATEGORIES.forEach(cat=>{
     const grid=document.getElementById('bmap-'+cat.mapId);
@@ -1035,8 +1064,9 @@ function updateChapterSummary(bookName,unit){
   const badge=document.getElementById('verse-ref-badge');
   const onlyBtn=document.getElementById('verse-only-btn');
   if(!sorted.length){
-    sum.textContent='읽은 장을 선택해주세요 📖'; xp.textContent='';
-    if(!cancelChs.size && card) card.style.display='none'; return;
+    sum.textContent='읽은 장을 선택해주세요 📖';xp.textContent='';
+    if(!cancelChs.size&&card) card.style.display='none';
+    return;
   }
   sum.textContent=`${bookName} ${sorted.join(unit+', ')}${unit} (총 ${sorted.length}${unit})`;
   xp.textContent=`+${sorted.length*10} XP 획득 예정`;
@@ -1054,7 +1084,7 @@ function showVerseCardForRead(bookName,chap){
     card.style.display='block';
     if(badge) badge.textContent=`📖 ${bookName} ${chap}${unit} ✓ 이미 읽은 장`;
     if(onlyBtn) onlyBtn.style.display='block';
-  } else if(cancelChs.size===0 && selectedChs.size===0){
+  } else if(cancelChs.size===0&&selectedChs.size===0){
     card.style.display='none';
   }
 }
@@ -1143,7 +1173,7 @@ function dismissNotice(id){
 }
 
 /* ══════════════════════════════════════
-   기록 팝업 (랭킹 이름 클릭 → 전체 기록)
+   기록 팝업 (전체 기록)
 ══════════════════════════════════════ */
 function getAvatarColor(name){
   const c=['#f4d03f','#3b82f6','#22c55e','#e74c3c','#a78bfa','#f97316','#06b6d4','#ec4899','#10b981','#fbbf24'];
@@ -1162,7 +1192,6 @@ async function showRecordPopup(targetName){
   document.getElementById('rec-popup-stats').textContent=`Lv.${data.level} · ${data.total_chapters}장 · ${data.xp} XP`;
   const log=data.log||[];
   if(!log.length){document.getElementById('rec-popup-list').innerHTML='<div class="empty-msg">아직 읽기 기록이 없어요 🌱</div>';return;}
-  // ★ slice 없이 전체 기록 표시
   document.getElementById('rec-popup-list').innerHTML=log.map(l=>{
     const unit=l.book==='시편'?'편':'장';
     const chDetail=l.chapters&&l.chapters.length>0?l.chapters.join(unit+', ')+unit:l.ch+unit;
@@ -1182,7 +1211,7 @@ async function showRecordPopup(targetName){
 function closeRecordPopup(){document.getElementById('record-popup-overlay').classList.remove('show');}
 
 /* ══════════════════════════════════════
-   구절 나눔
+   구절 나눔 + 하트 누른 사람 확인
 ══════════════════════════════════════ */
 let verseFilter='all';
 function updateVerseCount(){document.getElementById('verse-char-cnt').textContent=document.getElementById('verse-text').value.length;}
@@ -1203,6 +1232,25 @@ async function shareVerseOnly(){
   const unit=bookName==='시편'?'편':'장';
   showToast('✨','구절을 나눴어요!',`${bookName} ${chap}${unit}`);
 }
+
+// ★ 하트 누른 사람 팝업
+function showVerseLikedPopup(likedBy, bookRef){
+  const names=Array.isArray(likedBy)?likedBy:[];
+  document.getElementById('verse-liked-title').textContent='❤️ '+bookRef+' 공감한 사람들';
+  document.getElementById('verse-liked-sub').textContent=names.length>0?names.length+'명이 공감했어요':'아직 공감한 사람이 없어요';
+  document.getElementById('verse-liked-list').innerHTML=names.length===0
+    ?'<div style="text-align:center;padding:20px;color:#444;">아직 공감한 사람이 없어요 🥲</div>'
+    :names.map(n=>{
+      const ac=getAvatarColor(n);
+      return `<div class="verse-liked-person">
+        <div class="verse-liked-avatar" style="background:${ac}">${n.charAt(0)}</div>
+        <div class="verse-liked-name">${n}</div>
+      </div>`;
+    }).join('');
+  document.getElementById('verse-liked-popup').classList.add('show');
+}
+function closeVerseLikedPopup(){document.getElementById('verse-liked-popup').classList.remove('show');}
+
 async function loadVerses(){
   const list=document.getElementById('verse-feed-list');
   list.innerHTML='<div class="verse-empty">불러오는 중... ⏳</div>';
@@ -1220,6 +1268,7 @@ async function loadVerses(){
     const isMe=v.user_name===currentUser?.name;
     const ac=getAvatarColor(v.user_name);
     const unit=v.book==='시편'?'편':'장';
+    const ref=`${v.book} ${v.chapter}${unit}`;
     const dt=new Date(v.created_at);
     const dts=dt.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})+' '+dt.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
     const comments=Array.isArray(v.comments)?v.comments:[];
@@ -1236,12 +1285,13 @@ async function loadVerses(){
         </div>
       </div>`;
     }).join('');
+    const likedByJson=JSON.stringify(likedBy).replace(/"/g,'&quot;');
     return `<div class="verse-feed-item" id="vitem-${v.id}">
       <div class="verse-feed-top">
         <div class="verse-avatar" style="background:${ac}">${v.user_name.charAt(0)}</div>
         <div style="flex:1">
           <div class="verse-user-name">${v.user_name}${isMe?' <span style="font-size:10px;color:#555;">나</span>':''}</div>
-          <div class="verse-ref-info">📖 ${v.book} ${v.chapter}${unit}</div>
+          <div class="verse-ref-info">📖 ${ref}</div>
         </div>
         ${isMe?`<button class="verse-delete-btn" onclick="deleteVerse('${v.id}')">🗑️</button>`:''}
       </div>
@@ -1250,6 +1300,7 @@ async function loadVerses(){
         <span class="verse-date">${dts}</span>
         <div class="verse-actions">
           <button class="verse-like-btn${iLiked?' liked':''}" onclick="toggleVerseLike('${v.id}','${v.user_name}',this)">❤️ <span>${likedBy.length}</span></button>
+          ${likedBy.length>0?`<button style="background:none;border:none;font-size:10px;color:#888;cursor:pointer;padding:2px 6px;" onclick="showVerseLikedPopup(JSON.parse(this.dataset.lb),'${ref}')" data-lb="${likedByJson}">누가?</button>`:''}
           <button class="verse-comment-toggle${comments.length>0?' open':''}" onclick="toggleComments('${v.id}')">💬 <span id="vcnt-${v.id}">${comments.length}</span></button>
         </div>
       </div>
@@ -1305,6 +1356,22 @@ async function toggleVerseLike(verseId,authorName,btn){
   if(!iLiked) saveNotif(authorName,'verse_like',`${currentUser.name}님이 구절에 공감했어요 ❤️`,'❤️');
   btn.classList.toggle('liked',!iLiked);
   btn.querySelector('span').textContent=newLikedBy.length;
+  // 누가 버튼 갱신
+  const footer=btn.closest('.verse-actions');
+  if(footer){
+    const whoBtn=footer.querySelector('[data-lb]');
+    if(!iLiked){
+      if(whoBtn){whoBtn.dataset.lb=JSON.stringify(newLikedBy).replace(/"/g,'&quot;');}
+      else{
+        const nb=document.createElement('button');
+        nb.style.cssText='background:none;border:none;font-size:10px;color:#888;cursor:pointer;padding:2px 6px;';
+        nb.dataset.lb=JSON.stringify(newLikedBy);
+        nb.textContent='누가?';
+        nb.onclick=function(){const ref=btn.closest('.verse-feed-item')?.querySelector('.verse-ref-info')?.textContent||'';showVerseLikedPopup(JSON.parse(this.dataset.lb),ref);};
+        btn.after(nb);
+      }
+    }
+  }
 }
 async function deleteVerse(verseId){
   if(!confirm('이 나눔을 삭제할까요?')) return;
@@ -1379,11 +1446,13 @@ async function markNotifsRead(types){
   lastNotifCount=updated.filter(n=>!n.read).length;
 }
 
-window.onload=()=>{
+window.onload=async()=>{
   const savedName=localStorage.getItem('bq_saved_name');
   if(savedName){
     document.getElementById('user-name-input').value=savedName;
     document.getElementById('remember-name').checked=true;
+    document.getElementById('login-loading').style.display='block';
+    await loginWithName(savedName);
   }
 };
 </script>
