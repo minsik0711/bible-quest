@@ -332,13 +332,37 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 <body>
 
 <div id="login-screen">
-  <div style="font-size:60px;margin-bottom:12px">⚔️</div>
-  <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:32px;margin-bottom:8px">📖 성경읽고 레벨업</h1>
-  <p style="margin-bottom:28px;color:#888;font-size:14px;line-height:1.6">성경 읽고 레벨업!<br>이름을 입력하고 시작하세요.</p>
-  <input type="text" id="user-name-input" class="login-input" placeholder="이름을 입력하세요" onkeydown="if(event.key==='Enter') login()">
-  <label class="remember-label"><input type="checkbox" id="remember-name"> 이름 저장하기</label>
-  <button class="login-btn" onclick="login()">⚔️ 모험 시작하기</button>
-  <div class="login-loading" id="login-loading">⏳ 접속 중...</div>
+  <div style="font-size:52px;margin-bottom:10px">📖</div>
+  <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:28px;margin-bottom:4px">성경읽고 레벨업</h1>
+  <p style="color:#888;font-size:12px;margin-bottom:22px">말씀 읽고 레벨업! 교회 청년부 성경 RPG</p>
+
+  <!-- 탭 -->
+  <div style="display:flex;gap:0;margin-bottom:18px;background:#ffffff0a;border-radius:10px;padding:3px;width:100%;">
+    <button id="tab-signin" onclick="switchAuthTab('signin')"
+      style="flex:1;padding:9px;border:none;border-radius:8px;font-family:'Black Han Sans';font-size:14px;cursor:pointer;background:linear-gradient(135deg,#f4d03f,#f39c12);color:#0a0e1a;transition:all 0.2s;">로그인</button>
+    <button id="tab-signup" onclick="switchAuthTab('signup')"
+      style="flex:1;padding:9px;border:none;border-radius:8px;font-family:'Black Han Sans';font-size:14px;cursor:pointer;background:none;color:#666;transition:all 0.2s;">회원가입</button>
+  </div>
+
+  <!-- 로그인 폼 -->
+  <div id="form-signin" style="width:100%">
+    <input type="email" id="signin-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;" onkeydown="if(event.key==='Enter')login()">
+    <input type="password" id="signin-password" class="login-input" placeholder="비밀번호" style="font-size:15px;" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()" style="margin-top:14px;">⚔️ 모험 시작하기</button>
+  </div>
+
+  <!-- 회원가입 폼 -->
+  <div id="form-signup" style="display:none;width:100%">
+    <input type="text" id="signup-name" class="login-input" placeholder="이름 (닉네임)" style="font-size:15px;margin-bottom:10px;">
+    <input type="email" id="signup-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;">
+    <input type="password" id="signup-password" class="login-input" placeholder="비밀번호 (6자 이상)" style="font-size:15px;margin-bottom:10px;">
+    <input type="text" id="signup-church-code" class="login-input" placeholder="교회 코드 (예: SINGANG2024)" style="font-size:14px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+    <div style="font-size:10px;color:#555;margin-bottom:14px;text-align:left;">교회 코드는 담당자에게 문의하세요</div>
+    <button class="login-btn" onclick="signup()">✨ 새 모험 시작하기</button>
+  </div>
+
+  <div class="login-loading" id="login-loading" style="margin-top:14px;">⏳ 접속 중...</div>
+  <div id="login-error" style="color:#e74c3c;font-size:12px;margin-top:10px;display:none;min-height:18px;"></div>
 </div>
 
 <div id="app">
