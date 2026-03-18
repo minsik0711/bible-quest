@@ -6,6 +6,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>📖 성경읽고 레벨업</title>
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- EmailJS SDK - 이메일 자동발송 -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // ★ EmailJS 설정 - 아래 값을 본인 EmailJS 계정 값으로 교체하세요
+  window.EMAILJS_CONFIG = {
+    publicKey:  'pYWDc_5AKlMnZdFUo',    // EmailJS > Account > Public Key
+    serviceId:  'service_sw9t94c',    // EmailJS > Email Services > Service ID
+    templateId: 'template_08wq01u',   // EmailJS > Email Templates > Template ID
+  };
+  // publicKey가 설정된 경우에만 초기화
+  if(window.EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY'){
+    emailjs.init({ publicKey: window.EMAILJS_CONFIG.publicKey });
+  }
+</script>
 <!-- Firebase SDK (compat - 동기 로드 보장) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -1828,7 +1842,7 @@ async function loadAdminRequests(){
         </div>
         ${d.status==='pending'?`
         <div style="display:flex;gap:6px;margin-top:8px;">
-          <button onclick="adminApproveRequest('${doc.id}','${d.churchName}','${d.codeWish||''}')" style="flex:1;padding:7px;background:#22c55e22;border:1px solid #22c55e55;border-radius:8px;font-size:12px;color:#22c55e;cursor:pointer;font-family:'Black Han Sans',sans-serif;">✅ 승인</button>
+          <button onclick="adminApproveRequest('${doc.id}','${d.churchName}','${d.codeWish||''}','${d.contact||''}')" style="flex:1;padding:7px;background:#22c55e22;border:1px solid #22c55e55;border-radius:8px;font-size:12px;color:#22c55e;cursor:pointer;font-family:'Black Han Sans',sans-serif;">✅ 승인</button>
           <button onclick="adminRejectRequest('${doc.id}')" style="flex:1;padding:7px;background:#e74c3c22;border:1px solid #e74c3c55;border-radius:8px;font-size:12px;color:#e74c3c;cursor:pointer;font-family:'Black Han Sans',sans-serif;">❌ 거절</button>
         </div>`:''}
       </div>`;
@@ -1838,31 +1852,95 @@ async function loadAdminRequests(){
   }
 }
 
+// ── 교회명 → 영문 코드 자동 생성 (한글 지원) ──
+function generateChurchCode(churchName){
+  const map={
+    '굿':'GOOD','갓':'GOD','강':'GANG','광':'GWANG','구':'GU','국':'GUK',
+    '남':'NAM','대':'DAE','동':'DONG','문':'MUN','민':'MIN',
+    '반':'BAN','빛':'BIT','복':'BOK','본':'BON',
+    '사':'SA','산':'SAN','새':'SAE','생':'SAENG','서':'SEO','성':'SUNG',
+    '소':'SO','송':'SONG','수':'SU','순':'SUN','신':'SHIN',
+    '안':'AN','양':'YANG','여':'YEO','연':'YEON','영':'YOUNG',
+    '온':'ON','용':'YONG','우':'WOO','원':'WON','은':'EUN',
+    '이':'LEE','인':'IN','임':'IM',
+    '전':'JUN','정':'JUNG','조':'CHO','종':'JONG','주':'JU','진':'JIN',
+    '창':'CHANG','천':'CHEON','청':'CHUNG','초':'CHO',
+    '한':'HAN','해':'HAE','행':'HAENG','향':'HYANG','호':'HO','화':'HWA','희':'HEE',
+    '기':'GI','나':'NA','다':'DA','라':'RA','마':'MA','바':'BA','아':'A','자':'JA',
+    '차':'CHA','카':'KA','타':'TA','파':'PA','하':'HA',
+    '교회':''
+  };
+  const name = churchName.replace(/교회$/,'').replace(/\s/g,'');
+  let code = '';
+  let i = 0;
+  while(i < name.length){
+    const ch2 = name.slice(i,i+2);
+    const ch1 = name[i];
+    if(/[A-Za-z0-9]/.test(ch1)){ code += ch1.toUpperCase(); i++; continue; }
+    if(map[ch2] !== undefined){ code += map[ch2]; i+=2; continue; }
+    if(map[ch1] !== undefined){ code += map[ch1]; i++; continue; }
+    // 초성 추출 fallback
+    const cp = ch1.charCodeAt(0);
+    if(cp>=0xAC00&&cp<=0xD7A3){
+      const cho=['G','GG','N','D','DD','R','M','B','BB','S','SS','','J','JJ','CH','K','T','P','H'];
+      code += cho[Math.floor((cp-0xAC00)/588)] || '';
+    }
+    i++;
+  }
+  code = (code || 'CHURCH').slice(0,8) + new Date().getFullYear();
+  return code;
+}
+
 // ── 신청 승인 ──
-async function adminApproveRequest(reqId, churchName, codeWish){
-  const finalCode = codeWish && codeWish!=='(자동발급)'
-    ? codeWish
-    : churchName.replace(/[^A-Z0-9]/gi,'').toUpperCase().slice(0,8)+(new Date().getFullYear());
-  const confirmMsg=`승인하시겠어요?
-교회명: ${churchName}
-발급 코드: ${finalCode}`;
-  if(!confirm(confirmMsg)) return;
+async function adminApproveRequest(reqId, churchName, codeWish, contactEmail){
+  // 희망코드 있으면 그대로, 없으면 교회명 기반 자동생성
+  const suggested = (codeWish && codeWish!=='(자동발급)' && codeWish.length>=3)
+    ? codeWish : generateChurchCode(churchName);
+
+  // 관리자가 직접 수정 가능
+  const inputCode = prompt('교회명: ' + churchName + '\n\n발급 코드 확인/수정 (영문대문자+숫자, 3~12자)', suggested);
+  if(!inputCode) return;
+  const finalCode = inputCode.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
+  if(finalCode.length<3){ alert('코드는 최소 3자 이상이어야 해요.'); return; }
+  if(!confirm('최종 확인\n교회명: ' + churchName + '\n발급 코드: ' + finalCode)) return;
+
   try{
-    // 1) churchCodes에 코드 등록
     await window._db.collection('churchCodes').doc(finalCode).set({
       code:finalCode, churchName, active:true,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    // 2) 신청 상태 업데이트
     await window._db.collection('churchCodeRequests').doc(reqId).update({
       status:'approved', approvedCode:finalCode,
       approvedAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    showToast('✅','승인 완료',`${churchName} → ${finalCode}`);
+    // EmailJS 자동 이메일 발송
+    const emailSent = await sendApprovalEmail(contactEmail||'', churchName, finalCode);
+    const emailMsg = emailSent ? '이메일 발송 완료 ✉️' : '이메일 수동 발송 필요';
+    showToast('✅','승인 완료', finalCode + ' · ' + emailMsg);
     loadAdminRequests();
     loadAdminCodes();
   }catch(e){
     alert('승인 실패: '+e.message);
+  }
+}
+
+// ── EmailJS 승인 이메일 발송 ──
+async function sendApprovalEmail(toEmail, churchName, code){
+  if(!toEmail) return false;
+  const cfg = window.EMAILJS_CONFIG;
+  if(!cfg || cfg.publicKey==='YOUR_PUBLIC_KEY') return false; // 미설정 시 skip
+  try{
+    await emailjs.send(cfg.serviceId, cfg.templateId, {
+      to_email:   toEmail,
+      church_name: churchName,
+      church_code: code,
+      app_url:    'https://bible-quest-tau.vercel.app',
+      reply_to:   'noreply@bible-quest.app'
+    });
+    return true;
+  }catch(e){
+    console.warn('EmailJS 발송 실패:', e);
+    return false;
   }
 }
 
