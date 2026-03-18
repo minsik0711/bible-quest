@@ -359,6 +359,25 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .notif-toast-sub{font-size:11px;color:#888;margin-top:1px;}
 .notif-toast-close{color:#444;cursor:pointer;font-size:16px;}
 
+/* ── 스플래시 화면 ── */
+#splash-screen {
+  position: fixed; inset: 0; background: #0a0e1a;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 9999; transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+#splash-screen.hide { opacity: 0; visibility: hidden; }
+.splash-rays { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); width: 280px; height: 280px; }
+.splash-ray { position: absolute; top: 50%; left: 50%; width: 3px; height: 100px; background: linear-gradient(to top, #f4d03f55, transparent); transform-origin: bottom center; border-radius: 2px; margin-left: -1.5px; animation: ray-pulse 2s ease-in-out infinite; }
+@keyframes ray-pulse { 0%,100%{opacity:0.4;} 50%{opacity:0.9;} }
+.splash-icon-box { width: 90px; height: 90px; background: linear-gradient(135deg, #f4d03f, #f39c12); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 48px; box-shadow: 0 0 0 12px #f4d03f15; animation: splash-pop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s both; margin-bottom: 22px; position: relative; z-index: 2; }
+@keyframes splash-pop { from{transform:scale(0.4);opacity:0;} to{transform:scale(1);opacity:1;} }
+.splash-app-name { font-family: 'Black Han Sans', sans-serif; font-size: 26px; color: #f4d03f; letter-spacing: 2px; margin-bottom: 6px; animation: splash-fadein 0.5s ease 0.4s both; position: relative; z-index: 2; }
+.splash-app-sub { font-size: 13px; color: #888; margin-bottom: 32px; animation: splash-fadein 0.5s ease 0.5s both; position: relative; z-index: 2; }
+@keyframes splash-fadein { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+.splash-progress-wrap { width: 120px; height: 3px; background: #ffffff15; border-radius: 99px; overflow: hidden; animation: splash-fadein 0.4s ease 0.6s both; position: relative; z-index: 2; }
+.splash-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #f4d03f, #f39c12); border-radius: 99px; transition: width 0.3s ease; }
+
 /* 로그인/모달 placeholder 가시성 개선 */
 .login-input::placeholder { color: #7a7f9a; }
 .login-input:focus::placeholder { color: #5a5f7a; }
@@ -371,10 +390,38 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 </head>
 <body>
 
+<!-- ── 스플래시 화면 ── -->
+<div id="splash-screen">
+  <div class="splash-rays">
+    <div class="splash-ray" style="transform:rotate(0deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(22.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(45deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(67.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(90deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(112.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(135deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(157.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(180deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(202.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(225deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(247.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(270deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(292.5deg) translateX(-50%);opacity:.5"></div>
+    <div class="splash-ray" style="transform:rotate(315deg) translateX(-50%);"></div>
+    <div class="splash-ray" style="transform:rotate(337.5deg) translateX(-50%);opacity:.5"></div>
+  </div>
+  <div class="splash-icon-box">📖</div>
+  <div class="splash-app-name">성경읽고 레벨업</div>
+  <div class="splash-app-sub">말씀 읽고 레벨업! 교회 성경 RPG</div>
+  <div class="splash-progress-wrap">
+    <div class="splash-progress-bar" id="splash-bar"></div>
+  </div>
+</div>
+
 <div id="login-screen">
   <div style="font-size:52px;margin-bottom:10px">📖</div>
   <h1 style="font-family:'Black Han Sans';color:#f4d03f;font-size:28px;margin-bottom:4px">성경읽고 레벨업</h1>
-  <p style="color:#c8c8c8;font-size:13px;font-weight:500;margin-bottom:22px;letter-spacing:0.3px;">성경 말씀 읽고 레벨업! 교회 성경 RPG</p>
+  <p style="color:#c8c8c8;font-size:13px;font-weight:500;margin-bottom:22px;letter-spacing:0.3px;">말씀 읽고 레벨업! 교회 성경 RPG</p>
 
   <!-- 탭 -->
   <div style="display:flex;gap:0;margin-bottom:18px;background:#ffffff0a;border-radius:10px;padding:3px;width:100%;">
@@ -421,7 +468,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-family:'Black Han Sans',sans-serif;font-size:20px;color:#f4d03f;margin-bottom:6px;">⛪ 교회 코드 신청</div>
       <div style="font-size:12px;color:#aaa;margin-bottom:24px;line-height:1.6;">승인 후 이메일로 교회 코드를 발송해드려요<br><span style="color:#f4d03f88;">보통 1~2일 소요됩니다</span></div>
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:7px;">교회명 <span style="color:#e74c3c;font-size:14px;">*</span></div>
-      <input id="req-church-name" class="login-input" placeholder="예) 신광교회" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
+      <input id="req-church-name" class="login-input" placeholder="교회명" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:7px;">담당자 이름 <span style="color:#e74c3c;font-size:14px;">*</span></div>
       <input id="req-manager-name" class="login-input" placeholder="담당자 이름" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:4px;">담당자 이메일 <span style="color:#e74c3c;font-size:14px;">*</span></div>
@@ -650,7 +697,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <!-- 구절 나눔 -->
     <div class="page" id="page-verses">
       <div class="card-title">💬 말씀 나눔</div>
-      <div style="font-size:12px;color:#666;margin-bottom:12px;">청년부원들이 나눈 인상깊은 구절이에요<br><span style="color:#f4d03f88;font-size:11px;">홈에서 장 선택 후 구절 입력 → 기록하기로 올릴 수 있어요 ✨</span></div>
+      <div style="font-size:12px;color:#666;margin-bottom:12px;">교인들이 나눈 인상깊은 구절이에요<br><span style="color:#f4d03f88;font-size:11px;">홈에서 장 선택 후 구절 입력 → 기록하기로 올릴 수 있어요 ✨</span></div>
       <div style="display:flex;gap:6px;margin-bottom:12px;">
         <button class="verse-filter-btn active" onclick="setVerseFilter('all',this)">전체</button>
         <button class="verse-filter-btn" onclick="setVerseFilter('mine',this)">내 나눔</button>
@@ -988,6 +1035,7 @@ async function enterApp(firebaseUser){
   };
   document.getElementById('login-screen').style.display='none';
   document.getElementById('login-loading').style.display='none';
+  if(window._hideSplash) window._hideSplash();
   const cls=CLASSES[state.userClass];
   if(!state.userClass){
     // 클래스 미선택 → 클래스 선택 화면만 표시, app은 숨김
@@ -1546,7 +1594,7 @@ function initBookSelect(){
 ══════════════════════════════════════ */
 const NOTICES=[
   {id:'notice_verse_tab',icon:'💬',tag:'NEW',title:'말씀 나눔 탭 추가!',
-   desc:'하단 탭에서 💬 나눔을 눌러보세요!\n청년부원들과 인상깊은 구절을 나눌 수 있어요.',expires:new Date('2099-12-31')},
+   desc:'하단 탭에서 💬 나눔을 눌러보세요!\n교인들과 인상깊은 구절을 나눌 수 있어요.',expires:new Date('2099-12-31')},
   {id:'notice_verse_how',icon:'✨',tag:'TIP',title:'구절 나누는 방법',
    desc:'홈에서 장을 선택하면 구절 입력 칸이 나타나요.\n이미 읽은 장(골드)도 클릭하면 구절을 나눌 수 있어요!',expires:new Date('2099-12-31')}
 ];
@@ -2283,7 +2331,28 @@ function openClassChange(){
   showClassSelect();
 }
 
+// ── 스플래시 화면 제어 ──
+function initSplash(){
+  const bar = document.getElementById('splash-bar');
+  const splash = document.getElementById('splash-screen');
+  if(!bar || !splash) return;
+  let prog = 0;
+  const iv = setInterval(()=>{
+    prog = Math.min(prog + (prog < 70 ? 12 : 3), 95);
+    bar.style.width = prog + '%';
+  }, 120);
+  // Firebase 로드 완료 또는 최대 2.5초 후 숨김
+  const hideSplash = () => {
+    clearInterval(iv);
+    bar.style.width = '100%';
+    setTimeout(()=>{ splash.classList.add('hide'); }, 300);
+  };
+  setTimeout(hideSplash, 2500);
+  window._hideSplash = hideSplash; // enterApp에서 조기 호출 가능
+}
+
 window.onload=()=>{
+  initSplash();
   // 저장된 이메일 복원
   const savedEmail=localStorage.getItem('bq_saved_email');
   if(savedEmail){
