@@ -558,8 +558,9 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
   <div class="content">
     <!-- 홈 -->
     <div class="page active" id="page-home">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+      <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:4px">
         <button class="logout-btn-small" onclick="logout()">🚪 로그아웃</button>
+        <button class="logout-btn-small" onclick="deleteAccount()" style="color:#e74c3c;border-color:#e74c3c33;">🗑️ 회원탈퇴</button>
       </div>
       <div id="notice-wrap"></div>
       <!-- 클래스 정보 카드 -->
@@ -1077,6 +1078,60 @@ async function logout(){
   document.getElementById('login-loading').style.display='none';
   document.getElementById('login-error').style.display='none';
   switchAuthTab('signin');
+}
+
+async function deleteAccount(){
+  if(!currentUser) return;
+  const confirmMsg = '정말 탈퇴하시겠어요?\n\n탈퇴 시 모든 데이터(XP, 기록, 뱃지 등)가\n영구적으로 삭제되며 복구할 수 없습니다.';
+  if(!confirm(confirmMsg)) return;
+
+  const reconfirm = prompt('탈퇴를 확인하려면 아래에 "탈퇴"를 입력해주세요:');
+  if(reconfirm !== '탈퇴'){
+    if(reconfirm !== null) showToast('❌','취소됨','탈퇴가 취소됐습니다');
+    return;
+  }
+
+  try{
+    // 1) Firestore 유저 데이터 삭제
+    await window._db.collection('users').doc(currentUser.uid).delete();
+
+    // 2) 해당 유저가 작성한 구절 나눔 삭제
+    const versesSnap = await window._db.collection('verses')
+      .where('uid','==',currentUser.uid).get();
+    const deletePromises = versesSnap.docs.map(d => d.ref.delete());
+    await Promise.all(deletePromises);
+
+    // 3) Firebase Auth 계정 삭제
+    await window._auth.currentUser.delete();
+
+    // 4) 로컬 데이터 정리
+    localStorage.removeItem('bq_auto_login');
+    localStorage.removeItem('bq_saved_email');
+    localStorage.removeItem('bq_likes');
+    if(notifPoller) clearInterval(notifPoller);
+
+    alert('탈퇴가 완료됐습니다.\n그동안 말씀과 함께해주셔서 감사합니다 🙏');
+
+    // 5) 로그인 화면으로 이동
+    currentUser = null;
+    window.currentUser = null;
+    window._authHandled = false;
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('class-select-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('signin-email').value = '';
+    document.getElementById('signin-password').value = '';
+    switchAuthTab('signin');
+
+  }catch(e){
+    // Firebase Auth 재인증 필요한 경우 (최근 로그인 후 시간이 지난 경우)
+    if(e.code === 'auth/requires-recent-login'){
+      alert('보안을 위해 재로그인이 필요합니다.\n로그아웃 후 다시 로그인하여 탈퇴를 진행해주세요.');
+      await logout();
+    } else {
+      alert('탈퇴 처리 중 오류가 발생했습니다: ' + e.message);
+    }
+  }
 }
 
 async function saveToCloud(){
