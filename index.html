@@ -1815,25 +1815,51 @@ async function loadAdminData(){
   loadAdminUsers();
 }
 
-// ── 교회 코드 신청 목록 로드 ──
+// ── 교회 코드 신청 목록 로드 (기본: 대기중만 표시) ──
+let adminReqFilter = 'pending'; // 'pending' | 'all'
 async function loadAdminRequests(){
   const el=document.getElementById('admin-requests');
   if(!el) return;
   el.innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
   try{
-    const snap=await window._db.collection('churchCodeRequests').orderBy('requestedAt','desc').limit(50).get();
-    if(snap.empty){ el.innerHTML='<div class="empty-msg" style="padding:16px 0;">신청 내역이 없어요 🌱</div>'; return; }
-    el.innerHTML=snap.docs.map(doc=>{
+    const snap=await window._db.collection('churchCodeRequests').orderBy('requestedAt','desc').limit(100).get();
+
+    // 필터 적용
+    const docs = adminReqFilter==='pending'
+      ? snap.docs.filter(d=>d.data().status==='pending')
+      : snap.docs;
+
+    // 필터 탭 UI
+    const pendingCount = snap.docs.filter(d=>d.data().status==='pending').length;
+    const filterHtml = `
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button onclick="setAdminReqFilter('pending')" style="font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid ${adminReqFilter==='pending'?'#f4d03f':'#ffffff20'};background:${adminReqFilter==='pending'?'#f4d03f22':'transparent'};color:${adminReqFilter==='pending'?'#f4d03f':'#666'};cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          대기중 ${pendingCount>0?`<span style="background:#e74c3c;color:#fff;border-radius:99px;padding:1px 6px;font-size:10px;margin-left:4px;">${pendingCount}</span>`:''}
+        </button>
+        <button onclick="setAdminReqFilter('all')" style="font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid ${adminReqFilter==='all'?'#f4d03f':'#ffffff20'};background:${adminReqFilter==='all'?'#f4d03f22':'transparent'};color:${adminReqFilter==='all'?'#f4d03f':'#666'};cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          전체 보기
+        </button>
+      </div>`;
+
+    if(docs.length===0){
+      el.innerHTML=filterHtml+'<div class="empty-msg" style="padding:16px 0;">'+
+        (adminReqFilter==='pending'?'대기중인 신청이 없어요 ✅':'신청 내역이 없어요 🌱')+'</div>';
+      return;
+    }
+
+    el.innerHTML=filterHtml+docs.map(doc=>{
       const d=doc.data();
       const at=d.requestedAt?.toDate?.()?.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})||'-';
       const statusColor={pending:'#f4d03f',approved:'#22c55e',rejected:'#e74c3c'}[d.status]||'#888';
       const statusLabel={pending:'대기중',approved:'승인됨',rejected:'거절됨'}[d.status]||d.status;
-      return `<div style="background:#ffffff08;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid #ffffff10;">
+      // 승인/거절 완료된 항목은 흐리게
+      const opacity = d.status==='pending' ? '1' : '0.45';
+      return `<div style="background:#ffffff08;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid ${d.status==='pending'?'#ffffff18':'#ffffff08'};opacity:${opacity};">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
           <div>
             <div style="font-size:14px;font-weight:700;color:#e8e8e8;">${d.churchName}</div>
             <div style="font-size:11px;color:#888;margin-top:2px;">${d.managerName} · ${d.contact}</div>
-            <div style="font-size:11px;color:#a78bfa;margin-top:2px;">희망코드: ${d.codeWish||'자동발급'}</div>
+            <div style="font-size:11px;color:#a78bfa;margin-top:2px;">희망코드: ${d.codeWish||'자동발급'}${d.approvedCode?` → <span style="color:#22c55e;font-weight:700;">${d.approvedCode}</span>`:''}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:11px;color:${statusColor};font-weight:700;">${statusLabel}</div>
@@ -1942,6 +1968,12 @@ async function sendApprovalEmail(toEmail, churchName, code){
     console.warn('EmailJS 발송 실패:', e);
     return false;
   }
+}
+
+// ── 신청 목록 필터 전환 ──
+function setAdminReqFilter(f){
+  adminReqFilter=f;
+  loadAdminRequests();
 }
 
 // ── 신청 거절 ──
