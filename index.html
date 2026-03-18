@@ -61,14 +61,26 @@
   };
 
   // 자동로그인: 사용자가 체크한 경우에만
+  // _authHandled 플래그로 login() 호출 직후 중복 실행 방지
+  window._authHandled = false;
   window._auth.onAuthStateChanged(async (user)=>{
+    // login()/signup() 에서 직접 enterApp 호출 시 중복 실행 방지
+    if(window._authHandled) return;
     if(user && !window.currentUser){
       const autoLogin=localStorage.getItem('bq_auto_login')==='true';
       if(autoLogin){
         if(document.getElementById('login-loading')){
           document.getElementById('login-loading').style.display='block';
         }
-        if(typeof enterApp==='function') await enterApp(user);
+        // DOM 로드 완료 후 enterApp 호출 보장
+        const tryEnter = async () => {
+          if(typeof enterApp==='function'){
+            await enterApp(user);
+          } else {
+            setTimeout(tryEnter, 100);
+          }
+        };
+        await tryEnter();
       } else {
         // 자동로그인 미설정 시 로그아웃 상태 유지
         await window._auth.signOut();
@@ -352,8 +364,8 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 
   <!-- 로그인 폼 -->
   <div id="form-signin" style="width:100%">
-    <input type="email" id="signin-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;" onkeydown="if(event.key==='Enter')login()">
-    <input type="password" id="signin-password" class="login-input" placeholder="비밀번호" style="font-size:15px;" onkeydown="if(event.key==='Enter')login()">
+    <input type="email" id="signin-email" class="login-input" placeholder="이메일" autocomplete="email" style="font-size:15px;margin-bottom:10px;" onkeydown="if(event.key==='Enter')login()">
+    <input type="password" id="signin-password" class="login-input" placeholder="비밀번호" autocomplete="current-password" style="font-size:15px;" onkeydown="if(event.key==='Enter')login()">
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;margin-bottom:4px;text-align:left;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#aaa;font-size:13px;">
         <input type="checkbox" id="chk-save-id" style="width:16px;height:16px;accent-color:#f4d03f;cursor:pointer;">
@@ -770,10 +782,14 @@ async function login(){
   if(autoLogin) localStorage.setItem('bq_auto_login','true');
   else localStorage.removeItem('bq_auto_login');
   document.getElementById('login-loading').style.display='block';
+  document.getElementById('login-error').style.display='none';
   try{
+    // onAuthStateChanged 중복 실행 방지 플래그
+    window._authHandled = true;
     const cred=await window._auth.signInWithEmailAndPassword(email,password);
     await enterApp(cred.user);
   }catch(e){
+    window._authHandled = false;
     document.getElementById('login-loading').style.display='none';
     if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')
       showLoginError('이메일 또는 비밀번호가 틀렸어요!');
@@ -791,7 +807,9 @@ async function signup(){
   const validCodes=['SINGANG2026','SINGANG','TEST2026'];
   if(!validCodes.includes(churchCode)){showLoginError('유효하지 않은 교회 코드예요!');return;}
   document.getElementById('login-loading').style.display='block';
+  document.getElementById('login-error').style.display='none';
   try{
+    window._authHandled = true;
     const cred=await window._auth.createUserWithEmailAndPassword(email,password);
     await window._db.collection('users').doc(cred.user.uid).set({
       uid:cred.user.uid,name,email,churchCode,
@@ -803,6 +821,7 @@ async function signup(){
     });
     await enterApp(cred.user);
   }catch(e){
+    window._authHandled = false;
     document.getElementById('login-loading').style.display='none';
     if(e.code==='auth/email-already-in-use') showLoginError('이미 사용 중인 이메일이에요!');
     else showLoginError('가입 오류: '+e.message);
@@ -812,11 +831,13 @@ async function signup(){
 async function enterApp(firebaseUser){
   const snap=await window._db.collection('users').doc(firebaseUser.uid).get().then(s=>({exists:()=>s.exists,data:()=>s.data(),id:s.id}));
   if(!snap.exists()){
+    window._authHandled = false;
     document.getElementById('login-loading').style.display='none';
     showLoginError('유저 정보를 찾을 수 없어요!'); return;
   }
   const user=snap.data();
   currentUser={uid:firebaseUser.uid,name:user.name,email:user.email,churchCode:user.churchCode||''};
+  window.currentUser=currentUser;
   state={
     xp:user.xp||0,level:user.level||1,totalCh:user.totalCh||0,streak:user.streak||0,
     bestStreak:user.bestStreak||0,lastDate:user.lastDate||null,readBooks:user.readBooks||[],
@@ -826,11 +847,18 @@ async function enterApp(firebaseUser){
     userClass:user.userClass||null,classChangedAt:user.classChangedAt||null
   };
   document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='block';
+  document.getElementById('login-loading').style.display='none';
   const cls=CLASSES[state.userClass];
+  if(!state.userClass){
+    // 클래스 미선택 → 클래스 선택 화면만 표시, app은 숨김
+    document.getElementById('app').style.display='none';
+    showClassSelect();
+    return;
+  }
+  // 클래스 선택 완료 → 앱 표시
+  document.getElementById('app').style.display='block';
   document.getElementById('header-display-name').textContent=`${cls?cls.icon:'📖'} ${user.name}님의 모험`;
   document.getElementById('header-church-name').textContent=user.churchCode||'성경읽고 레벨업';
-  if(!state.userClass){showClassSelect();return;}
   const now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth();
   initBookSelect(); renderAll();
   startNotifPoller(); renderNotices();
@@ -839,13 +867,15 @@ async function enterApp(firebaseUser){
 async function logout(){
   if(!confirm("로그아웃 하시겠어요?")) return;
   localStorage.removeItem('bq_auto_login');
+  window._authHandled = false;
   await window._auth.signOut();
   currentUser=null;
+  window.currentUser=null;
   if(notifPoller) clearInterval(notifPoller);
   document.getElementById('app').style.display='none';
   document.getElementById('class-select-screen').style.display='none';
   document.getElementById('login-screen').style.display='flex';
-  document.getElementById('signin-email').value='';
+  document.getElementById('signin-email').value=localStorage.getItem('bq_saved_email')||'';
   document.getElementById('signin-password').value='';
   document.getElementById('login-loading').style.display='none';
   document.getElementById('login-error').style.display='none';
@@ -1725,9 +1755,11 @@ async function selectClass(classId){
   state.classChangedAt=now;
   await window._db.collection('users').doc(currentUser.uid).update({userClass:classId,classChangedAt:now});
   document.getElementById('class-select-screen').style.display='none';
+  document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   const cls=CLASSES[classId];
   document.getElementById('header-display-name').textContent=`${cls.icon} ${currentUser.name}님의 모험`;
+  document.getElementById('header-church-name').textContent=currentUser.churchCode||'성경읽고 레벨업';
   const now2=new Date(); calYear=now2.getFullYear(); calMonth=now2.getMonth();
   initBookSelect(); renderAll();
   startNotifPoller(); renderNotices();
@@ -1745,8 +1777,18 @@ function openClassChange(){
 }
 
 window.onload=()=>{
-  // Firebase Auth 상태 자동 감지
-  // onAuthStateChanged는 Firebase SDK 로드 시 이미 등록됨
+  // 저장된 이메일 복원
+  const savedEmail=localStorage.getItem('bq_saved_email');
+  if(savedEmail){
+    const emailInput=document.getElementById('signin-email');
+    if(emailInput) emailInput.value=savedEmail;
+    const chkSaveId=document.getElementById('chk-save-id');
+    if(chkSaveId) chkSaveId.checked=true;
+  }
+  // 자동로그인 체크박스 복원
+  const autoLogin=localStorage.getItem('bq_auto_login')==='true';
+  const chkAuto=document.getElementById('chk-auto-login');
+  if(chkAuto) chkAuto.checked=autoLogin;
 };
 </script>
 <div class="notif-toast" id="notif-toast">
