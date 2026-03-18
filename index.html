@@ -385,8 +385,32 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <input type="email" id="signup-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;">
     <input type="password" id="signup-password" class="login-input" placeholder="비밀번호 (6자 이상)" style="font-size:15px;margin-bottom:10px;">
     <input type="text" id="signup-church-code" class="login-input" placeholder="교회 코드 (예: SINGANG2026)" style="font-size:14px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
-    <div style="font-size:10px;color:#555;margin-bottom:14px;text-align:left;">교회 코드는 담당자에게 문의하세요</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:10px;color:#555;">코드가 없으면 아래 신청 버튼을 눌러주세요</div>
+      <button onclick="showChurchCodeRequest()" style="font-size:10px;color:#f4d03f;background:#f4d03f15;border:1px solid #f4d03f44;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;">📋 코드 신청</button>
+    </div>
     <button class="login-btn" onclick="signup()">✨ 새 모험 시작하기</button>
+  </div>
+
+  <!-- 교회 코드 신청 모달 -->
+  <div id="church-request-modal" style="display:none;position:fixed;inset:0;background:#000000cc;align-items:flex-end;justify-content:center;z-index:500;">
+    <div style="background:#111827;border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:430px;animation:slide-up 0.25s ease-out;max-height:85vh;overflow-y:auto;">
+      <div style="width:40px;height:4px;background:#ffffff22;border-radius:99px;margin:0 auto 20px;"></div>
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:18px;color:#f4d03f;margin-bottom:4px;">⛪ 교회 코드 신청</div>
+      <div style="font-size:11px;color:#555;margin-bottom:20px;">승인 후 이메일로 교회 코드를 발송해드려요 (1~2일 소요)</div>
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">교회명 <span style="color:#e74c3c">*</span></div>
+      <input id="req-church-name" class="login-input" placeholder="예) 신강교회" style="font-size:14px;margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">담당자 이름 <span style="color:#e74c3c">*</span></div>
+      <input id="req-manager-name" class="login-input" placeholder="청년부 담당자 이름" style="font-size:14px;margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">담당자 이메일 <span style="color:#e74c3c">*</span><span style="font-size:10px;color:#555;margin-left:6px;">(코드 발송에 사용됩니다)</span></div>
+      <input id="req-contact" type="email" class="login-input" placeholder="담당자 이메일 주소" style="font-size:14px;margin-bottom:12px;">
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">희망 교회 코드 <span style="color:#555;font-size:10px;">(영문+숫자, 선택)</span></div>
+      <input id="req-code-wish" class="login-input" placeholder="예) VISION2026 (비워두면 자동 발급)" style="font-size:13px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+      <div style="font-size:10px;color:#555;margin-bottom:20px;">영문 대문자+숫자만 가능 · 최대 12자</div>
+      <div id="req-result" style="font-size:12px;margin-bottom:12px;min-height:16px;text-align:center;"></div>
+      <button onclick="submitChurchCodeRequest()" style="width:100%;padding:14px;background:linear-gradient(135deg,#f4d03f,#f39c12);border:none;border-radius:12px;font-family:'Black Han Sans',sans-serif;font-size:16px;color:#0a0e1a;cursor:pointer;margin-bottom:10px;">📨 신청하기</button>
+      <button onclick="hideChurchCodeRequest()" style="width:100%;padding:11px;background:#ffffff08;border:1px solid #ffffff15;border-radius:12px;font-family:'Noto Sans KR',sans-serif;font-size:14px;color:#888;cursor:pointer;">닫기</button>
+    </div>
   </div>
 
   <div class="login-loading" id="login-loading" style="margin-top:14px;">⏳ 접속 중...</div>
@@ -460,6 +484,23 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       </div>
       <div id="notice-wrap"></div>
       <!-- 클래스 정보 카드 -->
+      <!-- 마스터 계정 전용 개발자 패널 -->
+      <div id="master-panel" style="display:none;background:linear-gradient(135deg,#1e1035,#2d1060);border:1px solid #a78bfa55;border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:13px;color:#a78bfa;margin-bottom:8px;">🔧 마스터 테스트 패널</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+          <button onclick="masterAddXP(100)" style="font-size:11px;background:#a78bfa22;border:1px solid #a78bfa44;border-radius:8px;padding:4px 10px;color:#a78bfa;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">+100 XP</button>
+          <button onclick="masterAddXP(500)" style="font-size:11px;background:#a78bfa22;border:1px solid #a78bfa44;border-radius:8px;padding:4px 10px;color:#a78bfa;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">+500 XP</button>
+          <button onclick="masterAddXP(1000)" style="font-size:11px;background:#a78bfa22;border:1px solid #a78bfa44;border-radius:8px;padding:4px 10px;color:#a78bfa;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">+1000 XP</button>
+          <button onclick="masterResetXP()" style="font-size:11px;background:#e74c3c22;border:1px solid #e74c3c44;border-radius:8px;padding:4px 10px;color:#e74c3c;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">XP 초기화</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button onclick="masterAddStreak(7)" style="font-size:11px;background:#f4d03f22;border:1px solid #f4d03f44;border-radius:8px;padding:4px 10px;color:#f4d03f;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">연속 7일</button>
+          <button onclick="masterAddStreak(30)" style="font-size:11px;background:#f4d03f22;border:1px solid #f4d03f44;border-radius:8px;padding:4px 10px;color:#f4d03f;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">연속 30일</button>
+          <button onclick="masterResetAll()" style="font-size:11px;background:#e74c3c22;border:1px solid #e74c3c44;border-radius:8px;padding:4px 10px;color:#e74c3c;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">전체 초기화</button>
+          <button onclick="openClassChange()" style="font-size:11px;background:#22c55e22;border:1px solid #22c55e44;border-radius:8px;padding:4px 10px;color:#22c55e;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">클래스 변경</button>
+        </div>
+      </div>
+
       <div id="class-card" style="background:#ffffff08;border-radius:12px;padding:12px 16px;margin-bottom:10px;border:1px solid #ffffff12;display:flex;align-items:center;gap:12px;">
         <div id="class-icon" style="font-size:28px;">⚔️</div>
         <div style="flex:1">
@@ -752,6 +793,40 @@ let calYear,calMonth;
 function today(){return new Date().toDateString();}
 function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 
+// ── 마스터 계정 테스트 함수 ──
+async function masterAddXP(amount){
+  if(currentUser?.churchCode!=='MASTER2026'){return;}
+  const prevLv=getLvInfo(state.xp).cur.lv;
+  state.xp+=amount;
+  state.level=getLvInfo(state.xp).cur.lv;
+  await saveToCloud();
+  renderAll();
+  if(state.level>prevLv) showLevelUp(getLvInfo(state.xp).cur);
+  showToast('🔧','테스트',`+${amount} XP 추가 (총 ${state.xp} XP)`);
+}
+async function masterResetXP(){
+  if(currentUser?.churchCode!=='MASTER2026'){return;}
+  if(!confirm('XP를 0으로 초기화할까요?')) return;
+  state.xp=0; state.level=1;
+  await saveToCloud(); renderAll();
+  showToast('🔧','테스트','XP 초기화 완료');
+}
+async function masterAddStreak(days){
+  if(currentUser?.churchCode!=='MASTER2026'){return;}
+  state.streak=days; state.bestStreak=Math.max(state.bestStreak,days);
+  await saveToCloud(); renderAll();
+  showToast('🔧','테스트',`연속 ${days}일 설정 완료`);
+}
+async function masterResetAll(){
+  if(currentUser?.churchCode!=='MASTER2026'){return;}
+  if(!confirm('모든 데이터(XP·연속·기록)를 초기화할까요?')) return;
+  state={...state,xp:0,level:1,totalCh:0,streak:0,bestStreak:0,
+    lastDate:null,readBooks:[],badges:[],completedQuests:[],
+    questDate:null,log:[],claimedBonuses:[],readDates:[],bookChapters:{}};
+  await saveToCloud(); renderAll();
+  showToast('🔧','테스트','전체 초기화 완료');
+}
+
 // ── Firebase 로그인 ──
 function switchAuthTab(tab){
   const signin=tab==='signin';
@@ -804,10 +879,15 @@ async function signup(){
   const churchCode=document.getElementById('signup-church-code').value.trim().toUpperCase();
   if(!name||!email||!password||!churchCode){showLoginError('모든 항목을 입력하세요!');return;}
   if(password.length<6){showLoginError('비밀번호는 6자 이상이에요!');return;}
-  const validCodes=['SINGANG2026','SINGANG','TEST2026'];
-  if(!validCodes.includes(churchCode)){showLoginError('유효하지 않은 교회 코드예요!');return;}
+  // ── 교회 코드 검증: Firestore DB 우선, 하드코딩 fallback ──
   document.getElementById('login-loading').style.display='block';
   document.getElementById('login-error').style.display='none';
+  const codeValid = await validateChurchCode(churchCode);
+  if(!codeValid){
+    document.getElementById('login-loading').style.display='none';
+    showLoginError('유효하지 않은 교회 코드예요! 코드 신청은 📋 코드 신청 버튼을 눌러주세요.');
+    return;
+  }
   try{
     window._authHandled = true;
     const cred=await window._auth.createUserWithEmailAndPassword(email,password);
@@ -1064,6 +1144,9 @@ function getTodayQuests(){
 function renderAll(){
   const {cur,next,pct}=getLvInfo(state.xp);
   document.getElementById('streak-badge').textContent=`🔥 ${state.streak}일 연속`;
+  // 마스터 계정 전용 패널 표시
+  const masterPanel=document.getElementById('master-panel');
+  if(masterPanel) masterPanel.style.display=currentUser?.churchCode==='MASTER2026'?'block':'none';
   // 클래스 카드 업데이트
   const _cls=CLASSES[state.userClass];
   if(_cls && document.getElementById('class-icon')){
@@ -1073,11 +1156,17 @@ function renderAll(){
     const cc=document.getElementById('class-card');
     if(cc) cc.style.borderColor=_cls.color+'55';
     const cb=document.getElementById('class-change-btn');
-    if(cb&&state.classChangedAt){
-      const ds=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
-      cb.textContent=ds>=7?'변경 가능':'변경 D-'+(7-ds);
-      cb.style.color=ds>=7?'#f4d03f':'#888';
-      cb.style.borderColor=ds>=7?'#f4d03f55':'#ffffff15';
+    if(cb){
+      if(currentUser?.churchCode==='MASTER2026'){
+        cb.textContent='🔧 즉시변경';
+        cb.style.color='#a78bfa';
+        cb.style.borderColor='#a78bfa55';
+      } else if(state.classChangedAt){
+        const ds=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+        cb.textContent=ds>=7?'변경 가능':'변경 D-'+(7-ds);
+        cb.style.color=ds>=7?'#f4d03f':'#888';
+        cb.style.borderColor=ds>=7?'#f4d03f55':'#ffffff15';
+      }
     }
   }
   document.getElementById('level-icon').textContent=cur.icon;
@@ -1653,6 +1742,83 @@ async function deleteVerse(verseId){
 }
 
 /* ══════════════════════════════════════
+   교회 코드 검증 & 신청 시스템
+══════════════════════════════════════ */
+
+// 교회 코드 검증 (Firestore DB 우선, 하드코딩 fallback)
+async function validateChurchCode(code){
+  if(!code) return false;
+  // 1) Firestore churchCodes 컬렉션 조회
+  try{
+    const snap = await window._db.collection('churchCodes').doc(code).get();
+    if(snap.exists){
+      const data = snap.data();
+      // active 필드가 false이면 비활성화된 코드
+      if(data.active === false) return false;
+      return true;
+    }
+  }catch(e){ console.warn('churchCodes DB 조회 실패, fallback 사용:', e.message); }
+  // 2) Firestore에 없으면 하드코딩 fallback (구버전 호환)
+  const fallback = ['SINGANG2026','SINGANG','TEST2026','MASTER2026'];
+  return fallback.includes(code);
+}
+
+// 교회 코드 신청 모달 열기/닫기
+function showChurchCodeRequest(){
+  const modal = document.getElementById('church-request-modal');
+  modal.style.display = 'flex';
+  document.getElementById('req-result').textContent = '';
+}
+function hideChurchCodeRequest(){
+  document.getElementById('church-request-modal').style.display = 'none';
+}
+
+// 교회 코드 신청 제출
+async function submitChurchCodeRequest(){
+  const churchName = document.getElementById('req-church-name').value.trim();
+  const managerName = document.getElementById('req-manager-name').value.trim();
+  const contact = document.getElementById('req-contact').value.trim();
+  const codeWish = document.getElementById('req-code-wish').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
+  const resultEl = document.getElementById('req-result');
+
+  if(!churchName||!managerName||!contact){
+    resultEl.style.color='#e74c3c';
+    resultEl.textContent='⚠️ 교회명, 담당자 이름, 이메일은 필수입니다.';
+    return;
+  }
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRe.test(contact)){
+    resultEl.style.color='#e74c3c';
+    resultEl.textContent='⚠️ 올바른 이메일 주소를 입력해주세요.';
+    return;
+  }
+
+  const submitBtn = document.querySelector('#church-request-modal button[onclick="submitChurchCodeRequest()"]');
+  if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='신청 중...'; }
+  resultEl.style.color='#888'; resultEl.textContent='⏳ 신청 접수 중...';
+
+  try{
+    await window._db.collection('churchCodeRequests').add({
+      churchName, managerName, contact,
+      codeWish: codeWish||'(자동발급)',
+      status: 'pending',
+      requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    resultEl.style.color='#22c55e';
+    resultEl.textContent='✅ 신청이 접수됐어요! 1~2일 내 이메일로 코드를 보내드릴게요 😊';
+    // 입력 초기화
+    ['req-church-name','req-manager-name','req-contact','req-code-wish'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value='';
+    });
+  }catch(e){
+    resultEl.style.color='#e74c3c';
+    resultEl.textContent='❌ 신청 실패: '+e.message;
+  }finally{
+    if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='📨 신청하기'; }
+  }
+}
+
+/* ══════════════════════════════════════
    알림 시스템
 ══════════════════════════════════════ */
 let toastTimer=null;
@@ -1743,11 +1909,14 @@ function showClassSelect(){
 }
 
 async function selectClass(classId){
-  if(state.userClass && state.classChangedAt){
-    const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
-    if(daysSince<7){
-      alert('클래스는 선택 후 7일이 지나야 변경할 수 있어요!\n(변경 가능까지 '+(7-daysSince)+'일 남음)');
-      return;
+  // 마스터 계정은 7일 제한 없음
+  if(currentUser?.churchCode !== 'MASTER2026'){
+    if(state.userClass && state.classChangedAt){
+      const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
+      if(daysSince<7){
+        alert('클래스는 선택 후 7일이 지나야 변경할 수 있어요!\n(변경 가능까지 '+(7-daysSince)+'일 남음)');
+        return;
+      }
     }
   }
   const now=new Date().toISOString();
@@ -1766,6 +1935,11 @@ async function selectClass(classId){
 }
 
 function openClassChange(){
+  // 마스터 계정(MASTER2026)은 7일 제한 없이 즉시 변경
+  if(currentUser?.churchCode==='MASTER2026'){
+    showClassSelect();
+    return;
+  }
   if(state.userClass && state.classChangedAt){
     const daysSince=Math.floor((Date.now()-new Date(state.classChangedAt).getTime())/(1000*60*60*24));
     if(daysSince<7){
@@ -1789,7 +1963,26 @@ window.onload=()=>{
   const autoLogin=localStorage.getItem('bq_auto_login')==='true';
   const chkAuto=document.getElementById('chk-auto-login');
   if(chkAuto) chkAuto.checked=autoLogin;
+  // Firestore 기본 교회코드 시딩 (최초 1회)
+  seedChurchCodes();
 };
+
+// Firestore churchCodes 컬렉션 초기 데이터 세팅 (없을 때만)
+async function seedChurchCodes(){
+  const defaultCodes = [
+    { code:'SINGANG2026', churchName:'신강교회',    managerName:'관리자', active:true },
+    { code:'SINGANG',     churchName:'신강교회',    managerName:'관리자', active:true },
+    { code:'TEST2026',    churchName:'테스트교회',  managerName:'테스트',  active:true },
+    { code:'MASTER2026',  churchName:'마스터계정',  managerName:'MASTER',  active:true },
+  ];
+  for(const c of defaultCodes){
+    const ref = window._db.collection('churchCodes').doc(c.code);
+    const snap = await ref.get();
+    if(!snap.exists){
+      await ref.set({ ...c, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+  }
+}
 </script>
 <div class="notif-toast" id="notif-toast">
   <div class="notif-toast-icon" id="notif-toast-icon">🔔</div>
