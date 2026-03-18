@@ -407,7 +407,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-family:'Black Han Sans',sans-serif;font-size:20px;color:#f4d03f;margin-bottom:6px;">⛪ 교회 코드 신청</div>
       <div style="font-size:12px;color:#aaa;margin-bottom:24px;line-height:1.6;">승인 후 이메일로 교회 코드를 발송해드려요<br><span style="color:#f4d03f88;">보통 1~2일 소요됩니다</span></div>
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:7px;">교회명 <span style="color:#e74c3c;font-size:14px;">*</span></div>
-      <input id="req-church-name" class="login-input" placeholder="교회명" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
+      <input id="req-church-name" class="login-input" placeholder="예) 신광교회" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:7px;">담당자 이름 <span style="color:#e74c3c;font-size:14px;">*</span></div>
       <input id="req-manager-name" class="login-input" placeholder="담당자 이름" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:4px;">담당자 이메일 <span style="color:#e74c3c;font-size:14px;">*</span></div>
@@ -483,6 +483,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <button class="tab" onclick="showTab('calendar',this)"><span>📅</span><span class="tab-label">캘린더</span></button>
     <button class="tab" onclick="showTab('levels',this)"><span>📊</span><span class="tab-label">레벨</span></button>
     <button class="tab" id="tab-verses" onclick="showTab('verses',this)"><span>💬</span><span class="tab-label">나눔</span></button>
+    <button class="tab" id="tab-admin" onclick="showTab('admin',this)" style="display:none;"><span>🔧</span><span class="tab-label">관리</span></button>
   </div>
 
   <div class="content">
@@ -674,6 +675,42 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div class="popup-title" id="like-popup-title">응원한 사람들</div>
         <div class="popup-sub" id="like-popup-sub"></div>
         <div id="like-popup-list"></div>
+      </div>
+    </div>
+
+    <!-- 관리자 페이지 (MASTER2026 전용) -->
+    <div class="page" id="page-admin">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div class="card-title" style="margin:0;">🔧 관리자 패널</div>
+        <button onclick="loadAdminData()" style="font-size:11px;color:#a78bfa;background:#a78bfa15;border:1px solid #a78bfa44;border-radius:8px;padding:4px 10px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">🔄 새로고침</button>
+      </div>
+
+      <!-- 교회 코드 신청 목록 -->
+      <div style="background:linear-gradient(135deg,#1e1035,#2d1060);border:1px solid #a78bfa44;border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#a78bfa;margin-bottom:4px;">⛪ 교회 코드 신청 목록</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">신청 승인 시 Firestore에 교회코드가 자동 등록됩니다</div>
+        <div id="admin-requests"><div class="empty-msg">불러오는 중... ⏳</div></div>
+      </div>
+
+      <!-- 등록된 교회 코드 목록 -->
+      <div style="background:#ffffff08;border:1px solid #ffffff12;border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#f4d03f;margin-bottom:12px;">📋 등록된 교회 코드</div>
+        <div id="admin-codes"><div class="empty-msg">불러오는 중... ⏳</div></div>
+        <!-- 새 코드 직접 추가 -->
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid #ffffff10;">
+          <div style="font-size:12px;color:#aaa;font-weight:700;margin-bottom:8px;">+ 코드 직접 추가</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input id="admin-new-code" placeholder="교회코드 (예: VISION2026)" style="flex:1;background:#1e2235;border:1px solid #ffffff25;border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+            <input id="admin-new-church" placeholder="교회명" style="flex:1;background:#1e2235;border:1px solid #ffffff25;border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;">
+          </div>
+          <button onclick="adminAddCode()" style="width:100%;padding:10px;background:linear-gradient(135deg,#f4d03f,#f39c12);border:none;border-radius:10px;font-family:'Black Han Sans',sans-serif;font-size:14px;color:#0a0e1a;cursor:pointer;">✅ 코드 등록</button>
+        </div>
+      </div>
+
+      <!-- 전체 유저 현황 -->
+      <div style="background:#ffffff08;border:1px solid #ffffff12;border-radius:14px;padding:14px;">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#f4d03f;margin-bottom:12px;">👥 전체 유저 현황</div>
+        <div id="admin-users"><div class="empty-msg">불러오는 중... ⏳</div></div>
       </div>
     </div>
 
@@ -1153,9 +1190,11 @@ function getTodayQuests(){
 function renderAll(){
   const {cur,next,pct}=getLvInfo(state.xp);
   document.getElementById('streak-badge').textContent=`🔥 ${state.streak}일 연속`;
-  // 마스터 계정 전용 패널 표시
+  // 마스터 계정 전용 패널 + 관리자 탭 표시
   const masterPanel=document.getElementById('master-panel');
   if(masterPanel) masterPanel.style.display=currentUser?.churchCode==='MASTER2026'?'block':'none';
+  const adminTab=document.getElementById('tab-admin');
+  if(adminTab) adminTab.style.display=currentUser?.churchCode==='MASTER2026'?'flex':'none';
   // 클래스 카드 업데이트
   const _cls=CLASSES[state.userClass];
   if(_cls && document.getElementById('class-icon')){
@@ -1337,6 +1376,7 @@ function showTab(name,btn){
   btn.classList.add('active');
   if(name==='rank'){ loadRankings(); clearRankBadge(); }
   if(name==='verses'){ loadVerses(); clearVerseBadge(); }
+  if(name==='admin'){ loadAdminData(); }
 }
 
 let selectedChs=new Set();
@@ -1748,6 +1788,173 @@ async function deleteVerse(verseId){
   await window._db.collection('verses').doc(verseId).delete();
   document.getElementById('vitem-'+verseId)?.remove();
   if(!document.querySelectorAll('.verse-feed-item').length) loadVerses();
+}
+
+
+/* ══════════════════════════════════════
+   관리자 패널 (MASTER2026 전용)
+══════════════════════════════════════ */
+async function loadAdminData(){
+  if(currentUser?.churchCode!=='MASTER2026') return;
+  loadAdminRequests();
+  loadAdminCodes();
+  loadAdminUsers();
+}
+
+// ── 교회 코드 신청 목록 로드 ──
+async function loadAdminRequests(){
+  const el=document.getElementById('admin-requests');
+  if(!el) return;
+  el.innerHTML='<div class="empty-msg">불러오는 중... ⏳</div>';
+  try{
+    const snap=await window._db.collection('churchCodeRequests').orderBy('requestedAt','desc').limit(50).get();
+    if(snap.empty){ el.innerHTML='<div class="empty-msg" style="padding:16px 0;">신청 내역이 없어요 🌱</div>'; return; }
+    el.innerHTML=snap.docs.map(doc=>{
+      const d=doc.data();
+      const at=d.requestedAt?.toDate?.()?.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})||'-';
+      const statusColor={pending:'#f4d03f',approved:'#22c55e',rejected:'#e74c3c'}[d.status]||'#888';
+      const statusLabel={pending:'대기중',approved:'승인됨',rejected:'거절됨'}[d.status]||d.status;
+      return `<div style="background:#ffffff08;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid #ffffff10;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#e8e8e8;">${d.churchName}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">${d.managerName} · ${d.contact}</div>
+            <div style="font-size:11px;color:#a78bfa;margin-top:2px;">희망코드: ${d.codeWish||'자동발급'}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:${statusColor};font-weight:700;">${statusLabel}</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;">${at}</div>
+          </div>
+        </div>
+        ${d.status==='pending'?`
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button onclick="adminApproveRequest('${doc.id}','${d.churchName}','${d.codeWish||''}')" style="flex:1;padding:7px;background:#22c55e22;border:1px solid #22c55e55;border-radius:8px;font-size:12px;color:#22c55e;cursor:pointer;font-family:'Black Han Sans',sans-serif;">✅ 승인</button>
+          <button onclick="adminRejectRequest('${doc.id}')" style="flex:1;padding:7px;background:#e74c3c22;border:1px solid #e74c3c55;border-radius:8px;font-size:12px;color:#e74c3c;cursor:pointer;font-family:'Black Han Sans',sans-serif;">❌ 거절</button>
+        </div>`:''}
+      </div>`;
+    }).join('');
+  }catch(e){
+    el.innerHTML=`<div class="empty-msg" style="color:#e74c3c;">오류: ${e.message}<br><span style="font-size:11px;">Firebase 규칙에서 관리자 읽기 권한을 확인하세요</span></div>`;
+  }
+}
+
+// ── 신청 승인 ──
+async function adminApproveRequest(reqId, churchName, codeWish){
+  const finalCode = codeWish && codeWish!=='(자동발급)'
+    ? codeWish
+    : churchName.replace(/[^A-Z0-9]/gi,'').toUpperCase().slice(0,8)+(new Date().getFullYear());
+  const confirmMsg=`승인하시겠어요?
+교회명: ${churchName}
+발급 코드: ${finalCode}`;
+  if(!confirm(confirmMsg)) return;
+  try{
+    // 1) churchCodes에 코드 등록
+    await window._db.collection('churchCodes').doc(finalCode).set({
+      code:finalCode, churchName, active:true,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // 2) 신청 상태 업데이트
+    await window._db.collection('churchCodeRequests').doc(reqId).update({
+      status:'approved', approvedCode:finalCode,
+      approvedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('✅','승인 완료',`${churchName} → ${finalCode}`);
+    loadAdminRequests();
+    loadAdminCodes();
+  }catch(e){
+    alert('승인 실패: '+e.message);
+  }
+}
+
+// ── 신청 거절 ──
+async function adminRejectRequest(reqId){
+  if(!confirm('이 신청을 거절할까요?')) return;
+  try{
+    await window._db.collection('churchCodeRequests').doc(reqId).update({
+      status:'rejected',
+      rejectedAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('❌','거절 완료','신청이 거절됐습니다');
+    loadAdminRequests();
+  }catch(e){ alert('거절 실패: '+e.message); }
+}
+
+// ── 등록된 교회코드 목록 ──
+async function loadAdminCodes(){
+  const el=document.getElementById('admin-codes');
+  if(!el) return;
+  try{
+    const snap=await window._db.collection('churchCodes').orderBy('createdAt','desc').limit(30).get();
+    if(snap.empty){ el.innerHTML='<div style="font-size:12px;color:#555;text-align:center;padding:8px;">등록된 코드 없음</div>'; return; }
+    el.innerHTML=snap.docs.map(doc=>{
+      const d=doc.data();
+      const activeColor=d.active!==false?'#22c55e':'#e74c3c';
+      const activeLabel=d.active!==false?'활성':'비활성';
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #ffffff08;">
+        <div>
+          <span style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#f4d03f;">${doc.id}</span>
+          <span style="font-size:11px;color:#888;margin-left:8px;">${d.churchName||''}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:10px;color:${activeColor};font-weight:700;">${activeLabel}</span>
+          <button onclick="adminToggleCode('${doc.id}',${d.active!==false})" style="font-size:10px;background:#ffffff10;border:1px solid #ffffff20;border-radius:6px;padding:3px 8px;color:#aaa;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">${d.active!==false?'비활성화':'활성화'}</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML=`<div style="font-size:12px;color:#e74c3c;">오류: ${e.message}</div>`; }
+}
+
+// ── 코드 활성/비활성 토글 ──
+async function adminToggleCode(code, currentActive){
+  if(!confirm(`"${code}" 코드를 ${currentActive?'비활성화':'활성화'}할까요?`)) return;
+  try{
+    await window._db.collection('churchCodes').doc(code).update({ active:!currentActive });
+    showToast('🔧','코드 변경',`${code} → ${!currentActive?'활성':'비활성'}`);
+    loadAdminCodes();
+  }catch(e){ alert('변경 실패: '+e.message); }
+}
+
+// ── 코드 직접 추가 ──
+async function adminAddCode(){
+  const code=document.getElementById('admin-new-code').value.trim().toUpperCase();
+  const church=document.getElementById('admin-new-church').value.trim();
+  if(!code||!church){ alert('코드와 교회명을 입력하세요.'); return; }
+  if(code.length<3||code.length>12){ alert('코드는 3~12자 영문/숫자로 입력하세요.'); return; }
+  try{
+    await window._db.collection('churchCodes').doc(code).set({
+      code, churchName:church, active:true,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('admin-new-code').value='';
+    document.getElementById('admin-new-church').value='';
+    showToast('✅','코드 등록',`${code} (${church})`);
+    loadAdminCodes();
+  }catch(e){ alert('등록 실패: '+e.message); }
+}
+
+// ── 전체 유저 현황 ──
+async function loadAdminUsers(){
+  const el=document.getElementById('admin-users');
+  if(!el) return;
+  try{
+    const snap=await window._db.collection('users').orderBy('xp','desc').limit(30).get();
+    if(snap.empty){ el.innerHTML='<div class="empty-msg" style="padding:12px 0;">유저 없음</div>'; return; }
+    const total=snap.size;
+    el.innerHTML=`<div style="font-size:12px;color:#888;margin-bottom:10px;">총 ${total}명 (최근 30명)</div>`
+      +snap.docs.map((doc,i)=>{
+        const d=doc.data();
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff08;">
+          <div>
+            <span style="font-size:13px;font-weight:700;color:#e8e8e8;">${d.name}</span>
+            <span style="font-size:10px;color:#555;margin-left:6px;">${d.churchCode||'-'}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px;color:#f4d03f;font-family:'Black Han Sans',sans-serif;">Lv.${d.level||1} · ${d.xp||0} XP</div>
+            <div style="font-size:10px;color:#555;">${d.totalCh||0}장 읽음</div>
+          </div>
+        </div>`;
+      }).join('');
+  }catch(e){ el.innerHTML=`<div style="font-size:12px;color:#e74c3c;">오류: ${e.message}</div>`; }
 }
 
 /* ══════════════════════════════════════
