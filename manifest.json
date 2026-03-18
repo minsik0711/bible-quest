@@ -1,7 +1,8 @@
 {
+  "id": "/",
   "name": "성경읽고 레벨업",
   "short_name": "성경레벨업",
-  "description": "성경 말씀 읽고 레벨업! 교회 성경 RPG 앱",
+  "description": "성경 말씀 읽고 레벨업! 교회 청년부 성경 RPG 앱",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -57,7 +58,7 @@
     {
       "name": "랭킹 보기",
       "short_name": "랭킹",
-      "description": "교회 랭킹을 확인해요",
+      "description": "청년부 랭킹을 확인해요",
       "url": "/?shortcut=rank",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
