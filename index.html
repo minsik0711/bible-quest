@@ -458,6 +458,14 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-size:10px;color:#555;">코드가 없으면 아래 신청 버튼을 눌러주세요</div>
       <button onclick="showChurchCodeRequest()" style="font-size:10px;color:#f4d03f;background:#f4d03f15;border:1px solid #f4d03f44;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;">📋 코드 신청</button>
     </div>
+    <!-- 개인정보처리방침 동의 -->
+    <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;cursor:pointer;text-align:left;">
+      <input type="checkbox" id="chk-privacy" style="width:16px;height:16px;accent-color:#f4d03f;cursor:pointer;margin-top:2px;flex-shrink:0;">
+      <span style="font-size:12px;color:#aaa;line-height:1.6;">
+        <a href="https://bible-quest-release.vercel.app/privacy.html" target="_blank"
+           style="color:#f4d03f;text-decoration:underline;">개인정보처리방침</a>을 읽었으며 이에 동의합니다 <span style="color:#e74c3c;">*</span>
+      </span>
+    </label>
     <button class="login-btn" onclick="signup()">✨ 새 모험 시작하기</button>
   </div>
 
@@ -468,7 +476,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-family:'Black Han Sans',sans-serif;font-size:20px;color:#f4d03f;margin-bottom:6px;">⛪ 교회 코드 신청</div>
       <div style="font-size:12px;color:#aaa;margin-bottom:24px;line-height:1.6;">승인 후 이메일로 교회 코드를 발송해드려요<br><span style="color:#f4d03f88;">보통 1~2일 소요됩니다</span></div>
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:7px;">교회명 <span style="color:#e74c3c;font-size:14px;">*</span></div>
-      <input id="req-church-name" class="login-input" placeholder="교회명" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
+      <input id="req-church-name" class="login-input" placeholder="예) 신광교회" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:7px;">담당자 이름 <span style="color:#e74c3c;font-size:14px;">*</span></div>
       <input id="req-manager-name" class="login-input" placeholder="담당자 이름" style="font-size:15px;margin-bottom:16px;color:#fff;background:#1e2235;border-color:#ffffff30;">
       <div style="font-size:13px;color:#ddd;font-weight:700;margin-bottom:4px;">담당자 이메일 <span style="color:#e74c3c;font-size:14px;">*</span></div>
@@ -985,6 +993,7 @@ async function signup(){
   const password=document.getElementById('signup-password').value;
   const churchCode=document.getElementById('signup-church-code').value.trim().toUpperCase();
   if(!name||!email||!password||!churchCode){showLoginError('모든 항목을 입력하세요!');return;}
+  if(!document.getElementById('chk-privacy')?.checked){showLoginError('개인정보처리방침에 동의해주세요!');return;}
   if(password.length<6){showLoginError('비밀번호는 6자 이상이에요!');return;}
   // ── 교회 코드 검증: Firestore DB 우선, 하드코딩 fallback ──
   document.getElementById('login-loading').style.display='block';
