@@ -1,25 +1,65 @@
 {
-  "name": "Bible Quest",
-  "short_name": "BibleQuest",
-  "description": "성경 읽고 레벨업 RPG",
+  "name": "성경읽고 레벨업",
+  "short_name": "성경레벨업",
+  "description": "성경 말씀 읽고 레벨업! 교회 청년부 성경 RPG 앱",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0e1a",
   "theme_color": "#f4d03f",
+  "lang": "ko",
+  "dir": "ltr",
+  "categories": ["education", "lifestyle", "games"],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "말씀 기록하기",
+      "short_name": "기록",
+      "description": "오늘 읽은 말씀을 기록해요",
+      "url": "/?shortcut=record",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "랭킹 보기",
+      "short_name": "랭킹",
+      "description": "청년부 랭킹을 확인해요",
+      "url": "/?shortcut=rank",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
