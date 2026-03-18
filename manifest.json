@@ -1,7 +1,7 @@
 {
   "name": "Bible Quest",
   "short_name": "BibleQuest",
-  "description": "신광청년부 성경 읽기 레벨업 RPG",
+  "description": "성경 읽고 레벨업 RPG",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
