@@ -338,13 +338,15 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .verse-filter-btn.active{background:#f4d03f22;border-color:#f4d03f55;color:#f4d03f;}
 .verse-empty{text-align:center;padding:30px 0;color:#444;font-size:13px;line-height:2;}
 /* ── 하트 누른 사람 팝업 ── */
-.verse-liked-popup{position:fixed;inset:0;background:#000000bb;display:none;align-items:flex-end;justify-content:center;z-index:400;}
+.verse-liked-popup{position:fixed;inset:0;background:#000000cc;display:none;align-items:flex-end;justify-content:center;z-index:400;}
 .verse-liked-popup.show{display:flex;}
-.verse-liked-sheet{background:#111827;border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:430px;animation:slide-up 0.25s ease-out;max-height:60vh;overflow-y:auto;}
-.verse-liked-person{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #ffffff08;}
+.verse-liked-sheet{background:#111827;border-radius:24px 24px 0 0;padding:24px 20px 44px;width:100%;max-width:430px;animation:slide-up 0.3s cubic-bezier(0.34,1.56,0.64,1);max-height:65vh;overflow-y:auto;border-top:2px solid #e74c3c44;}
+.verse-liked-person{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff08;transition:background 0.15s;}
 .verse-liked-person:last-child{border-bottom:none;}
-.verse-liked-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Black Han Sans';font-size:14px;color:#0a0e1a;flex-shrink:0;}
-.verse-liked-name{font-size:13px;font-weight:700;}
+.verse-liked-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Black Han Sans';font-size:15px;color:#0a0e1a;flex-shrink:0;box-shadow:0 0 0 2px #ffffff15;}
+.verse-liked-name{font-size:14px;font-weight:700;flex:1;}
+.verse-liked-heart{font-size:16px;animation:heartbeat 1s ease-in-out infinite;}
+@keyframes heartbeat{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
 /* ── 알림 뱃지 ── */
 .tab{position:relative;}
 .notif-badge{position:absolute;top:4px;right:6px;min-width:16px;height:16px;background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;font-size:9px;font-family:'Black Han Sans';border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 0 8px #ff4b2b99;border:1.5px solid #0a0e1a;animation:badge-pop 0.4s cubic-bezier(0.36,0.07,0.19,0.97);pointer-events:none;z-index:10;}
@@ -706,7 +708,7 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <!-- 구절 나눔 -->
     <div class="page" id="page-verses">
       <div class="card-title">💬 말씀 나눔</div>
-      <div style="font-size:12px;color:#666;margin-bottom:12px;">교인들이 나눈 인상깊은 구절이에요<br><span style="color:#f4d03f88;font-size:11px;">홈에서 장 선택 후 구절 입력 → 기록하기로 올릴 수 있어요 ✨</span></div>
+      <div style="font-size:12px;color:#666;margin-bottom:12px;">성도들이 나눈 인상깊은 구절이에요<br><span style="color:#f4d03f88;font-size:11px;">홈에서 장 선택 후 구절 입력 → 기록하기로 올릴 수 있어요 ✨</span></div>
       <div style="display:flex;gap:6px;margin-bottom:12px;">
         <button class="verse-filter-btn active" onclick="setVerseFilter('all',this)">전체</button>
         <button class="verse-filter-btn" onclick="setVerseFilter('mine',this)">내 나눔</button>
@@ -996,9 +998,22 @@ async function signup(){
   if(!name||!email||!password||!churchCode){showLoginError('모든 항목을 입력하세요!');return;}
   if(!document.getElementById('chk-privacy')?.checked){showLoginError('개인정보처리방침에 동의해주세요!');return;}
   if(password.length<6){showLoginError('비밀번호는 6자 이상이에요!');return;}
-  // ── 교회 코드 검증: Firestore DB 우선, 하드코딩 fallback ──
+  if(name.length<2||name.length>10){showLoginError('이름은 2~10자로 입력해주세요!');return;}
+
   document.getElementById('login-loading').style.display='block';
   document.getElementById('login-error').style.display='none';
+
+  // ── 닉네임 중복 체크 ──
+  try{
+    const nameSnap = await window._db.collection('users').where('name','==',name).limit(1).get();
+    if(!nameSnap.empty){
+      document.getElementById('login-loading').style.display='none';
+      showLoginError('이미 사용 중인 닉네임이에요! 다른 이름을 입력해주세요.');
+      return;
+    }
+  }catch(e){ console.warn('닉네임 중복체크 오류:', e.message); }
+
+  // ── 교회 코드 검증: Firestore DB 우선, 하드코딩 fallback ──
   const codeValid = await validateChurchCode(churchCode);
   if(!codeValid){
     document.getElementById('login-loading').style.display='none';
@@ -1285,6 +1300,12 @@ async function recordReading(){
   const verseText=document.getElementById('verse-text')?.value.trim();
   if(verseText){
     window._db.collection('verses').add({userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:selectedChapters[0],verseText,likedBy:[],likes:0,comments:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    // 나눔 작성 보너스 XP +20
+    const verseBonus = 20;
+    state.xp += verseBonus;
+    state.level = getLvInfo(state.xp).cur.lv;
+    await saveToCloud();
+    showToast('✨','말씀 나눔 보너스!','+20 XP 획득! 감사합니다 🙏');
     document.getElementById('verse-text').value='';
     document.getElementById('verse-char-cnt').textContent='0';
     document.getElementById('verse-share-card').style.display='none';
@@ -1658,7 +1679,7 @@ function initBookSelect(){
 ══════════════════════════════════════ */
 const NOTICES=[
   {id:'notice_verse_tab',icon:'💬',tag:'NEW',title:'말씀 나눔 탭 추가!',
-   desc:'하단 탭에서 💬 나눔을 눌러보세요!\n교인들과 인상깊은 구절을 나눌 수 있어요.',expires:new Date('2099-12-31')},
+   desc:'하단 탭에서 💬 나눔을 눌러보세요!\n성도들과 인상깊은 구절을 나눌 수 있어요.',expires:new Date('2099-12-31')},
   {id:'notice_verse_how',icon:'✨',tag:'TIP',title:'구절 나누는 방법',
    desc:'홈에서 장을 선택하면 구절 입력 칸이 나타나요.\n이미 읽은 장(골드)도 클릭하면 구절을 나눌 수 있어요!',expires:new Date('2099-12-31')}
 ];
@@ -1754,27 +1775,39 @@ async function shareVerseOnly(){
   if(!verseText){alert('구절을 입력해주세요!');return;}
   const chap=[...cancelChs][0]||1;
   await window._db.collection('verses').add({userName:currentUser.name,uid:currentUser.uid,churchCode:currentUser.churchCode||'',book:bookName,chapter:parseInt(chap),verseText,likedBy:[],likes:0,comments:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  // 나눔 보너스 XP +20
+  state.xp += 20;
+  state.level = getLvInfo(state.xp).cur.lv;
+  await saveToCloud();
   document.getElementById('verse-text').value='';
   document.getElementById('verse-char-cnt').textContent='0';
   document.getElementById('verse-share-card').style.display='none';
   const unit=bookName==='시편'?'편':'장';
-  showToast('✨','구절을 나눴어요!',`${bookName} ${chap}${unit}`);
+  showToast('✨','구절 나눔 완료! +20 XP',`${bookName} ${chap}${unit} 감사합니다 🙏`);
 }
 
 // ★ 하트 누른 사람 팝업
 function showVerseLikedPopup(likedBy, bookRef){
   const names=Array.isArray(likedBy)?likedBy:[];
-  document.getElementById('verse-liked-title').textContent='❤️ '+bookRef+' 공감한 사람들';
-  document.getElementById('verse-liked-sub').textContent=names.length>0?names.length+'명이 공감했어요':'아직 공감한 사람이 없어요';
+  document.getElementById('verse-liked-title').textContent='❤️ 공감한 사람들';
+  document.getElementById('verse-liked-sub').textContent=bookRef ? bookRef+' · '+names.length+'명이 공감했어요' : names.length+'명이 공감했어요';
   document.getElementById('verse-liked-list').innerHTML=names.length===0
-    ?'<div style="text-align:center;padding:20px;color:#444;">아직 공감한 사람이 없어요 🥲</div>'
-    :names.map(n=>{
+    ?`<div style="text-align:center;padding:30px 20px;">
+        <div style="font-size:40px;margin-bottom:10px;">🥲</div>
+        <div style="color:#555;font-size:14px;">아직 공감한 사람이 없어요</div>
+        <div style="color:#3a3a3a;font-size:12px;margin-top:4px;">가장 먼저 공감해보세요!</div>
+      </div>`
+    :`<div style="padding:4px 0;">${names.map((n,i)=>{
       const ac=getAvatarColor(n);
+      const medals=['🥇','🥈','🥉'];
+      const badge=i<3?`<span style="font-size:14px;">${medals[i]}</span>`:'';
       return `<div class="verse-liked-person">
         <div class="verse-liked-avatar" style="background:${ac}">${n.charAt(0)}</div>
         <div class="verse-liked-name">${n}</div>
+        ${badge}
+        <span class="verse-liked-heart">❤️</span>
       </div>`;
-    }).join('');
+    }).join('')}</div>`;
   document.getElementById('verse-liked-popup').classList.add('show');
 }
 function closeVerseLikedPopup(){document.getElementById('verse-liked-popup').classList.remove('show');}
@@ -2042,6 +2075,16 @@ async function adminApproveRequest(reqId, churchName, codeWish, contactEmail){
   if(finalCode.length<3){ alert('코드는 최소 3자 이상이어야 해요.'); return; }
   if(!confirm('최종 확인\n교회명: ' + churchName + '\n발급 코드: ' + finalCode)) return;
 
+  // ── 승인 시 코드 중복 체크 ──
+  try{
+    const existSnap = await window._db.collection('churchCodes').doc(finalCode).get();
+    if(existSnap.exists){
+      const existChurch = existSnap.data()?.churchName || '다른 교회';
+      alert(`⚠️ 이미 사용 중인 코드예요!\n\n코드: ${finalCode}\n사용 교회: ${existChurch}\n\n다른 코드로 변경해주세요.`);
+      return;
+    }
+  }catch(e){ console.warn('승인 중복체크 오류:', e.message); }
+
   try{
     await window._db.collection('churchCodes').doc(finalCode).set({
       code:finalCode, churchName, active:true,
@@ -2236,6 +2279,19 @@ async function submitChurchCodeRequest(){
   const submitBtn = document.querySelector('#church-request-modal button[onclick="submitChurchCodeRequest()"]');
   if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='신청 중...'; }
   resultEl.style.color='#888'; resultEl.textContent='⏳ 신청 접수 중...';
+
+  // ── 희망코드 중복 체크 ──
+  if(codeWish && codeWish !== '(자동발급)'){
+    try{
+      const codeSnap = await window._db.collection('churchCodes').doc(codeWish).get();
+      if(codeSnap.exists){
+        resultEl.style.color='#e74c3c';
+        resultEl.textContent='⚠️ 이미 사용 중인 교회 코드예요! 다른 코드를 입력해주세요.';
+        if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='📨 신청하기'; }
+        return;
+      }
+    }catch(e){ console.warn('코드 중복체크 오류:', e.message); }
+  }
 
   try{
     await window._db.collection('churchCodeRequests').add({
