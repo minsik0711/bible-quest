@@ -37,6 +37,8 @@
   };
   firebase.initializeApp(firebaseConfig);
   window._auth = firebase.auth();
+  // 브라우저 닫아도 로그인 유지 (새로고침 시 초기화 방지)
+  window._auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
   window._db = firebase.firestore();
   window._analytics = firebase.analytics();
 
