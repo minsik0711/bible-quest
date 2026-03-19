@@ -37,8 +37,6 @@
   };
   firebase.initializeApp(firebaseConfig);
   window._auth = firebase.auth();
-  // 브라우저 닫아도 로그인 유지 (새로고침 시 초기화 방지)
-  window._auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
   window._db = firebase.firestore();
   window._analytics = firebase.analytics();
 
@@ -83,24 +81,18 @@
     // login()/signup() 에서 직접 enterApp 호출 시 중복 실행 방지
     if(window._authHandled) return;
     if(user && !window.currentUser){
-      const autoLogin=localStorage.getItem('bq_auto_login')==='true';
-      if(autoLogin){
-        if(document.getElementById('login-loading')){
-          document.getElementById('login-loading').style.display='block';
-        }
-        // DOM 로드 완료 후 enterApp 호출 보장
-        const tryEnter = async () => {
-          if(typeof enterApp==='function'){
-            await enterApp(user);
-          } else {
-            setTimeout(tryEnter, 100);
-          }
-        };
-        await tryEnter();
-      } else {
-        // 자동로그인 미설정 시 로그아웃 상태 유지
-        await window._auth.signOut();
+      // 자동로그인 체크 여부와 관계없이 세션이 살아있으면 자동 진입
+      if(document.getElementById('login-loading')){
+        document.getElementById('login-loading').style.display='block';
       }
+      const tryEnter = async () => {
+        if(typeof enterApp==='function'){
+          await enterApp(user);
+        } else {
+          setTimeout(tryEnter, 100);
+        }
+      };
+      await tryEnter();
     }
   });
 </script>
