@@ -774,9 +774,30 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       </div>
 
       <!-- 전체 유저 현황 -->
-      <div style="background:#ffffff08;border:1px solid #ffffff12;border-radius:14px;padding:14px;">
+      <div style="background:#ffffff08;border:1px solid #ffffff12;border-radius:14px;padding:14px;margin-bottom:12px;">
         <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#f4d03f;margin-bottom:12px;">👥 전체 유저 현황</div>
         <div id="admin-users"><div class="empty-msg">불러오는 중... ⏳</div></div>
+      </div>
+
+      <!-- 공지사항 관리 -->
+      <div style="background:linear-gradient(135deg,#0f2318,#1a3a28);border:1px solid #22c55e44;border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#22c55e;margin-bottom:12px;">📢 공지사항 관리</div>
+        <!-- 새 공지 작성 -->
+        <div style="margin-bottom:12px;">
+          <input id="admin-notice-icon" placeholder="아이콘 (예: 📢)" style="width:60px;background:#1e2235;border:1px solid #ffffff25;border-radius:8px;padding:8px;color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:6px;">
+          <select id="admin-notice-tag" style="background:#1e2235;border:1px solid #ffffff25;border-radius:8px;padding:8px;color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:6px;margin-left:6px;">
+            <option value="NEW">NEW</option>
+            <option value="UPDATE">UPDATE</option>
+            <option value="TIP">TIP</option>
+            <option value="공지">공지</option>
+            <option value="이벤트">이벤트</option>
+          </select>
+          <input id="admin-notice-title" placeholder="제목" style="width:100%;background:#1e2235;border:1px solid #ffffff25;border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:6px;box-sizing:border-box;">
+          <textarea id="admin-notice-desc" placeholder="내용 (줄바꿈 가능)" rows="3" style="width:100%;background:#1e2235;border:1px solid #ffffff25;border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;resize:none;margin-bottom:6px;box-sizing:border-box;"></textarea>
+          <button onclick="adminAddNotice()" style="width:100%;padding:10px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:10px;font-family:'Black Han Sans',sans-serif;font-size:14px;color:#fff;cursor:pointer;">📢 공지 등록</button>
+        </div>
+        <!-- 공지 목록 -->
+        <div id="admin-notices"><div class="empty-msg">불러오는 중... ⏳</div></div>
       </div>
     </div>
 
@@ -1057,6 +1078,8 @@ async function enterApp(firebaseUser){
   if(window._hideSplash) window._hideSplash();
   // 푸시 알림 초기화 (로그인 후)
   setTimeout(initPushNotification, 2000);
+  // 공지사항 로드
+  renderNotices();
   const cls=CLASSES[state.userClass];
   if(!state.userClass){
     // 클래스 미선택 → 클래스 선택 화면만 표시, app은 숨김
@@ -1177,10 +1200,13 @@ async function loadRankings(){
   
   const medals=['🥇','🥈','🥉'];
   const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
-  
+  const myName = currentUser?.name || '';
+
   document.getElementById('rank-list').innerHTML=data.map((r,i)=>{
-    const isMe = r.name === currentUser?.name;
-    const liked = myLikes.includes(r.name);
+    const isMe = r.name === myName;
+    const likeFromArr = r.like_from || [];
+    // Firestore likeFrom 배열에 내 uid가 있으면 liked
+    const liked = likeFromArr.includes(currentUser?.uid||'');
     
     // DB의 likes 숫자 대신, 실제 응원단 명단(like_from)의 길이를 사용하여 데이터 불일치 해결
     const likeFrom = r.like_from || [];
@@ -1220,26 +1246,28 @@ async function loadRankings(){
 }
 
 async function toggleLike(targetUid,btn){
-  const myLikes=JSON.parse(localStorage.getItem('bq_likes')||'[]');
-  const liked=myLikes.includes(targetUid);
-  const myName=currentUser?.name||'익명';
+  const myUid = currentUser?.uid||'';
+  const myName = currentUser?.name||'익명';
   const _tlsnap=await window._db.collection('users').doc(targetUid).get();
   if(!_tlsnap.exists) return;
   const data=_tlsnap.data();
   const likeFrom=data.likeFrom||[];
+  // uid 기반으로 통일
+  const liked = likeFrom.includes(myUid);
   if(liked){
-    myLikes.splice(myLikes.indexOf(targetUid),1);
-    btn.classList.remove('liked'); btn.textContent='👍'; const sib1=btn.nextElementSibling; if(sib1) sib1.textContent=Math.max(0,likeFrom.length-1);
-    const newFrom=likeFrom.filter(n=>n!==myName);
-    await window._db.collection('users').doc(targetUid).update({likes:Math.max(0,likeFrom.length-1),likeFrom:newFrom});
+    // 응원 취소
+    const newFrom=likeFrom.filter(n=>n!==myUid);
+    btn.classList.remove('liked');
+    const sib1=btn.nextElementSibling; if(sib1) sib1.textContent=newFrom.length;
+    await window._db.collection('users').doc(targetUid).update({likes:newFrom.length, likeFrom:newFrom});
   } else {
-    myLikes.push(targetUid);
-    btn.classList.add('liked'); btn.textContent='👍'; const sib2=btn.nextElementSibling; if(sib2) sib2.textContent=(likeFrom.length+1);
-    if(!likeFrom.includes(myName)) likeFrom.push(myName);
-    await window._db.collection('users').doc(targetUid).update({likes:likeFrom.length+1,likeFrom});
+    // 응원 추가
+    const newFrom=[...likeFrom, myUid];
+    btn.classList.add('liked');
+    const sib2=btn.nextElementSibling; if(sib2) sib2.textContent=newFrom.length;
+    await window._db.collection('users').doc(targetUid).update({likes:newFrom.length, likeFrom:newFrom});
     saveNotif(targetUid,'like',`${myName}님이 응원을 눌렀어요!`,'👍');
   }
-  localStorage.setItem('bq_likes',JSON.stringify(myLikes));
   loadRankings();
 }
 
@@ -1673,16 +1701,24 @@ function initBookSelect(){
 /* ══════════════════════════════════════
    공지 배너
 ══════════════════════════════════════ */
-const NOTICES=[
-  {id:'notice_verse_tab',icon:'💬',tag:'NEW',title:'말씀 나눔 탭 추가!',
-   desc:'하단 탭에서 💬 나눔을 눌러보세요!\n성도들과 인상깊은 구절을 나눌 수 있어요.',expires:new Date('2099-12-31')},
-  {id:'notice_verse_how',icon:'✨',tag:'TIP',title:'구절 나누는 방법',
-   desc:'홈에서 장을 선택하면 구절 입력 칸이 나타나요.\n이미 읽은 장(골드)도 클릭하면 구절을 나눌 수 있어요!',expires:new Date('2099-12-31')}
-];
 let noticeIdx=0,noticeList=[];
-function renderNotices(){
+
+// ── Firestore에서 공지 로드 ──
+async function renderNotices(){
   const dismissed=JSON.parse(localStorage.getItem('bq_dismissed_notices')||'[]');
-  noticeList=NOTICES.filter(n=>!dismissed.includes(n.id)&&new Date()<n.expires);
+  try{
+    const snap=await window._db.collection('notices')
+      .where('active','==',true)
+      .orderBy('createdAt','desc')
+      .limit(10).get();
+    const now=new Date();
+    noticeList=snap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(n=>!dismissed.includes(n.id)&&(!n.expires||new Date(n.expires)>now));
+  }catch(e){
+    // Firestore 실패 시 빈 배열
+    noticeList=[];
+  }
   if(!noticeList.length){document.getElementById('notice-wrap').innerHTML='';return;}
   noticeIdx=Math.min(noticeIdx,noticeList.length-1);
   renderNoticeSlide();
@@ -1967,11 +2003,75 @@ async function deleteVerse(verseId){
 /* ══════════════════════════════════════
    관리자 패널 (MASTER2026 전용)
 ══════════════════════════════════════ */
+
+// ── 관리자 공지사항 관리 ──
+async function adminAddNotice(){
+  if(currentUser?.churchCode!=='MASTER2026') return;
+  const icon = document.getElementById('admin-notice-icon').value.trim() || '📢';
+  const tag  = document.getElementById('admin-notice-tag').value;
+  const title= document.getElementById('admin-notice-title').value.trim();
+  const desc = document.getElementById('admin-notice-desc').value.trim();
+  if(!title||!desc){ alert('제목과 내용을 입력해주세요!'); return; }
+  try{
+    await window._db.collection('notices').add({
+      icon, tag, title, desc,
+      active: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('admin-notice-icon').value='';
+    document.getElementById('admin-notice-title').value='';
+    document.getElementById('admin-notice-desc').value='';
+    showToast('📢','공지 등록 완료!',title);
+    loadAdminNotices();
+    renderNotices();
+  }catch(e){ alert('등록 실패: '+e.message); }
+}
+
+async function loadAdminNotices(){
+  if(currentUser?.churchCode!=='MASTER2026') return;
+  const el=document.getElementById('admin-notices');
+  if(!el) return;
+  try{
+    const snap=await window._db.collection('notices').orderBy('createdAt','desc').limit(20).get();
+    if(snap.empty){ el.innerHTML='<div class="empty-msg">등록된 공지가 없어요</div>'; return; }
+    el.innerHTML=snap.docs.map(d=>{
+      const n=d.data();
+      return `<div style="background:#ffffff08;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:700;color:#e8e8e8;">${n.icon||'📢'} ${n.title}</div>
+          <div style="font-size:10px;color:#888;margin-top:2px;">${n.tag} · ${n.active?'<span style="color:#22c55e">활성</span>':'<span style="color:#e74c3c">비활성</span>'}</div>
+        </div>
+        <button onclick="adminToggleNotice('${d.id}',${!n.active})" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid ${n.active?'#e74c3c44':'#22c55e44'};background:${n.active?'#e74c3c22':'#22c55e22'};color:${n.active?'#e74c3c':'#22c55e'};cursor:pointer;font-family:'Noto Sans KR',sans-serif;">${n.active?'비활성화':'활성화'}</button>
+        <button onclick="adminDeleteNotice('${d.id}')" style="font-size:10px;padding:4px 8px;border-radius:6px;border:1px solid #e74c3c44;background:#e74c3c22;color:#e74c3c;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">삭제</button>
+      </div>`;
+    }).join('');
+  }catch(e){ el.innerHTML='<div class="empty-msg">불러오기 실패</div>'; }
+}
+
+async function adminToggleNotice(id, active){
+  try{
+    await window._db.collection('notices').doc(id).update({ active });
+    showToast('📢','공지 상태 변경',active?'활성화됨':'비활성화됨');
+    loadAdminNotices();
+    renderNotices();
+  }catch(e){ alert('변경 실패: '+e.message); }
+}
+
+async function adminDeleteNotice(id){
+  if(!confirm('공지를 삭제할까요?')) return;
+  try{
+    await window._db.collection('notices').doc(id).delete();
+    showToast('🗑️','공지 삭제됨','');
+    loadAdminNotices();
+    renderNotices();
+  }catch(e){ alert('삭제 실패: '+e.message); }
+}
 async function loadAdminData(){
   if(currentUser?.churchCode!=='MASTER2026') return;
   loadAdminRequests();
   loadAdminCodes();
   loadAdminUsers();
+  loadAdminNotices();
 }
 
 // ── 교회 코드 신청 목록 로드 (기본: 대기중만 표시) ──
