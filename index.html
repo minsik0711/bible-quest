@@ -1229,12 +1229,12 @@ async function toggleLike(targetUid,btn){
   const likeFrom=data.likeFrom||[];
   if(liked){
     myLikes.splice(myLikes.indexOf(targetUid),1);
-    btn.classList.remove('liked'); btn.textContent='👍 '+Math.max(0,likeFrom.length-1);
+    btn.classList.remove('liked'); btn.textContent='👍'; const sib1=btn.nextElementSibling; if(sib1) sib1.textContent=Math.max(0,likeFrom.length-1);
     const newFrom=likeFrom.filter(n=>n!==myName);
     await window._db.collection('users').doc(targetUid).update({likes:Math.max(0,likeFrom.length-1),likeFrom:newFrom});
   } else {
     myLikes.push(targetUid);
-    btn.classList.add('liked'); btn.textContent='👍 '+(likeFrom.length+1);
+    btn.classList.add('liked'); btn.textContent='👍'; const sib2=btn.nextElementSibling; if(sib2) sib2.textContent=(likeFrom.length+1);
     if(!likeFrom.includes(myName)) likeFrom.push(myName);
     await window._db.collection('users').doc(targetUid).update({likes:likeFrom.length+1,likeFrom});
     saveNotif(targetUid,'like',`${myName}님이 응원을 눌렀어요!`,'👍');
@@ -1783,19 +1783,38 @@ async function shareVerseOnly(){
 }
 
 // ★ 하트 누른 사람 팝업
-function showVerseLikedPopup(likedBy, bookRef){
-  const names=Array.isArray(likedBy)?likedBy:[];
+async function showVerseLikedPopup(likedBy, bookRef){
+  const uids=Array.isArray(likedBy)?likedBy:[];
   document.getElementById('verse-liked-title').textContent='❤️ 공감한 사람들';
-  document.getElementById('verse-liked-sub').textContent=bookRef ? bookRef+' · '+names.length+'명이 공감했어요' : names.length+'명이 공감했어요';
-  document.getElementById('verse-liked-list').innerHTML=names.length===0
-    ?`<div style="text-align:center;padding:30px 20px;">
+  document.getElementById('verse-liked-sub').textContent=bookRef ? bookRef+' · '+uids.length+'명이 공감했어요' : uids.length+'명이 공감했어요';
+  document.getElementById('verse-liked-popup').classList.add('show');
+
+  if(uids.length===0){
+    document.getElementById('verse-liked-list').innerHTML=
+      `<div style="text-align:center;padding:30px 20px;">
         <div style="font-size:40px;margin-bottom:10px;">🥲</div>
         <div style="color:#555;font-size:14px;">아직 공감한 사람이 없어요</div>
         <div style="color:#3a3a3a;font-size:12px;margin-top:4px;">가장 먼저 공감해보세요!</div>
-      </div>`
-    :`<div style="padding:4px 0;">${names.map((n,i)=>{
+      </div>`;
+    return;
+  }
+
+  document.getElementById('verse-liked-list').innerHTML='<div style="text-align:center;padding:20px;color:#555;">불러오는 중...</div>';
+
+  // uid → 이름 변환 (Firestore 조회)
+  const names = [];
+  for(const uid of uids){
+    try{
+      const snap = await window._db.collection('users').doc(uid).get();
+      if(snap.exists) names.push(snap.data().name || uid);
+      else names.push(uid);
+    }catch(e){ names.push(uid); }
+  }
+
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('verse-liked-list').innerHTML=
+    `<div style="padding:4px 0;">${names.map((n,i)=>{
       const ac=getAvatarColor(n);
-      const medals=['🥇','🥈','🥉'];
       const badge=i<3?`<span style="font-size:14px;">${medals[i]}</span>`:'';
       return `<div class="verse-liked-person">
         <div class="verse-liked-avatar" style="background:${ac}">${n.charAt(0)}</div>
@@ -1804,7 +1823,6 @@ function showVerseLikedPopup(likedBy, bookRef){
         <span class="verse-liked-heart">❤️</span>
       </div>`;
     }).join('')}</div>`;
-  document.getElementById('verse-liked-popup').classList.add('show');
 }
 function closeVerseLikedPopup(){document.getElementById('verse-liked-popup').classList.remove('show');}
 
@@ -2482,33 +2500,45 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function initPushNotification() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  if (!currentUser) return;
+  console.log('🔔 푸시 초기화 시작...');
+  if (!('serviceWorker' in navigator)) { console.warn('❌ serviceWorker 미지원'); return; }
+  if (!('PushManager' in window)) { console.warn('❌ PushManager 미지원'); return; }
+  if (!currentUser) { console.warn('❌ currentUser 없음'); return; }
 
   try {
     const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
+    console.log('✅ 서비스워커 준비됨');
 
-    if (!sub) {
-      // 알림 권한 요청
+    // 기존 구독 강제 해제 후 재구독 (테스트용)
+    let sub = await reg.pushManager.getSubscription();
+    if(sub) {
+      console.log('기존 구독 있음 → 서버에 재등록');
+    } else {
+      console.log('구독 없음 → 권한 요청');
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') return;
+      console.log('권한 결과:', permission);
+      if (permission !== 'granted') { console.warn('❌ 알림 거부됨'); return; }
 
       sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
       });
+      console.log('✅ 구독 생성됨');
     }
 
     // 서버에 구독 정보 저장
-    await fetch(PUSH_SERVER + '/subscribe', {
+    const res = await fetch(PUSH_SERVER + '/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uid: currentUser.uid, subscription: sub.toJSON() })
     });
-    console.log('✅ 푸시 알림 구독 완료');
+    if(res.ok) {
+      console.log('✅ 푸시 알림 구독 완료!');
+    } else {
+      console.warn('❌ 서버 저장 실패:', res.status);
+    }
   } catch(e) {
-    console.warn('푸시 구독 오류:', e.message);
+    console.warn('❌ 푸시 구독 오류:', e.message);
   }
 }
 window.onload=()=>{
