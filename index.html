@@ -1055,6 +1055,8 @@ async function enterApp(firebaseUser){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('login-loading').style.display='none';
   if(window._hideSplash) window._hideSplash();
+  // 푸시 알림 초기화 (로그인 후)
+  setTimeout(initPushNotification, 2000);
   const cls=CLASSES[state.userClass];
   if(!state.userClass){
     // 클래스 미선택 → 클래스 선택 화면만 표시, app은 숨김
@@ -2465,6 +2467,50 @@ function initSplash(){
   window._hideSplash = hideSplash; // enterApp에서 조기 호출 가능
 }
 
+
+// ── 푸시 알림 구독 시스템 ──
+const PUSH_SERVER = 'https://untranscendentally-bland-johnnie.ngrok-free.dev';
+const VAPID_PUBLIC_KEY = 'BHF2wrbLQi_nAkHkat5YsNINbgHftoSbgU_AU_ABczYdW9uQ2fux-aiVd9QIHmtyM2GndpMQa9audveu8YSNUy0';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+async function initPushNotification() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!currentUser) return;
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+
+    if (!sub) {
+      // 알림 권한 요청
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') return;
+
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+
+    // 서버에 구독 정보 저장
+    await fetch(PUSH_SERVER + '/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: currentUser.uid, subscription: sub.toJSON() })
+    });
+    console.log('✅ 푸시 알림 구독 완료');
+  } catch(e) {
+    console.warn('푸시 구독 오류:', e.message);
+  }
+}
 window.onload=()=>{
   initSplash();
   // 저장된 이메일 복원

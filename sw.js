@@ -1,8 +1,8 @@
 // ── 성경읽고 레벨업 Service Worker ──
-const CACHE_NAME = 'bible-quest-v2';
+const CACHE_NAME = 'bible-quest-v3';
 const OFFLINE_URL = '/';
+const PUSH_SERVER = 'https://untranscendentally-bland-johnnie.ngrok-free.dev';
 
-// 캐시할 핵심 파일들
 const PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -11,7 +11,7 @@ const PRECACHE_URLS = [
   '/icon-512.png',
 ];
 
-// ── 설치: 핵심 파일 프리캐시 ──
+// ── 설치 ──
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// ── 활성화: 오래된 캐시 삭제 ──
+// ── 활성화 ──
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -33,27 +33,23 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ── Fetch: Network First 전략 (Firebase 요청은 항상 네트워크) ──
+// ── Fetch ──
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-
-  // Firebase / Google API / EmailJS 는 캐시 안 함
   if (
     url.hostname.includes('firebase') ||
     url.hostname.includes('google') ||
     url.hostname.includes('gstatic') ||
     url.hostname.includes('emailjs') ||
     url.hostname.includes('googleapis') ||
+    url.hostname.includes('ngrok') ||
     event.request.method !== 'GET'
   ) {
-    return; // 기본 네트워크 요청
+    return;
   }
-
-  // 나머지: Network First, 실패 시 캐시 fallback
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // 성공한 응답 캐시에 저장
         if (response && response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then(cache => {
@@ -63,7 +59,6 @@ self.addEventListener('fetch', event => {
         return response;
       })
       .catch(() => {
-        // 오프라인: 캐시에서 가져오기
         return caches.match(event.request).then(cached => {
           return cached || caches.match(OFFLINE_URL);
         });
@@ -71,14 +66,35 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// ── 푸시 알림 (추후 확장용) ──
+// ── 푸시 알림 수신 ──
 self.addEventListener('push', event => {
   const data = event.data?.json() ?? {};
+  const options = {
+    body: data.body || '새로운 알림이 있어요!',
+    icon: data.icon || '/icon-192.png',
+    badge: data.badge || '/icon-192.png',
+    tag: data.tag || 'default',
+    data: data.data || {},
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
+  };
   event.waitUntil(
-    self.registration.showNotification(data.title || '성경읽고 레벨업', {
-      body: data.body || '새로운 알림이 있어요!',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+    self.registration.showNotification(data.title || '성경읽고 레벨업', options)
+  );
+});
+
+// ── 알림 클릭 시 앱 열기 ──
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes('bible-quest-release') && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      return clients.openWindow('https://bible-quest-release.vercel.app' + url);
     })
   );
 });
