@@ -2543,6 +2543,12 @@ async function initPushNotification() {
 }
 window.onload=()=>{
   initSplash();
+  // 서비스워커 등록
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('✅ 서비스워커 등록됨:', reg.scope))
+      .catch(e => console.warn('❌ 서비스워커 등록 실패:', e.message));
+  }
   // 저장된 이메일 복원
   const savedEmail=localStorage.getItem('bq_saved_email');
   if(savedEmail){
