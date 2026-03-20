@@ -6,12 +6,3 @@
     "sha256_cert_fingerprints": ["83:BF:BE:E6:02:F9:A9:A6:19:08:DC:E0:66:CC:49:82:04:85:54:AA:01:E2:4A:A8:AD:60:82:2D:43:D6:5D:F4"]
   }
 }]
-```
-
-**④ Commit changes 클릭**
-
----
-
-완료 후 브라우저에서 확인:
-```
-https://bible-quest-release.vercel.app/.well-known/assetlinks.json
