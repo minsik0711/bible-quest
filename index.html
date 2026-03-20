@@ -1083,6 +1083,8 @@ async function enterApp(firebaseUser){
   setTimeout(initPushNotification, 2000);
   // 공지사항 로드
   renderNotices();
+  // 앱 버전 체크
+  setTimeout(checkAppVersion, 1500);
   const cls=CLASSES[state.userClass];
   if(!state.userClass){
     // 클래스 미선택 → 클래스 선택 화면만 표시, app은 숨김
@@ -1863,6 +1865,50 @@ async function showVerseLikedPopup(likedBy, bookRef){
     }).join('')}</div>`;
 }
 function closeVerseLikedPopup(){document.getElementById('verse-liked-popup').classList.remove('show');}
+
+// ── 앱 버전 체크 ──
+const APP_VERSION = '1.0.4';
+const STORE_URL = 'https://m.onestore.co.kr/v2/ko-kr/app/0001004869';
+
+async function checkAppVersion(){
+  try{
+    const snap = await window._db.collection('appConfig').doc('version').get();
+    if(!snap.exists) return;
+    const config = snap.data();
+    const latestVersion = config.version || APP_VERSION;
+    const forceUpdate = config.forceUpdate || false;
+    const desc = config.desc || '';
+
+    // 버전 비교 (숫자로 변환)
+    const toNum = v => v.replace(/\./g,'').padEnd(6,'0');
+    if(toNum(latestVersion) <= toNum(APP_VERSION)) return;
+
+    // 업데이트 팝업 표시
+    document.getElementById('update-popup-version').textContent =
+      `현재 ${APP_VERSION} → 최신 ${latestVersion}`;
+    document.getElementById('update-popup-desc').textContent = desc;
+
+    // 강제 업데이트면 나중에 하기 버튼 숨기기
+    const skipBtn = document.getElementById('update-skip-btn');
+    if(forceUpdate){
+      skipBtn.style.display = 'none';
+    } else {
+      skipBtn.style.display = 'block';
+    }
+
+    document.getElementById('update-popup-overlay').style.display = 'flex';
+  }catch(e){
+    console.warn('버전 체크 오류:', e.message);
+  }
+}
+
+function goToStore(){
+  window.open(STORE_URL, '_blank');
+}
+
+function skipUpdate(){
+  document.getElementById('update-popup-overlay').style.display = 'none';
+}
 
 // ── 공지사항 다시보기 ──
 async function openNoticesPopup(){
@@ -2708,6 +2754,18 @@ window.onload=()=>{
 // 유효한 교회코드 하드코딩 목록 (Firestore에 없을 때 fallback)
 const HARDCODED_VALID_CODES = ['SHINKWANG2026','SHINKWANG','TEST2026','MASTER2026'];
 </script>
+<!-- 앱 업데이트 팝업 -->
+<div id="update-popup-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000cc;z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:#12172a;border:1px solid #f4d03f66;border-radius:20px;width:88%;max-width:360px;padding:28px 24px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:12px;">🚀</div>
+    <div style="font-family:'Black Han Sans';font-size:20px;color:#f4d03f;margin-bottom:8px;">새 버전이 출시됐어요!</div>
+    <div id="update-popup-version" style="font-size:13px;color:#aaa;margin-bottom:8px;"></div>
+    <div id="update-popup-desc" style="font-size:12px;color:#888;line-height:1.6;margin-bottom:20px;"></div>
+    <button onclick="goToStore()" style="width:100%;padding:14px;background:linear-gradient(135deg,#f4d03f,#f39c12);border:none;border-radius:12px;font-family:'Black Han Sans';font-size:16px;color:#0a0e1a;cursor:pointer;margin-bottom:10px;">📲 지금 업데이트</button>
+    <button id="update-skip-btn" onclick="skipUpdate()" style="width:100%;padding:10px;background:none;border:1px solid #ffffff22;border-radius:12px;font-size:13px;color:#666;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">나중에 하기</button>
+  </div>
+</div>
+
 <!-- 공지사항 다시보기 팝업 -->
 <div id="notices-popup-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000aa;z-index:9999;align-items:center;justify-content:center;" onclick="closeNoticesPopup()">
   <div style="background:#12172a;border:1px solid #f4d03f44;border-radius:18px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;padding:20px;" onclick="event.stopPropagation()">
