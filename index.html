@@ -547,11 +547,11 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div style="font-size:11px;color:#aaa;font-weight:700;">📖 성경 통독</div>
         <div style="font-size:13px;font-weight:900;color:#f4d03f;" id="reading-pct">0.0%</div>
       </div>
-      <div style="position:relative;height:30px;">
+      <div style="position:relative;height:44px;">
         <div style="position:absolute;bottom:5px;left:18px;right:18px;height:2px;background:#ffffff12;border-radius:99px;"></div>
         <div id="reading-bar-fill" style="position:absolute;bottom:5px;left:18px;height:2px;width:0%;background:linear-gradient(90deg,#f4d03f,#f39c12);border-radius:99px;box-shadow:0 0 6px #f4d03f66;transition:width 1s ease;"></div>
         <div id="reading-char" style="position:absolute;bottom:7px;left:12px;transition:left 1s ease;">
-          <svg id="reading-char-svg" width="16" height="22" viewBox="0 0 8 11" style="image-rendering:pixelated;">
+          <svg id="reading-char-svg" width="28" height="38" viewBox="0 0 8 11" shape-rendering="crispEdges">
             <rect x="2" y="0" width="4" height="4" fill="#f4d03f"/>
             <rect x="3" y="1" width="1" height="1" fill="#0a0e1a"/>
             <rect x="5" y="1" width="1" height="1" fill="#0a0e1a"/>
@@ -589,14 +589,31 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
   <div class="content">
     <!-- 홈 -->
     <div class="page active" id="page-home">
-      <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:4px">
+      <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:4px;">
         <button class="logout-btn-small" onclick="logout()">🚪 로그아웃</button>
         <button class="logout-btn-small" onclick="deleteAccount()" style="color:#e74c3c;border-color:#e74c3c33;">🗑️ 회원탈퇴</button>
       </div>
-      <div id="notice-wrap"></div>
-      <div style="text-align:left;margin-top:2px;margin-bottom:4px;">
-        <button onclick="openNoticesPopup()" style="font-size:10px;color:#888;background:none;border:none;cursor:pointer;padding:2px 4px;font-family:'Noto Sans KR',sans-serif;">📋 공지 전체보기</button>
+      <div id="church-code-setting-row" style="display:none;margin-bottom:6px;">
+        <button onclick="openChurchCodeSetting()" id="church-code-setting-btn" style="width:100%;padding:10px;background:#f4d03f12;border:1px solid #f4d03f33;border-radius:10px;color:#f4d03f;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">⛪ 교회코드 등록하기</button>
       </div>
+      <div style="text-align:left;margin-bottom:4px;">
+        <button onclick="openNoticesPopup()" style="font-size:11px;color:#888;background:none;border:none;cursor:pointer;padding:2px 4px;font-family:'Noto Sans KR',sans-serif;">📋 공지 전체보기</button>
+      </div>
+
+      <!-- 교회코드 설정 모달 -->
+      <div id="church-code-setting-modal" style="display:none;position:fixed;inset:0;background:#000000e0;align-items:flex-end;justify-content:center;z-index:500;">
+        <div style="background:#111827;border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:430px;">
+          <div style="font-family:'Black Han Sans';font-size:16px;color:#f4d03f;margin-bottom:6px;">⛪ 교회코드 등록</div>
+          <div style="font-size:12px;color:#888;margin-bottom:16px;">교회 코드를 입력하면 교회 성도들과 함께할 수 있어요!</div>
+          <input type="text" id="setting-church-code" placeholder="교회 코드 (예: SHINKWANG2026)"
+            style="width:100%;background:#1e2235;border:1px solid #ffffff25;border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:8px;box-sizing:border-box;text-transform:uppercase;"
+            oninput="this.value=this.value.toUpperCase()">
+          <div style="font-size:11px;color:#666;margin-bottom:16px;">코드가 없으면 관리자에게 문의하세요</div>
+          <button onclick="saveChurchCodeSetting()" style="width:100%;padding:13px;background:linear-gradient(135deg,#f4d03f,#f39c12);border:none;border-radius:12px;font-family:'Black Han Sans';font-size:15px;color:#0a0e1a;cursor:pointer;margin-bottom:10px;">✅ 등록하기</button>
+          <button onclick="closeChurchCodeSetting()" style="width:100%;padding:11px;background:none;border:1px solid #ffffff22;border-radius:12px;font-size:13px;color:#666;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">취소</button>
+        </div>
+      </div>
+      <div id="notice-wrap"></div>
       <!-- 클래스 정보 카드 -->
       <!-- 마스터 계정 전용 개발자 패널 -->
       <div id="master-panel" style="display:none;background:linear-gradient(135deg,#1e1035,#2d1060);border:1px solid #a78bfa55;border-radius:12px;padding:12px 14px;margin-bottom:10px;">
@@ -1140,6 +1157,9 @@ async function enterApp(firebaseUser){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('login-loading').style.display='none';
   if(window._hideSplash) window._hideSplash();
+  // 개인 유저면 교회코드 설정 버튼 표시
+  const _ccRow = document.getElementById('church-code-setting-row');
+  if(_ccRow) _ccRow.style.display = (!currentUser?.churchCode || currentUser.churchCode === '') ? 'block' : 'none';
   // 푸시 알림 초기화 (로그인 후)
   setTimeout(initPushNotification, 2000);
   // 공지사항 로드
@@ -1162,6 +1182,37 @@ async function enterApp(firebaseUser){
   startNotifPoller(); renderNotices();
 }
 
+function openChurchCodeSetting(){
+  const modal = document.getElementById('church-code-setting-modal');
+  modal.style.display = 'flex';
+  const inp = document.getElementById('setting-church-code');
+  inp.value = currentUser?.churchCode || '';
+}
+function closeChurchCodeSetting(){
+  document.getElementById('church-code-setting-modal').style.display = 'none';
+}
+async function saveChurchCodeSetting(){
+  const code = document.getElementById('setting-church-code').value.trim().toUpperCase();
+  if(!code){ alert('교회 코드를 입력해주세요!'); return; }
+  try{
+    // 교회코드 유효성 체크
+    const codeSnap = await window._db.collection('churchCodes').doc(code).get();
+    if(!codeSnap.exists){
+      alert('유효하지 않은 교회 코드예요. 관리자에게 문의해주세요!');
+      return;
+    }
+    await window._db.collection('users').doc(currentUser.uid).update({ churchCode: code });
+    currentUser.churchCode = code;
+    document.getElementById('header-church-name').textContent = codeSnap.data().churchName || code;
+    closeChurchCodeSetting();
+    showToast('⛪','교회코드 등록 완료!', codeSnap.data().churchName || code);
+    // 버튼 숨기기
+    const row = document.getElementById('church-code-setting-row');
+    if(row) row.style.display = 'none';
+  }catch(e){
+    alert('등록 실패: ' + e.message);
+  }
+}
 async function logout(){
   if(!confirm("로그아웃 하시겠어요?")) return;
   localStorage.removeItem('bq_auto_login');
