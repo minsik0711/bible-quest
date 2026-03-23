@@ -268,6 +268,14 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .bm-cell.read .bm-name { color: #f4d03f; }
 .bm-cell.unread .bm-name { color: #333; }
 
+/* ── 측면 달리기 애니메이션 ── */
+@keyframes rfl { 0%,100%{transform:rotate(-30deg)} 50%{transform:rotate(10deg)} }
+@keyframes rbl { 0%,100%{transform:rotate(20deg)} 50%{transform:rotate(-35deg)} }
+@keyframes raf { 0%,100%{transform:rotate(-35deg)} 50%{transform:rotate(15deg)} }
+@keyframes rab { 0%,100%{transform:rotate(15deg)} 50%{transform:rotate(-35deg)} }
+@keyframes rbob { 0%,100%{transform:translateY(0) rotate(5deg)} 50%{transform:translateY(-2px) rotate(5deg)} }
+@keyframes rhbob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+
 /* ── 공지 배너 ── */
 .notice-banner{margin:8px 0 4px;border-radius:12px;}
 .notice-slide{display:flex;background:linear-gradient(135deg,#1a2340,#1e2d4a);border:1px solid #f4d03f22;border-radius:12px;padding:10px 14px;align-items:flex-start;gap:10px;animation:notice-in 0.4s ease;}
@@ -542,55 +550,51 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       <div style="font-size:11px;color:#888;"><span id="level-name">새싹 제자</span> · <span id="xp-text">0 XP</span></div>
     </div>
     <!-- 통독 진행률 -->
-    <div style="background:#ffffff08;border-radius:10px;padding:8px 12px;border:1px solid #ffffff12;">
+    <div style="background:#ffffff08;border-radius:10px;padding:9px 12px;border:1px solid #ffffff12;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <div style="font-size:11px;color:#aaa;font-weight:700;">📖 성경 통독</div>
         <div style="font-size:13px;font-weight:900;color:#f4d03f;" id="reading-pct">0.0%</div>
       </div>
-      <div style="position:relative;height:56px;">
-        <div style="position:absolute;bottom:5px;left:18px;right:18px;height:2px;background:#ffffff12;border-radius:99px;"></div>
-        <div id="reading-bar-fill" style="position:absolute;bottom:5px;left:18px;height:2px;width:0%;background:linear-gradient(90deg,#f4d03f,#f39c12);border-radius:99px;box-shadow:0 0 6px #f4d03f66;transition:width 1s ease;"></div>
-        <div id="reading-char" style="position:absolute;bottom:7px;left:12px;transition:left 1s ease;">
-          <svg id="reading-char-svg" width="36" height="50" viewBox="0 0 10 14" shape-rendering="crispEdges">
-            <!-- 머리카락 -->
-            <rect x="2" y="0" width="6" height="1" fill="#6b4226"/>
-            <rect x="1" y="1" width="7" height="1" fill="#6b4226"/>
-            <!-- 얼굴 -->
-            <rect x="2" y="1" width="6" height="4" fill="#f5c89a"/>
-            <!-- 수염 -->
-            <rect x="2" y="4" width="6" height="2" fill="#888"/>
-            <!-- 눈 흰자 -->
-            <rect x="3" y="2" width="1" height="1" fill="#fff"/>
-            <rect x="6" y="2" width="1" height="1" fill="#fff"/>
-            <!-- 눈동자 -->
-            <rect x="3" y="3" width="1" height="1" id="char-eye-l" fill="#2563eb"/>
-            <rect x="6" y="3" width="1" height="1" id="char-eye-r" fill="#2563eb"/>
-            <!-- 눈썹 -->
-            <rect x="3" y="1" width="2" height="1" fill="#6b4226"/>
-            <rect x="6" y="1" width="2" height="1" fill="#6b4226"/>
-            <!-- 입 -->
-            <rect x="4" y="5" width="2" height="1" fill="#c0392b"/>
-            <!-- 로브 몸통 -->
-            <rect x="1" y="6" width="8" height="5" id="char-body" fill="#2563eb"/>
-            <rect x="3" y="6" width="4" height="5" id="char-body2" fill="#1d4ed8"/>
-            <!-- 팔 -->
-            <rect x="0" y="6" width="1" height="4" id="char-arm-l" fill="#2563eb"/>
-            <rect x="9" y="6" width="1" height="4" id="char-arm-r" fill="#2563eb"/>
-            <!-- 손 -->
-            <rect x="0" y="9" width="1" height="1" fill="#f5c89a"/>
-            <rect x="9" y="9" width="1" height="1" fill="#f5c89a"/>
-            <!-- 허리띠 -->
-            <rect x="1" y="10" width="8" height="1" fill="#92400e"/>
-            <!-- 다리 -->
-            <rect x="2" y="11" width="3" height="2" id="char-leg-l" fill="#1e3a8a"/>
-            <rect x="5" y="11" width="3" height="3" id="char-leg-r" fill="#1e3a8a"/>
-            <!-- 샌들 -->
-            <rect x="1" y="12" width="4" height="1" fill="#92400e"/>
-            <rect x="5" y="13" width="4" height="1" fill="#92400e"/>
-          </svg>
+      <!-- 달리기 씬 -->
+      <div style="position:relative;height:52px;">
+        <!-- 바닥선 -->
+        <div style="position:absolute;bottom:2px;left:0;right:0;height:2px;background:#ffffff12;border-radius:99px;"></div>
+        <!-- 진행 채움 -->
+        <div id="reading-bar-fill" style="position:absolute;bottom:2px;left:0;height:2px;width:0%;background:linear-gradient(90deg,#f4d03f,#f39c12);border-radius:99px;box-shadow:0 0 6px #f4d03f66;transition:width 1.2s ease;"></div>
+        <!-- CSS 측면 달리기 캐릭터 -->
+        <div id="reading-char" style="position:absolute;bottom:4px;left:0;transition:left 1.2s ease;">
+          <div id="css-runner" style="position:relative;width:28px;height:44px;">
+            <div id="r-hair" style="position:absolute;top:0;left:6px;width:18px;height:9px;border-radius:50% 50% 0 20%;background:#6b4226;"></div>
+            <div id="r-hair-back" style="position:absolute;top:2px;left:2px;width:8px;height:12px;border-radius:50% 0 0 50%;background:#6b4226;"></div>
+            <div style="position:absolute;top:0;left:6px;width:18px;height:16px;background:#f5c89a;border-radius:40% 50% 40% 40%;" id="r-head"></div>
+            <div id="r-brow" style="position:absolute;top:3px;left:17px;width:7px;height:2px;border-radius:2px;background:#6b4226;transform:rotate(-5deg);"></div>
+            <div style="position:absolute;top:5px;left:18px;width:5px;height:5px;background:#fff;border-radius:50%;"></div>
+            <div style="position:absolute;top:6px;left:20px;width:3px;height:3px;background:#1e3a8a;border-radius:50;" id="r-pupil"></div>
+            <div style="position:absolute;top:6px;left:21px;width:1px;height:1px;background:#fff;border-radius:50%;"></div>
+            <div style="position:absolute;top:9px;left:17px;width:5px;height:3px;background:#fca5a5;border-radius:50%;opacity:0.7;"></div>
+            <div style="position:absolute;top:8px;left:22px;width:3px;height:3px;background:#e8a87c;border-radius:0 50% 50% 0;"></div>
+            <div style="position:absolute;top:12px;left:20px;width:4px;height:3px;background:#c0392b;border-radius:0 0 3px 0;"></div>
+            <div id="r-beard" style="position:absolute;top:13px;left:10px;width:12px;height:5px;border-radius:0 0 50% 50%;background:#888;"></div>
+            <div style="position:absolute;top:14px;left:10px;width:7px;height:4px;background:#f0b87a;"></div>
+            <div id="r-body" style="position:absolute;top:17px;left:4px;width:20px;height:16px;border-radius:3px 3px 5px 5px;background:#2563eb;transform:rotate(5deg);"></div>
+            <div style="position:absolute;top:17px;left:4px;width:5px;height:16px;border-radius:3px 0 0 5px;background:rgba(255,255,255,0.08);transform:rotate(5deg);"></div>
+            <div style="position:absolute;top:31px;left:3px;width:22px;height:3px;background:#92400e;border-radius:2px;" id="r-belt"></div>
+            <div id="r-arm-f" style="position:absolute;top:18px;left:18px;width:5px;height:14px;border-radius:3px;background:#2563eb;transform-origin:top center;animation:raf .42s ease-in-out infinite;">
+              <div style="position:absolute;bottom:-4px;left:-1px;width:6px;height:6px;background:#f5c89a;border-radius:50%;"></div>
+            </div>
+            <div id="r-arm-b" style="position:absolute;top:19px;left:2px;width:5px;height:12px;border-radius:3px;background:#2563eb;opacity:0.6;transform-origin:top center;animation:rab .42s ease-in-out infinite;">
+              <div style="position:absolute;bottom:-4px;left:-1px;width:6px;height:6px;background:#f5c89a;border-radius:50%;"></div>
+            </div>
+            <div id="r-leg-f" style="position:absolute;top:33px;left:10px;width:10px;height:12px;border-radius:2px 2px 0 0;background:#1e3a8a;transform-origin:top center;animation:rfl .42s ease-in-out infinite;"></div>
+            <div id="r-leg-b" style="position:absolute;top:33px;left:4px;width:10px;height:12px;border-radius:2px 2px 0 0;background:#1e3a8a;opacity:0.65;transform-origin:top center;animation:rbl .42s ease-in-out infinite;"></div>
+            <div style="position:absolute;top:44px;left:8px;width:14px;height:3px;background:#92400e;border-radius:2px;"></div>
+            <div style="position:absolute;top:44px;left:2px;width:12px;height:3px;background:#92400e;border-radius:2px;opacity:0.65;"></div>
+          </div>
         </div>
+        <!-- 골인 성경 -->
+        <div style="position:absolute;bottom:0;right:2px;font-size:14px;opacity:0.35;">📖</div>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:2px;">
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
         <span style="font-size:9px;color:#555;">창세기</span>
         <span style="font-size:9px;color:#555;">요한계시록 🏁</span>
       </div>
@@ -1501,18 +1505,18 @@ function getTodayQuests(){
 
 // 클래스별 캐릭터 색상
 const CLASS_COLORS = {
-  peter:    {body:'#2563eb', body2:'#1d4ed8', leg:'#1e3a8a'},
-  john:     {body:'#f59e0b', body2:'#d97706', leg:'#78350f'},
-  james:    {body:'#dc2626', body2:'#b91c1c', leg:'#7f1d1d'},
-  andrew:   {body:'#0891b2', body2:'#0e7490', leg:'#164e63'},
-  philip:   {body:'#f97316', body2:'#ea580c', leg:'#7c2d12'},
-  bartholomew:{body:'#16a34a',body2:'#15803d',leg:'#14532d'},
-  matthew:  {body:'#9333ea', body2:'#7e22ce', leg:'#581c87'},
-  thomas:   {body:'#a78bfa', body2:'#7c3aed', leg:'#4c1d95'},
-  simon:    {body:'#ca8a04', body2:'#a16207', leg:'#713f12'},
-  thaddaeus:{body:'#94a3b8', body2:'#64748b', leg:'#334155'},
-  james2:   {body:'#ec4899', body2:'#db2777', leg:'#831843'},
-  matthias: {body:'#eab308', body2:'#ca8a04', leg:'#713f12'},
+  peter:       {body:'#2563eb', leg:'#1e3a8a', hair:'#888',    beard:'#aaa'},
+  john:        {body:'#f59e0b', leg:'#78350f', hair:'#92400e', beard:null},
+  james:       {body:'#dc2626', leg:'#7f1d1d', hair:'#1c1917', beard:'#333'},
+  andrew:      {body:'#0891b2', leg:'#164e63', hair:'#44403c', beard:'#555'},
+  philip:      {body:'#f97316', leg:'#7c2d12', hair:'#78350f', beard:'#92400e'},
+  bartholomew: {body:'#16a34a', leg:'#14532d', hair:'#44403c', beard:'#555'},
+  matthew:     {body:'#9333ea', leg:'#581c87', hair:'#292524', beard:'#555'},
+  thomas:      {body:'#a78bfa', leg:'#4c1d95', hair:'#44403c', beard:'#666'},
+  simon:       {body:'#ca8a04', leg:'#713f12', hair:'#292524', beard:'#444'},
+  thaddaeus:   {body:'#94a3b8', leg:'#334155', hair:'#9ca3af', beard:'#d1d5db'},
+  james2:      {body:'#ec4899', leg:'#831843', hair:'#be185d', beard:null},
+  matthias:    {body:'#eab308', leg:'#713f12', hair:'#78350f', beard:'#92400e'},
 };
 const TOTAL_CHAPTERS = 1189;
 let charAnimFrame = null;
@@ -1529,47 +1533,49 @@ function updateReadingProgress(){
 
   pctEl.textContent = pctText + '%';
 
-  // 바 너비: 최소 0% 최대 100% (트랙 범위 내)
-  const barW = Math.min(pct, 98);
+  // 바 + 캐릭터 위치 (0~90% 범위)
+  const barW = Math.min(pct, 95);
   fillEl.style.width = barW + '%';
 
-  // 캐릭터 위치
-  const trackLeft = 18;
-  const trackRight = 18;
-  charEl.style.left = (trackLeft + (barW / 100) * (100 - trackLeft - trackRight) * 2.7) + 'px';
+  // 캐릭터 위치 (바 끝에 맞춰 이동)
+  const sceneWidth = fillEl.parentElement.offsetWidth || 260;
+  const charLeft = Math.max(0, Math.min((barW / 100) * sceneWidth - 14, sceneWidth - 30));
+  charEl.style.left = charLeft + 'px';
 
-  // 클래스 색상 적용
+  // CSS 캐릭터 색상 적용
   const cls = state.userClass || 'peter';
   const colors = CLASS_COLORS[cls] || CLASS_COLORS.peter;
-  const bodyEls = ['char-body','char-arm-l','char-arm-r'];
-  const legEls = ['char-leg-l','char-leg-r'];
-  bodyEls.forEach(id => { const el=document.getElementById(id); if(el) el.setAttribute('fill', colors.body); });
-  legEls.forEach(id => { const el=document.getElementById(id); if(el) el.setAttribute('fill', colors.leg); });
-  const body2El = document.getElementById('char-body2');
-  if(body2El) body2El.setAttribute('fill', colors.body2 || colors.body);
+
+  const body = document.getElementById('r-body');
+  const armF = document.getElementById('r-arm-f');
+  const armB = document.getElementById('r-arm-b');
+  const legF = document.getElementById('r-leg-f');
+  const legB = document.getElementById('r-leg-b');
+  const hair = document.getElementById('r-hair');
+  const hairBack = document.getElementById('r-hair-back');
+  const brow = document.getElementById('r-brow');
+  const beard = document.getElementById('r-beard');
+
+  if(body) body.style.background = colors.body;
+  if(armF) armF.style.background = colors.body;
+  if(armB) armB.style.background = colors.body;
+  if(legF) legF.style.background = colors.leg;
+  if(legB) legB.style.background = colors.leg;
+  if(hair) hair.style.background = colors.hair;
+  if(hairBack) hairBack.style.background = colors.hair;
+  if(brow) brow.style.background = colors.hair;
+  if(beard) {
+    if(colors.beard) {
+      beard.style.display = 'block';
+      beard.style.background = colors.beard;
+    } else {
+      beard.style.display = 'none';
+    }
+  }
 }
 
 // 캐릭터 달리기 애니메이션
-let charStep = false;
-setInterval(()=>{
-  charStep = !charStep;
-  const ll=document.getElementById('char-leg-l');
-  const lr=document.getElementById('char-leg-r');
-  const al=document.getElementById('char-arm-l');
-  const ar=document.getElementById('char-arm-r');
-  if(!ll) return;
-  if(charStep){
-    ll.setAttribute('y','12'); ll.setAttribute('height','1');
-    lr.setAttribute('y','11'); lr.setAttribute('height','3');
-    al.setAttribute('y','7'); al.setAttribute('height','2');
-    ar.setAttribute('y','6'); ar.setAttribute('height','2');
-  } else {
-    ll.setAttribute('y','11'); ll.setAttribute('height','3');
-    lr.setAttribute('y','12'); lr.setAttribute('height','1');
-    al.setAttribute('y','6'); al.setAttribute('height','2');
-    ar.setAttribute('y','7'); ar.setAttribute('height','2');
-  }
-}, 200);
+// CSS 애니메이션으로 대체됨
 
 function renderAll(){
   updateReadingProgress();
