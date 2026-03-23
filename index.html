@@ -1525,13 +1525,13 @@ function renderAll(){
       }
     }
   }
-  document.getElementById('level-icon').textContent=cur.icon;
-  document.getElementById('level-num').textContent=`Lv. ${cur.lv}`;
-  document.getElementById('level-name').textContent=cur.title;
-  document.getElementById('xp-text').textContent=`${state.xp} XP`;
-  document.getElementById('xp-sub').textContent=`총 ${state.totalCh}장 읽음`;
+  const _lvIcon=document.getElementById('level-icon'); if(_lvIcon) _lvIcon.textContent=cur.icon;
+  const _lvNum=document.getElementById('level-num'); if(_lvNum) _lvNum.textContent=cur.lv;
+  const _lvName=document.getElementById('level-name'); if(_lvName) _lvName.textContent=cur.title;
+  const _xpText=document.getElementById('xp-text'); if(_xpText) _xpText.textContent=state.xp+' XP';
+  const _xpSub=document.getElementById('xp-sub'); if(_xpSub) _xpSub.textContent='총 '+state.totalCh+'장 읽음';
   document.getElementById('xp-bar') && (document.getElementById('xp-bar').style.width=pct+'%');
-  document.getElementById('xp-bar-label') && (document.getElementById('xp-bar-label').textContent=next?`다음 레벨까지 ${next.xp-state.xp} XP`:'🎉 최고 레벨 달성!';)
+  document.getElementById('xp-bar-label') && (document.getElementById('xp-bar-label').textContent=next?`다음 레벨까지 ${next.xp-state.xp} XP`:'🎉 최고 레벨 달성!');
 
   const done=state.questDate===today()?state.completedQuests:[];
   const qHtml=getTodayQuests().map(q=>{
