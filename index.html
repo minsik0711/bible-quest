@@ -547,22 +547,46 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div style="font-size:11px;color:#aaa;font-weight:700;">📖 성경 통독</div>
         <div style="font-size:13px;font-weight:900;color:#f4d03f;" id="reading-pct">0.0%</div>
       </div>
-      <div style="position:relative;height:44px;">
+      <div style="position:relative;height:56px;">
         <div style="position:absolute;bottom:5px;left:18px;right:18px;height:2px;background:#ffffff12;border-radius:99px;"></div>
         <div id="reading-bar-fill" style="position:absolute;bottom:5px;left:18px;height:2px;width:0%;background:linear-gradient(90deg,#f4d03f,#f39c12);border-radius:99px;box-shadow:0 0 6px #f4d03f66;transition:width 1s ease;"></div>
         <div id="reading-char" style="position:absolute;bottom:7px;left:12px;transition:left 1s ease;">
-          <svg id="reading-char-svg" width="28" height="38" viewBox="0 0 8 11" shape-rendering="crispEdges">
-            <rect x="2" y="0" width="4" height="4" fill="#f4d03f"/>
-            <rect x="3" y="1" width="1" height="1" fill="#0a0e1a"/>
-            <rect x="5" y="1" width="1" height="1" fill="#0a0e1a"/>
-            <rect x="3" y="3" width="2" height="1" fill="#c0392b"/>
-            <rect x="2" y="4" width="4" height="3" id="char-body" fill="#3b82f6"/>
-            <rect x="1" y="4" width="1" height="2" id="char-arm-l" fill="#3b82f6"/>
-            <rect x="6" y="5" width="1" height="2" id="char-arm-r" fill="#3b82f6"/>
-            <rect x="2" y="7" width="2" height="3" id="char-leg-l" fill="#1e3a8a"/>
-            <rect x="4" y="7" width="2" height="2" id="char-leg-r" fill="#1e3a8a"/>
-            <rect x="2" y="9" width="2" height="1" fill="#f4d03f"/>
-            <rect x="4" y="10" width="2" height="1" fill="#f4d03f"/>
+          <svg id="reading-char-svg" width="36" height="50" viewBox="0 0 10 14" shape-rendering="crispEdges">
+            <!-- 머리카락 -->
+            <rect x="2" y="0" width="6" height="1" fill="#6b4226"/>
+            <rect x="1" y="1" width="7" height="1" fill="#6b4226"/>
+            <!-- 얼굴 -->
+            <rect x="2" y="1" width="6" height="4" fill="#f5c89a"/>
+            <!-- 수염 -->
+            <rect x="2" y="4" width="6" height="2" fill="#888"/>
+            <!-- 눈 흰자 -->
+            <rect x="3" y="2" width="1" height="1" fill="#fff"/>
+            <rect x="6" y="2" width="1" height="1" fill="#fff"/>
+            <!-- 눈동자 -->
+            <rect x="3" y="3" width="1" height="1" id="char-eye-l" fill="#2563eb"/>
+            <rect x="6" y="3" width="1" height="1" id="char-eye-r" fill="#2563eb"/>
+            <!-- 눈썹 -->
+            <rect x="3" y="1" width="2" height="1" fill="#6b4226"/>
+            <rect x="6" y="1" width="2" height="1" fill="#6b4226"/>
+            <!-- 입 -->
+            <rect x="4" y="5" width="2" height="1" fill="#c0392b"/>
+            <!-- 로브 몸통 -->
+            <rect x="1" y="6" width="8" height="5" id="char-body" fill="#2563eb"/>
+            <rect x="3" y="6" width="4" height="5" id="char-body2" fill="#1d4ed8"/>
+            <!-- 팔 -->
+            <rect x="0" y="6" width="1" height="4" id="char-arm-l" fill="#2563eb"/>
+            <rect x="9" y="6" width="1" height="4" id="char-arm-r" fill="#2563eb"/>
+            <!-- 손 -->
+            <rect x="0" y="9" width="1" height="1" fill="#f5c89a"/>
+            <rect x="9" y="9" width="1" height="1" fill="#f5c89a"/>
+            <!-- 허리띠 -->
+            <rect x="1" y="10" width="8" height="1" fill="#92400e"/>
+            <!-- 다리 -->
+            <rect x="2" y="11" width="3" height="2" id="char-leg-l" fill="#1e3a8a"/>
+            <rect x="5" y="11" width="3" height="3" id="char-leg-r" fill="#1e3a8a"/>
+            <!-- 샌들 -->
+            <rect x="1" y="12" width="4" height="1" fill="#92400e"/>
+            <rect x="5" y="13" width="4" height="1" fill="#92400e"/>
           </svg>
         </div>
       </div>
@@ -1477,18 +1501,18 @@ function getTodayQuests(){
 
 // 클래스별 캐릭터 색상
 const CLASS_COLORS = {
-  peter:{body:'#3b82f6',leg:'#1e3a8a'},
-  john:{body:'#f59e0b',leg:'#92400e'},
-  james:{body:'#ef4444',leg:'#7f1d1d'},
-  andrew:{body:'#06b6d4',leg:'#164e63'},
-  philip:{body:'#8b5cf6',leg:'#4c1d95'},
-  bartholomew:{body:'#22c55e',leg:'#14532d'},
-  matthew:{body:'#f97316',leg:'#7c2d12'},
-  thomas:{body:'#a78bfa',leg:'#3b0764'},
-  simon:{body:'#fbbf24',leg:'#78350f'},
-  thaddaeus:{body:'#e2e8f0',leg:'#334155'},
-  james2:{body:'#f472b6',leg:'#831843'},
-  matthias:{body:'#fcd34d',leg:'#713f12'},
+  peter:    {body:'#2563eb', body2:'#1d4ed8', leg:'#1e3a8a'},
+  john:     {body:'#f59e0b', body2:'#d97706', leg:'#78350f'},
+  james:    {body:'#dc2626', body2:'#b91c1c', leg:'#7f1d1d'},
+  andrew:   {body:'#0891b2', body2:'#0e7490', leg:'#164e63'},
+  philip:   {body:'#f97316', body2:'#ea580c', leg:'#7c2d12'},
+  bartholomew:{body:'#16a34a',body2:'#15803d',leg:'#14532d'},
+  matthew:  {body:'#9333ea', body2:'#7e22ce', leg:'#581c87'},
+  thomas:   {body:'#a78bfa', body2:'#7c3aed', leg:'#4c1d95'},
+  simon:    {body:'#ca8a04', body2:'#a16207', leg:'#713f12'},
+  thaddaeus:{body:'#94a3b8', body2:'#64748b', leg:'#334155'},
+  james2:   {body:'#ec4899', body2:'#db2777', leg:'#831843'},
+  matthias: {body:'#eab308', body2:'#ca8a04', leg:'#713f12'},
 };
 const TOTAL_CHAPTERS = 1189;
 let charAnimFrame = null;
@@ -1521,6 +1545,8 @@ function updateReadingProgress(){
   const legEls = ['char-leg-l','char-leg-r'];
   bodyEls.forEach(id => { const el=document.getElementById(id); if(el) el.setAttribute('fill', colors.body); });
   legEls.forEach(id => { const el=document.getElementById(id); if(el) el.setAttribute('fill', colors.leg); });
+  const body2El = document.getElementById('char-body2');
+  if(body2El) body2El.setAttribute('fill', colors.body2 || colors.body);
 }
 
 // 캐릭터 달리기 애니메이션
@@ -1533,15 +1559,15 @@ setInterval(()=>{
   const ar=document.getElementById('char-arm-r');
   if(!ll) return;
   if(charStep){
-    ll.setAttribute('y','8'); ll.setAttribute('height','2');
-    lr.setAttribute('y','7'); lr.setAttribute('height','3');
-    al.setAttribute('y','5'); al.setAttribute('height','2');
-    ar.setAttribute('y','4'); ar.setAttribute('height','2');
+    ll.setAttribute('y','12'); ll.setAttribute('height','1');
+    lr.setAttribute('y','11'); lr.setAttribute('height','3');
+    al.setAttribute('y','7'); al.setAttribute('height','2');
+    ar.setAttribute('y','6'); ar.setAttribute('height','2');
   } else {
-    ll.setAttribute('y','7'); ll.setAttribute('height','3');
-    lr.setAttribute('y','8'); lr.setAttribute('height','2');
-    al.setAttribute('y','4'); al.setAttribute('height','2');
-    ar.setAttribute('y','5'); ar.setAttribute('height','2');
+    ll.setAttribute('y','11'); ll.setAttribute('height','3');
+    lr.setAttribute('y','12'); lr.setAttribute('height','1');
+    al.setAttribute('y','6'); al.setAttribute('height','2');
+    ar.setAttribute('y','7'); ar.setAttribute('height','2');
   }
 }, 200);
 
