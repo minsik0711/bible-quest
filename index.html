@@ -1088,7 +1088,9 @@ async function login(){
   }
 }
 
+let signupType = 'church'; // 현재 선택된 가입 유형
 function setSignupType(type){
+  signupType = type; // 전역 변수로 저장
   const churchSection = document.getElementById('church-code-section');
   const personalNotice = document.getElementById('personal-notice');
   const btnChurch = document.getElementById('btn-type-church');
@@ -1119,7 +1121,7 @@ async function signup(){
   const email=document.getElementById('signup-email').value.trim();
   const password=document.getElementById('signup-password').value;
   // 개인/교회 타입 확인
-  const isPersonal = document.getElementById('btn-type-personal')?.classList.contains('active');
+  const isPersonal = (signupType === 'personal');
   const churchCode = isPersonal ? '' : document.getElementById('signup-church-code').value.trim().toUpperCase();
 
   if(!name||!email||!password){showLoginError('모든 항목을 입력하세요!');return;}
