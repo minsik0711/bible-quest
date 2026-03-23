@@ -156,50 +156,50 @@ header { background: linear-gradient(135deg, #0f1923 0%, #1a1032 100%); border-b
 .xp-bar { height: 100%; background: linear-gradient(90deg, #f4d03f, #f39c12); border-radius: 99px; transition: width 0.8s ease; box-shadow: 0 0 8px #f4d03f88; }
 .xp-bar-label { font-size: 11px; color: #888; margin-top: 4px; text-align: right; }
 .tabs { display: flex; background: #080c17; border-bottom: 1px solid #ffffff12; overflow-x: auto; }
-.tab { flex: 1; min-width: 44px; padding: 10px 2px 8px; background: none; border: none; border-bottom: 2px solid transparent; color: #555; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 15px; transition: all 0.2s; }
+.tab { flex: 1; min-width: 36px; padding: 11px 1px 9px; background: none; border: none; border-bottom: 2px solid transparent; color: #555; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 15px; transition: all 0.2s; }
 .tab.active { color: #f4d03f; border-bottom-color: #f4d03f; }
-.tab-label { font-size: 8px; font-family: 'Noto Sans KR', sans-serif; white-space: nowrap; }
+.tab-label { font-size: 11px; font-family: 'Noto Sans KR', sans-serif; white-space: nowrap; font-weight: 500; }
 .content { padding: 12px 14px 80px; }
 .page { display: none; }
 .page.active { display: block; }
-.card-title { font-family: 'Black Han Sans', sans-serif; font-size: 15px; color: #f4d03f; letter-spacing: 0.5px; margin-top: 16px; margin-bottom: 8px; }
+.card-title { font-family: 'Black Han Sans', sans-serif; font-size: 17px; color: #f4d03f; letter-spacing: 0.5px; margin-top: 16px; margin-bottom: 10px; }
 .card { background: #ffffff08; border: 1px solid #ffffff15; border-radius: 16px; padding: 16px; margin-bottom: 8px; }
-.label { font-size: 12px; color: #888; display: block; margin-bottom: 6px; margin-top: 12px; }
+.label { font-size: 14px; color: #888; display: block; margin-bottom: 6px; margin-top: 12px; }
 .label:first-child { margin-top: 0; }
-select { width: 100%; background: #1e2235; border: 1px solid #ffffff25; border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; outline: none; }
+select { width: 100%; background: #1e2235; border: 1px solid #ffffff25; border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 16px; font-family: 'Noto Sans KR', sans-serif; outline: none; }
 select option { background: #1e2235; color: #fff; }
 select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-family: 'Noto Sans KR', sans-serif; }
-.xp-preview { text-align: center; color: #f4d03f; font-size: 14px; font-weight: 700; margin-top: 14px; margin-bottom: 4px; }
-.record-btn { width: 100%; padding: 14px; margin-top: 8px; background: linear-gradient(135deg, #f4d03f, #f39c12); border: none; border-radius: 12px; font-family: 'Black Han Sans', sans-serif; font-size: 17px; color: #0a0e1a; cursor: pointer; box-shadow: 0 4px 20px #f4d03f44; transition: transform 0.1s; }
+.xp-preview { text-align: center; color: #f4d03f; font-size: 16px; font-weight: 700; margin-top: 14px; margin-bottom: 4px; }
+.record-btn { width: 100%; padding: 16px; margin-top: 8px; background: linear-gradient(135deg, #f4d03f, #f39c12); border: none; border-radius: 12px; font-family: 'Black Han Sans', sans-serif; font-size: 19px; color: #0a0e1a; cursor: pointer; box-shadow: 0 4px 20px #f4d03f44; transition: transform 0.1s; }
 .record-btn:active { transform: scale(0.97); }
 .quest-card { display: flex; align-items: center; gap: 10px; background: #ffffff08; border: 1px solid #ffffff15; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
 .quest-card.done { opacity: 0.5; }
 .quest-icon { font-size: 22px; min-width: 28px; text-align: center; }
 .quest-info { flex: 1; }
-.quest-text { font-size: 14px; color: #e8e8e8; }
-.quest-xp { font-size: 12px; color: #f4d03f; margin-top: 2px; }
-.quest-btn { padding: 8px 14px; border-radius: 10px; background: linear-gradient(135deg, #1e40af, #3b82f6); border: none; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; white-space: nowrap; }
+.quest-text { font-size: 16px; color: #e8e8e8; }
+.quest-xp { font-size: 14px; color: #f4d03f; margin-top: 2px; }
+.quest-btn { padding: 10px 16px; border-radius: 10px; background: linear-gradient(135deg, #1e40af, #3b82f6); border: none; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; white-space: nowrap; }
 .quest-btn.done { background: linear-gradient(135deg, #374151, #4b5563); cursor: default; }
-.quest-desc { font-size: 12px; color: #666; margin-bottom: 10px; }
+.quest-desc { font-size: 14px; color: #666; margin-bottom: 10px; }
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stat-card { background: #ffffff08; border: 1px solid #ffffff12; border-radius: 12px; padding: 14px 10px; text-align: center; }
 .stat-icon { font-size: 28px; }
-.stat-val { font-family: 'Black Han Sans', sans-serif; font-size: 20px; color: #f4d03f; margin-top: 6px; }
-.stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+.stat-val { font-family: 'Black Han Sans', sans-serif; font-size: 22px; color: #f4d03f; margin-top: 6px; }
+.stat-label { font-size: 13px; color: #888; margin-top: 2px; }
 .log-item { display: flex; justify-content: space-between; align-items: center; background: #ffffff08; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid #ffffff12; }
-.log-book { font-size: 15px; font-weight: 700; }
-.log-date { font-size: 11px; color: #666; margin-top: 2px; }
-.log-ch { font-size: 14px; color: #fff; text-align: right; }
-.log-xp { font-size: 13px; color: #f4d03f; font-weight: 700; text-align: right; }
+.log-book { font-size: 17px; font-weight: 700; }
+.log-date { font-size: 13px; color: #666; margin-top: 2px; }
+.log-ch { font-size: 16px; color: #fff; text-align: right; }
+.log-xp { font-size: 15px; color: #f4d03f; font-weight: 700; text-align: right; }
 .badge-count { font-size: 12px; color: #888; margin-bottom: 10px; }
 .badge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .badge-card { border-radius: 16px; padding: 16px 10px; text-align: center; position: relative; border: 1px solid #ffffff0f; background: #ffffff06; }
 .badge-card.earned { background: linear-gradient(135deg, #1a1032, #2d1f5e); border-color: #f4d03f55; box-shadow: 0 0 12px #f4d03f22; }
 .badge-icon { font-size: 36px; }
 .badge-icon.locked { filter: grayscale(1) opacity(0.35); }
-.badge-name { font-size: 13px; font-weight: 700; color: #666; margin-top: 6px; }
+.badge-name { font-size: 14px; font-weight: 700; color: #666; margin-top: 6px; }
 .badge-name.earned { color: #f4d03f; }
-.badge-desc2 { font-size: 10px; color: #555; margin-top: 4px; line-height: 1.4; }
+.badge-desc2 { font-size: 12px; color: #555; margin-top: 4px; line-height: 1.4; }
 .badge-desc2.earned { color: #aaa; }
 .earned-tag { position: absolute; top: 8px; right: 8px; background: #f4d03f; color: #0a0e1a; font-size: 9px; font-weight: 700; border-radius: 6px; padding: 2px 6px; }
 .lv-row { display: flex; align-items: center; gap: 12px; background: #ffffff08; border: 1px solid #ffffff12; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; position: relative; overflow: hidden; }
@@ -208,26 +208,26 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
 .lv-row-info { flex: 1; }
 .lv-row-num { font-family: "Black Han Sans", sans-serif; font-size: 13px; color: #888; }
 .lv-row-num.current { color: #f4d03f; }
-.lv-row-title { font-size: 15px; font-weight: 700; color: #e8e8e8; margin-top: 1px; }
+.lv-row-title { font-size: 17px; font-weight: 700; color: #e8e8e8; margin-top: 1px; }
 .lv-row-title.current { color: #f4d03f; }
-.lv-row-xp { font-size: 12px; color: #aaa; margin-top: 3px; }
+.lv-row-xp { font-size: 14px; color: #aaa; margin-top: 3px; }
 .lv-current-tag { position: absolute; top: 8px; right: 8px; background: #f4d03f; color: #0a0e1a; font-size: 9px; font-weight: 700; border-radius: 6px; padding: 2px 7px; }
 .lv-locked { filter: grayscale(0.6) opacity(0.5); }
-.empty-msg { text-align: center; color: #666; padding: 40px 20px; font-size: 14px; }
+.empty-msg { text-align: center; color: #666; padding: 40px 20px; font-size: 16px; }
 .logout-btn-small { background: #ffffff08; border: 1px solid #ffffff15; border-radius: 8px; color: #666; font-size: 12px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; padding: 6px 12px; }
 .logout-btn-small:active { background: #ffffff15; }
 .chapter-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 8px; max-height: 185px; overflow-y: auto; padding: 2px; }
-.ch-box { aspect-ratio: 1; border-radius: 7px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif; }
+.ch-box { aspect-ratio: 1; border-radius: 7px; border: 1px solid #ffffff20; background: #ffffff08; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #888; cursor: pointer; transition: all 0.15s; font-family: 'Noto Sans KR', sans-serif; }
 .ch-box.selected { background: linear-gradient(135deg, #f4d03f, #f39c12); color: #0a0e1a; font-weight: 700; border-color: transparent; }
 .ch-box.read-done { background: linear-gradient(135deg, #f4d03f44, #f39c1233); color: #f4d03f; font-weight: 700; border-color: #f4d03f55; cursor: pointer; }
 .ch-box.read-done::after { content: '✓'; position: absolute; font-size: 7px; top: 2px; right: 2px; color: #f4d03f; }
 .ch-box.read-selected { background: linear-gradient(135deg, #e74c3c44, #c0392b33); color: #e74c3c; font-weight: 700; border-color: #e74c3c55; cursor: pointer; }
 .ch-box.read-selected::after { content: '✕'; position: absolute; font-size: 7px; top: 2px; right: 2px; color: #e74c3c; }
-.cancel-btn { width: 100%; padding: 10px; margin-top: 6px; background: linear-gradient(135deg, #c0392b, #e74c3c); border: none; border-radius: 10px; font-family: 'Black Han Sans', sans-serif; font-size: 14px; color: #fff; cursor: pointer; display: none; }
+.cancel-btn { width: 100%; padding: 12px; margin-top: 6px; background: linear-gradient(135deg, #c0392b, #e74c3c); border: none; border-radius: 10px; font-family: 'Black Han Sans', sans-serif; font-size: 16px; color: #fff; cursor: pointer; display: none; }
 .cancel-btn.show { display: block; }
 .ch-box { position: relative; }
 .ch-box:active { transform: scale(0.92); }
-.selected-summary { margin-top: 10px; padding: 9px 12px; background: #f4d03f12; border: 1px solid #f4d03f33; border-radius: 10px; font-size: 12px; color: #f4d03f; min-height: 34px; line-height: 1.6; }
+.selected-summary { margin-top: 10px; padding: 11px 14px; background: #f4d03f12; border: 1px solid #f4d03f33; border-radius: 10px; font-size: 14px; color: #f4d03f; min-height: 36px; line-height: 1.6; }
 /* 캘린더 */
 .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .cal-month { font-family: 'Black Han Sans', sans-serif; font-size: 15px; color: #fff; }
@@ -449,10 +449,23 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
     <input type="text" id="signup-name" class="login-input" placeholder="이름 (닉네임)" style="font-size:15px;margin-bottom:10px;">
     <input type="email" id="signup-email" class="login-input" placeholder="이메일" style="font-size:15px;margin-bottom:10px;">
     <input type="password" id="signup-password" class="login-input" placeholder="비밀번호 (6자 이상)" style="font-size:15px;margin-bottom:10px;">
-    <input type="text" id="signup-church-code" class="login-input" placeholder="교회 코드 (예: SHINKWANG2026)" style="font-size:14px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <div style="font-size:10px;color:#555;">코드가 없으면 아래 신청 버튼을 눌러주세요</div>
-      <button onclick="showChurchCodeRequest()" style="font-size:10px;color:#f4d03f;background:#f4d03f15;border:1px solid #f4d03f44;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;">📋 코드 신청</button>
+    <!-- 가입 유형 선택 -->
+    <div style="font-size:12px;color:#aaa;font-weight:600;margin-bottom:8px;">가입 유형 선택</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button id="btn-type-church" onclick="setSignupType('church')" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #f4d03f;background:#f4d03f15;color:#f4d03f;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">⛪ 교회</button>
+      <button id="btn-type-personal" onclick="setSignupType('personal')" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #ffffff15;background:#ffffff08;color:#888;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">👤 개인</button>
+    </div>
+    <!-- 교회 코드 입력 (교회 선택 시) -->
+    <div id="church-code-section">
+      <input type="text" id="signup-church-code" class="login-input" placeholder="교회 코드 (예: SHINKWANG2026)" style="font-size:14px;margin-bottom:4px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:10px;color:#555;">코드가 없으면 아래 신청 버튼을 눌러주세요</div>
+        <button onclick="showChurchCodeRequest()" style="font-size:10px;color:#f4d03f;background:#f4d03f15;border:1px solid #f4d03f44;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;">📋 코드 신청</button>
+      </div>
+    </div>
+    <!-- 개인 선택 시 안내 -->
+    <div id="personal-notice" style="display:none;background:#22c55e15;border:1px solid #22c55e33;border-radius:10px;padding:10px 12px;margin-bottom:14px;display:none;">
+      <div style="font-size:12px;color:#4ade80;line-height:1.6;">✅ 교회 코드 없이 가입할 수 있어요!<br><span style="color:#888;">나중에 설정에서 교회 코드를 등록할 수 있어요.</span></div>
     </div>
     <!-- 개인정보처리방침 동의 -->
     <label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px;cursor:pointer;text-align:left;">
@@ -521,34 +534,56 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
       </div>
       <div class="streak-badge" id="streak-badge">🔥 0일 연속</div>
     </div>
-    <div class="level-card">
-      <div class="level-left">
-        <div class="level-icon" id="level-icon">🌱</div>
-        <div>
-          <div class="level-num" id="level-num">Lv. 1</div>
-          <div class="level-name" id="level-name">새싹 제자</div>
+    <!-- 레벨 미니 뱃지 -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div id="level-badge" style="background:#f4d03f22;border:1px solid #f4d03f44;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;color:#f4d03f;">
+        <span id="level-icon">🌱</span> Lv. <span id="level-num">1</span>
+      </div>
+      <div style="font-size:11px;color:#888;"><span id="level-name">새싹 제자</span> · <span id="xp-text">0 XP</span></div>
+    </div>
+    <!-- 통독 진행률 -->
+    <div style="background:#ffffff08;border-radius:10px;padding:8px 12px;border:1px solid #ffffff12;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-size:11px;color:#aaa;font-weight:700;">📖 성경 통독</div>
+        <div style="font-size:13px;font-weight:900;color:#f4d03f;" id="reading-pct">0.0%</div>
+      </div>
+      <div style="position:relative;height:30px;">
+        <div style="position:absolute;bottom:5px;left:18px;right:18px;height:2px;background:#ffffff12;border-radius:99px;"></div>
+        <div id="reading-bar-fill" style="position:absolute;bottom:5px;left:18px;height:2px;width:0%;background:linear-gradient(90deg,#f4d03f,#f39c12);border-radius:99px;box-shadow:0 0 6px #f4d03f66;transition:width 1s ease;"></div>
+        <div id="reading-char" style="position:absolute;bottom:7px;left:12px;transition:left 1s ease;">
+          <svg id="reading-char-svg" width="16" height="22" viewBox="0 0 8 11" style="image-rendering:pixelated;">
+            <rect x="2" y="0" width="4" height="4" fill="#f4d03f"/>
+            <rect x="3" y="1" width="1" height="1" fill="#0a0e1a"/>
+            <rect x="5" y="1" width="1" height="1" fill="#0a0e1a"/>
+            <rect x="3" y="3" width="2" height="1" fill="#c0392b"/>
+            <rect x="2" y="4" width="4" height="3" id="char-body" fill="#3b82f6"/>
+            <rect x="1" y="4" width="1" height="2" id="char-arm-l" fill="#3b82f6"/>
+            <rect x="6" y="5" width="1" height="2" id="char-arm-r" fill="#3b82f6"/>
+            <rect x="2" y="7" width="2" height="3" id="char-leg-l" fill="#1e3a8a"/>
+            <rect x="4" y="7" width="2" height="2" id="char-leg-r" fill="#1e3a8a"/>
+            <rect x="2" y="9" width="2" height="1" fill="#f4d03f"/>
+            <rect x="4" y="10" width="2" height="1" fill="#f4d03f"/>
+          </svg>
         </div>
       </div>
-      <div class="xp-info">
-        <div class="xp-text" id="xp-text">0 XP</div>
-        <div class="xp-sub" id="xp-sub">총 0장 읽음</div>
+      <div style="display:flex;justify-content:space-between;margin-top:2px;">
+        <span style="font-size:9px;color:#555;">창세기</span>
+        <span style="font-size:9px;color:#555;">요한계시록 🏁</span>
       </div>
     </div>
-    <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
-    <div class="xp-bar-label" id="xp-bar-label">다음 레벨까지 50 XP</div>
   </header>
 
   <div class="tabs">
-    <button class="tab active" onclick="showTab('home',this)"><span>🏠</span><span class="tab-label">홈</span></button>
-    <button class="tab" onclick="showTab('rank',this)"><span>🏆</span><span class="tab-label">랭킹</span></button>
-    <button class="tab" onclick="showTab('record',this)"><span>📜</span><span class="tab-label">기록</span></button>
-    <button class="tab" onclick="showTab('quests',this)"><span>⚔️</span><span class="tab-label">퀘스트</span></button>
-    <button class="tab" onclick="showTab('badges',this)"><span>🏅</span><span class="tab-label">뱃지</span></button>
-    <button class="tab" onclick="showTab('map',this)"><span>📖</span><span class="tab-label">통독지도</span></button>
-    <button class="tab" onclick="showTab('calendar',this)"><span>📅</span><span class="tab-label">캘린더</span></button>
-    <button class="tab" onclick="showTab('levels',this)"><span>📊</span><span class="tab-label">레벨</span></button>
-    <button class="tab" id="tab-verses" onclick="showTab('verses',this)"><span>💬</span><span class="tab-label">나눔</span></button>
-    <button class="tab" id="tab-admin" onclick="showTab('admin',this)" style="display:none;"><span>🔧</span><span class="tab-label">관리</span></button>
+    <button class="tab active" onclick="showTab('home',this)"><span style="font-size:24px;">🏠</span><span class="tab-label">홈</span></button>
+    <button class="tab" onclick="showTab('rank',this)"><span style="font-size:24px;">🏆</span><span class="tab-label">랭킹</span></button>
+    <button class="tab" onclick="showTab('record',this)"><span style="font-size:24px;">📜</span><span class="tab-label">기록</span></button>
+    <button class="tab" onclick="showTab('quests',this)"><span style="font-size:24px;">⚔️</span><span class="tab-label">퀘스트</span></button>
+    <button class="tab" onclick="showTab('badges',this)"><span style="font-size:24px;">🏅</span><span class="tab-label">뱃지</span></button>
+    <button class="tab" onclick="showTab('map',this)"><span style="font-size:24px;">📖</span><span class="tab-label">통독</span></button>
+    <button class="tab" onclick="showTab('calendar',this)"><span style="font-size:24px;">📅</span><span class="tab-label">캘린더</span></button>
+    <button class="tab" onclick="showTab('levels',this)"><span style="font-size:24px;">📊</span><span class="tab-label">레벨</span></button>
+    <button class="tab" id="tab-verses" onclick="showTab('verses',this)"><span style="font-size:24px;">💬</span><span class="tab-label">나눔</span></button>
+    <button class="tab" id="tab-admin" onclick="showTab('admin',this)" style="display:none;"><span style="font-size:24px;">🔧</span><span class="tab-label">관리</span></button>
   </div>
 
   <div class="content">
@@ -1008,6 +1043,32 @@ async function login(){
   }
 }
 
+function setSignupType(type){
+  const churchSection = document.getElementById('church-code-section');
+  const personalNotice = document.getElementById('personal-notice');
+  const btnChurch = document.getElementById('btn-type-church');
+  const btnPersonal = document.getElementById('btn-type-personal');
+  if(type === 'church'){
+    churchSection.style.display = 'block';
+    personalNotice.style.display = 'none';
+    btnChurch.style.border = '1.5px solid #f4d03f';
+    btnChurch.style.background = '#f4d03f15';
+    btnChurch.style.color = '#f4d03f';
+    btnPersonal.style.border = '1.5px solid #ffffff15';
+    btnPersonal.style.background = '#ffffff08';
+    btnPersonal.style.color = '#888';
+  } else {
+    churchSection.style.display = 'none';
+    personalNotice.style.display = 'block';
+    btnPersonal.style.border = '1.5px solid #f4d03f';
+    btnPersonal.style.background = '#f4d03f15';
+    btnPersonal.style.color = '#f4d03f';
+    btnChurch.style.border = '1.5px solid #ffffff15';
+    btnChurch.style.background = '#ffffff08';
+    btnChurch.style.color = '#888';
+    document.getElementById('signup-church-code').value = '';
+  }
+}
 async function signup(){
   const name=document.getElementById('signup-name').value.trim();
   const email=document.getElementById('signup-email').value.trim();
@@ -1363,7 +1424,78 @@ function getTodayQuests(){
   return [...rndQuests, pool[0]];
 }
 
+// 클래스별 캐릭터 색상
+const CLASS_COLORS = {
+  peter:{body:'#3b82f6',leg:'#1e3a8a'},
+  john:{body:'#f59e0b',leg:'#92400e'},
+  james:{body:'#ef4444',leg:'#7f1d1d'},
+  andrew:{body:'#06b6d4',leg:'#164e63'},
+  philip:{body:'#8b5cf6',leg:'#4c1d95'},
+  bartholomew:{body:'#22c55e',leg:'#14532d'},
+  matthew:{body:'#f97316',leg:'#7c2d12'},
+  thomas:{body:'#a78bfa',leg:'#3b0764'},
+  simon:{body:'#fbbf24',leg:'#78350f'},
+  thaddaeus:{body:'#e2e8f0',leg:'#334155'},
+  james2:{body:'#f472b6',leg:'#831843'},
+  matthias:{body:'#fcd34d',leg:'#713f12'},
+};
+const TOTAL_CHAPTERS = 1189;
+let charAnimFrame = null;
+
+function updateReadingProgress(){
+  const totalRead = state.totalCh || 0;
+  const pct = Math.min((totalRead / TOTAL_CHAPTERS) * 100, 100);
+  const pctText = pct < 0.1 ? pct.toFixed(2) : pct.toFixed(1);
+
+  const pctEl = document.getElementById('reading-pct');
+  const fillEl = document.getElementById('reading-bar-fill');
+  const charEl = document.getElementById('reading-char');
+  if(!pctEl || !fillEl || !charEl) return;
+
+  pctEl.textContent = pctText + '%';
+
+  // 바 너비: 최소 0% 최대 100% (트랙 범위 내)
+  const barW = Math.min(pct, 98);
+  fillEl.style.width = barW + '%';
+
+  // 캐릭터 위치
+  const trackLeft = 18;
+  const trackRight = 18;
+  charEl.style.left = (trackLeft + (barW / 100) * (100 - trackLeft - trackRight) * 2.7) + 'px';
+
+  // 클래스 색상 적용
+  const cls = state.userClass || 'peter';
+  const colors = CLASS_COLORS[cls] || CLASS_COLORS.peter;
+  const bodyEls = ['char-body','char-arm-l','char-arm-r'];
+  const legEls = ['char-leg-l','char-leg-r'];
+  bodyEls.forEach(id => { const el=document.getElementById(id); if(el) el.setAttribute('fill', colors.body); });
+  legEls.forEach(id => { const el=document.getElementById(id); if(el) el.setAttribute('fill', colors.leg); });
+}
+
+// 캐릭터 달리기 애니메이션
+let charStep = false;
+setInterval(()=>{
+  charStep = !charStep;
+  const ll=document.getElementById('char-leg-l');
+  const lr=document.getElementById('char-leg-r');
+  const al=document.getElementById('char-arm-l');
+  const ar=document.getElementById('char-arm-r');
+  if(!ll) return;
+  if(charStep){
+    ll.setAttribute('y','8'); ll.setAttribute('height','2');
+    lr.setAttribute('y','7'); lr.setAttribute('height','3');
+    al.setAttribute('y','5'); al.setAttribute('height','2');
+    ar.setAttribute('y','4'); ar.setAttribute('height','2');
+  } else {
+    ll.setAttribute('y','7'); ll.setAttribute('height','3');
+    lr.setAttribute('y','8'); lr.setAttribute('height','2');
+    al.setAttribute('y','4'); al.setAttribute('height','2');
+    ar.setAttribute('y','5'); ar.setAttribute('height','2');
+  }
+}, 200);
+
 function renderAll(){
+  updateReadingProgress();
   const {cur,next,pct}=getLvInfo(state.xp);
   document.getElementById('streak-badge').textContent=`🔥 ${state.streak}일 연속`;
   // 마스터 계정 전용 패널 + 관리자 탭 표시
@@ -1398,8 +1530,8 @@ function renderAll(){
   document.getElementById('level-name').textContent=cur.title;
   document.getElementById('xp-text').textContent=`${state.xp} XP`;
   document.getElementById('xp-sub').textContent=`총 ${state.totalCh}장 읽음`;
-  document.getElementById('xp-bar').style.width=pct+'%';
-  document.getElementById('xp-bar-label').textContent=next?`다음 레벨까지 ${next.xp-state.xp} XP`:'🎉 최고 레벨 달성!';
+  document.getElementById('xp-bar') && (document.getElementById('xp-bar').style.width=pct+'%');
+  document.getElementById('xp-bar-label') && (document.getElementById('xp-bar-label').textContent=next?`다음 레벨까지 ${next.xp-state.xp} XP`:'🎉 최고 레벨 달성!';)
 
   const done=state.questDate===today()?state.completedQuests:[];
   const qHtml=getTodayQuests().map(q=>{
