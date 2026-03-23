@@ -664,7 +664,8 @@ select optgroup { color: #f4d03f; font-style: normal; background: #1e2235; font-
         <div id="class-icon" style="font-size:28px;">⚔️</div>
         <div style="flex:1">
           <div id="class-name" style="font-family:'Black Han Sans',sans-serif;font-size:15px;color:#f4d03f;"></div>
-
+          <div id="class-skill-name" style="font-size:13px;color:#e8e8e8;font-weight:700;margin-top:3px;"></div>
+          <div id="class-skill-desc" style="font-size:12px;color:#888;margin-top:2px;"></div>
         </div>
         <button onclick="openClassChange()" id="class-change-btn" style="font-size:10px;color:#888;background:#ffffff0a;border:1px solid #ffffff15;border-radius:8px;padding:4px 8px;cursor:pointer;white-space:nowrap;">변경</button>
       </div>
@@ -1603,7 +1604,7 @@ function renderAll(){
     const _skillParts = _cls.skill ? _cls.skill.split(' — ') : ['',''];
     const _skillNameEl = document.getElementById('class-skill-name');
     const _skillDescEl = document.getElementById('class-skill-desc');
-    if(_skillNameEl) _skillNameEl.textContent = _skillParts[0] || '';
+    if(_skillNameEl) _skillNameEl.textContent = (_skillParts[0] || '').replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]\s*/u, '');
     if(_skillDescEl) _skillDescEl.textContent = _skillParts[1] ? '(' + _skillParts[1] + ')' : '';
     const cc=document.getElementById('class-card');
     if(cc) cc.style.borderColor=_cls.color+'55';
