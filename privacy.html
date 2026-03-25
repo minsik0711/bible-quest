@@ -3,228 +3,247 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>개인정보처리방침 — 성경읽고 레벨업</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<title>개인정보처리방침 - 성경읽고 레벨업</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background: #0a0e1a;
-    color: #e8e8e8;
-    min-height: 100vh;
-    padding: 0 0 60px;
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #0a0e1a; color: #e2e8f0;
+    line-height: 1.8; padding: 24px 20px 80px;
+    max-width: 720px; margin: 0 auto;
   }
-  header {
-    background: linear-gradient(135deg, #0f1923, #1a1032);
-    border-bottom: 1px solid #f4d03f33;
-    padding: 28px 24px 24px;
-    text-align: center;
+  .header {
+    text-align: center; padding: 40px 0 28px;
+    border-bottom: 1px solid #f4d03f33; margin-bottom: 36px;
   }
-  .logo { font-size: 36px; margin-bottom: 8px; }
-  .app-name {
-    font-size: 22px;
-    font-weight: 700;
-    color: #f4d03f;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
+  .app-icon { font-size: 52px; margin-bottom: 14px; }
+  .app-name { font-size: 24px; font-weight: 900; color: #f4d03f; letter-spacing: 1px; margin-bottom: 6px; }
+  .app-sub { font-size: 13px; color: #64748b; margin-bottom: 16px; }
+  .doc-title {
+    font-size: 15px; font-weight: 700; color: #94a3b8;
+    background: #ffffff08; border: 1px solid #ffffff12;
+    border-radius: 20px; display: inline-block; padding: 6px 20px;
   }
-  .subtitle { font-size: 13px; color: #888; }
-  .badge {
-    display: inline-block;
-    background: #f4d03f22;
-    border: 1px solid #f4d03f44;
-    color: #f4d03f;
-    font-size: 11px;
-    border-radius: 20px;
-    padding: 3px 12px;
-    margin-top: 10px;
-  }
-  .container { max-width: 680px; margin: 0 auto; padding: 32px 24px; }
-  .updated {
-    font-size: 12px;
-    color: #555;
-    text-align: right;
-    margin-bottom: 24px;
-  }
-  .section {
-    background: #ffffff08;
-    border: 1px solid #ffffff10;
-    border-radius: 16px;
-    padding: 22px 24px;
-    margin-bottom: 16px;
-  }
-  .section-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #f4d03f;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 16px;
-    background: #f4d03f;
-    border-radius: 2px;
-  }
-  p {
-    font-size: 14px;
-    color: #ccc;
-    line-height: 1.9;
-    margin-bottom: 10px;
-  }
-  p:last-child { margin-bottom: 0; }
-  ul {
-    padding-left: 18px;
-    margin-bottom: 10px;
-  }
-  li {
-    font-size: 14px;
-    color: #ccc;
-    line-height: 1.9;
-    margin-bottom: 4px;
-  }
-  .highlight {
-    background: #f4d03f15;
+  .update-date { font-size: 12px; color: #475569; margin-top: 10px; }
+
+  section { margin-bottom: 36px; }
+  h2 {
+    font-size: 16px; font-weight: 900; color: #f4d03f;
+    margin-bottom: 14px; padding-left: 12px;
     border-left: 3px solid #f4d03f;
-    border-radius: 0 8px 8px 0;
-    padding: 12px 16px;
-    margin: 12px 0;
-    font-size: 13px;
-    color: #f4d03fcc;
-    line-height: 1.8;
   }
-  .contact-box {
-    background: linear-gradient(135deg, #1a1032, #2d1f5e);
-    border: 1px solid #f4d03f33;
-    border-radius: 12px;
-    padding: 18px 20px;
-    margin-top: 8px;
+  p { font-size: 14px; color: #94a3b8; margin-bottom: 10px; }
+
+  .card {
+    background: #ffffff08; border: 1px solid #ffffff10;
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
   }
-  .contact-box p { color: #aaa; font-size: 13px; }
-  .contact-box a { color: #f4d03f; text-decoration: none; }
-  footer {
-    text-align: center;
-    padding: 24px;
-    font-size: 12px;
-    color: #333;
-    border-top: 1px solid #ffffff08;
-    margin-top: 8px;
+  .card-title {
+    font-size: 14px; font-weight: 700; color: #e2e8f0;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700;
+  }
+  .badge-required { background: #ef444420; color: #ef4444; border: 1px solid #ef444433; }
+  .badge-optional { background: #3b82f620; color: #3b82f6; border: 1px solid #3b82f633; }
+  .badge-auto { background: #8b5cf620; color: #8b5cf6; border: 1px solid #8b5cf633; }
+  .card-desc { font-size: 13px; color: #64748b; }
+
+  ul { list-style: none; }
+  ul li {
+    font-size: 14px; color: #94a3b8;
+    padding: 5px 0 5px 16px; position: relative;
+  }
+  ul li::before { content: '→'; position: absolute; left: 0; color: #f4d03f88; font-size: 12px; }
+
+  .highlight {
+    background: #f4d03f10; border: 1px solid #f4d03f22;
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 13px; color: #94a3b8; margin-top: 10px;
+  }
+  .highlight strong { color: #f4d03f; }
+
+  .third-party-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid #ffffff08;
+  }
+  .third-party-item:last-child { border-bottom: none; }
+  .third-party-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .third-party-name { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+  .third-party-desc { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .third-party-desc a { color: #f4d03f; text-decoration: none; }
+
+  .rights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .right-item {
+    background: #ffffff06; border: 1px solid #ffffff0f;
+    border-radius: 10px; padding: 14px; text-align: center;
+  }
+  .right-icon { font-size: 24px; margin-bottom: 6px; }
+  .right-label { font-size: 13px; color: #94a3b8; }
+
+  .contact-card {
+    background: linear-gradient(135deg, #1a1032, #1e2d4a);
+    border: 1px solid #f4d03f33; border-radius: 14px;
+    padding: 24px; text-align: center;
+  }
+  .contact-card a { color: #f4d03f; text-decoration: none; font-weight: 700; font-size: 15px; }
+  .contact-card p { color: #64748b; font-size: 13px; }
+
+  .footer {
+    text-align: center; margin-top: 48px;
+    padding-top: 24px; border-top: 1px solid #ffffff0a;
+    font-size: 12px; color: #334155;
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">📖</div>
+<div class="header">
+  <div class="app-icon">📖</div>
   <div class="app-name">성경읽고 레벨업</div>
-  <div class="subtitle">말씀 읽고 레벨업! 교회 성경 RPG</div>
-  <div class="badge">개인정보처리방침</div>
-</header>
+  <div class="app-sub">말씀 읽고 레벨업! 교회 성경 RPG</div>
+  <div class="doc-title">개인정보처리방침</div>
+  <div class="update-date">최종 업데이트: 2026년 3월 25일</div>
+</div>
 
-<div class="container">
-  <div class="updated">최종 업데이트: 2026년 3월 18일</div>
+<section>
+  <h2>📋 개요</h2>
+  <p>"성경읽고 레벨업" (이하 "앱")은 성도들이 성경 읽기를 즐겁게 지속할 수 있도록 돕는 교회 성경 RPG 서비스입니다.</p>
+  <p>본 개인정보처리방침은 앱을 통해 수집되는 정보의 종류, 사용 목적, 보호 방법에 대해 안내합니다. 본 앱은 최소한의 개인정보만 수집하며, 수집된 정보는 서비스 제공 목적 외에 사용되지 않습니다.</p>
+</section>
 
-  <div class="section">
-    <div class="section-title">개요</div>
-    <p>
-      "성경읽고 레벨업" (이하 "앱")은 성도들이 성경 읽기를 즐겁게 지속할 수 있도록 돕는
-      교회 성경 RPG 서비스입니다. 본 개인정보처리방침은 앱을 통해 수집되는 정보의 종류, 사용 목적,
-      보호 방법에 대해 안내합니다.
-    </p>
-    <div class="highlight">
-      본 앱은 최소한의 개인정보만 수집하며, 수집된 정보는 서비스 제공 목적 외에 사용되지 않습니다.
-    </div>
+<section>
+  <h2>📦 수집하는 정보</h2>
+
+  <div class="card">
+    <div class="card-title">이름(닉네임) · 이메일 <span class="badge badge-required">필수</span></div>
+    <div class="card-desc">회원가입 시 수집. 비밀번호는 Firebase Authentication을 통해 암호화 저장되며 운영자가 열람할 수 없습니다.</div>
   </div>
 
-  <div class="section">
-    <div class="section-title">수집하는 정보</div>
-    <p>앱 이용 시 다음 정보가 수집됩니다:</p>
-    <ul>
-      <li><strong>회원가입 정보</strong> — 이름(닉네임), 이메일 주소, 소속 교회 코드</li>
-      <li><strong>서비스 이용 정보</strong> — 성경 읽기 기록, 획득 XP, 레벨, 연속 읽기 현황</li>
-      <li><strong>게시 콘텐츠</strong> — 말씀 나눔 게시판에 작성한 구절 및 댓글</li>
-      <li><strong>교회 코드 신청 정보</strong> — 교회명, 담당자 이름, 이메일 (코드 발급 목적)</li>
-    </ul>
-    <p>비밀번호는 Firebase Authentication을 통해 암호화되어 저장되며, 앱 운영자는 비밀번호를 열람할 수 없습니다.</p>
+  <div class="card">
+    <div class="card-title">교회 코드 <span class="badge badge-optional">선택</span></div>
+    <div class="card-desc">소속 교회 확인 및 교회 내 랭킹 제공 목적. 가입 후 더보기 → 설정에서 언제든 등록 가능합니다.</div>
   </div>
 
-  <div class="section">
-    <div class="section-title">정보의 이용 목적</div>
+  <div class="card">
+    <div class="card-title">성경 읽기 기록 <span class="badge badge-auto">서비스 이용</span></div>
+    <div class="card-desc">읽은 성경 책/장, 날짜, 획득 XP, 레벨, 연속 읽기 현황, 선택한 제자 클래스 정보. 레벨업 및 통계 기능 운영에 사용됩니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">나눔 게시 콘텐츠 <span class="badge badge-auto">서비스 이용</span></div>
+    <div class="card-desc">말씀 나눔 게시판에 작성한 구절 및 댓글. 교회 구성원들에게 공개됩니다. 본인이 직접 삭제할 수 있습니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">좋아요 · 응원 · 알림 내역 <span class="badge badge-auto">서비스 이용</span></div>
+    <div class="card-desc">랭킹 응원(👍), 나눔 좋아요, 댓글 알림 등 앱 내 상호작용 기록. 알림 발송 목적으로 사용됩니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">푸시 알림 권한 <span class="badge badge-optional">선택</span></div>
+    <div class="card-desc">매일 밤 9시 말씀 읽기 알림 발송 목적. 기기 설정에서 언제든 거부할 수 있으며, 거부 시 서비스 이용에 제한이 없습니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">교회 코드 신청 정보 <span class="badge badge-optional">선택</span></div>
+    <div class="card-desc">교회명, 담당자 이름, 이메일. 코드 발급 및 승인 이메일 발송 목적으로만 사용됩니다.</div>
+  </div>
+</section>
+
+<section>
+  <h2>🎯 정보의 이용 목적</h2>
+  <div class="card">
     <ul>
       <li>성경 읽기 기록 저장 및 레벨업 시스템 운영</li>
-      <li>교회 내 랭킹 및 통계 제공</li>
-      <li>퀘스트, 뱃지 등 게임 기능 운영</li>
-      <li>교회 코드 발급, 회원 인증 및 승인 이메일 발송</li>
+      <li>교회 내 랭킹 및 통독 통계 제공</li>
+      <li>퀘스트, 뱃지, 클래스 등 게임 기능 운영</li>
+      <li>말씀 나눔 게시판 운영</li>
+      <li>매일 말씀 읽기 푸시 알림 발송 (동의 시)</li>
+      <li>교회 코드 발급 및 승인 이메일 발송</li>
       <li>서비스 개선 및 오류 수정</li>
     </ul>
   </div>
+</section>
 
-  <div class="section">
-    <div class="section-title">정보의 보관 및 파기</div>
-    <p>
-      수집된 개인정보는 회원 탈퇴 시 또는 수집 목적 달성 후 지체 없이 파기합니다.
-      단, 관련 법령에 의해 보관이 필요한 경우 해당 기간 동안 보관 후 파기합니다.
-    </p>
-    <p>
-      수집된 개인정보는 앱 내 <strong>홈 화면 → 회원탈퇴</strong> 버튼을 통해
-      직접 삭제하실 수 있습니다. 탈퇴 즉시 모든 데이터가 영구 삭제되며 복구되지 않습니다.
-    </p>
-    <p>
-      탈퇴 버튼을 이용하기 어려운 경우, 담당자 이메일로 요청하시면
-      14일 이내에 삭제 처리해드립니다.
-    </p>
+<section>
+  <h2>🗑️ 정보의 보관 및 파기</h2>
+  <p>수집된 개인정보는 회원 탈퇴 시 또는 수집 목적 달성 후 지체 없이 파기합니다.</p>
+  <div class="highlight">
+    <strong>회원탈퇴 방법:</strong> 앱 내 <strong>더보기 탭 → ⚙️ 설정 → 회원탈퇴</strong><br>
+    탈퇴 즉시 Firebase Auth 계정 및 Firestore에 저장된 모든 데이터가 영구 삭제되며 복구되지 않습니다.<br><br>
+    탈퇴 버튼 이용이 어려운 경우 아래 이메일로 요청 시 <strong>14일 이내</strong> 삭제 처리해드립니다.
   </div>
+</section>
 
-  <div class="section">
-    <div class="section-title">제3자 서비스</div>
-    <p>본 앱은 다음 제3자 서비스를 사용합니다:</p>
-    <ul>
-      <li><strong>Firebase (Google)</strong> — 회원 인증 및 데이터 저장</li>
-      <li><strong>EmailJS</strong> — 교회 코드 발급 이메일 발송</li>
-      <li><strong>Vercel</strong> — 앱 호스팅</li>
-      <li><strong>Google Fonts</strong> — 폰트 제공</li>
-    </ul>
-    <p>각 서비스의 개인정보처리방침은 해당 서비스 공식 웹사이트에서 확인하실 수 있습니다.</p>
-  </div>
-
-  <div class="section">
-    <div class="section-title">아동 개인정보 보호</div>
-    <p>
-      본 앱은 만 14세 미만 아동을 대상으로 하지 않습니다.
-      만 14세 미만 아동이 개인정보를 제공한 경우, 보호자가 삭제 요청을 할 수 있습니다.
-    </p>
-  </div>
-
-  <div class="section">
-    <div class="section-title">이용자의 권리</div>
-    <p>이용자는 언제든지 다음 권리를 행사할 수 있습니다:</p>
-    <ul>
-      <li>개인정보 열람 및 수정 요청</li>
-      <li>개인정보 삭제(회원 탈퇴) 요청</li>
-      <li>개인정보 처리 정지 요청</li>
-    </ul>
-    <p>개인정보 삭제(회원 탈퇴)는 앱 내 <strong>홈 화면 → 회원탈퇴</strong> 버튼으로
-      직접 처리하거나, 아래 연락처로 요청하실 수 있습니다.</p>
-  </div>
-
-  <div class="section">
-    <div class="section-title">문의처</div>
-    <div class="contact-box">
-      <p>개인정보 관련 문의 및 삭제 요청:</p>
-      <p style="margin-top:8px;">
-        📧 이메일: <a href="mailto:km689694@naver.com">km689694@naver.com</a>
-      </p>
-      <p style="margin-top:4px;">
-        🌐 앱 주소: <a href="https://bible-quest-release.vercel.app" target="_blank">bible-quest-release.vercel.app</a>
-      </p>
+<section>
+  <h2>🔗 제3자 서비스</h2>
+  <div class="card">
+    <div class="third-party-item">
+      <div class="third-party-icon">🔥</div>
+      <div>
+        <div class="third-party-name">Firebase (Google)</div>
+        <div class="third-party-desc">회원 인증(Authentication) 및 데이터 저장(Firestore) — <a href="https://firebase.google.com/support/privacy" target="_blank">개인정보처리방침 →</a></div>
+      </div>
+    </div>
+    <div class="third-party-item">
+      <div class="third-party-icon">📧</div>
+      <div>
+        <div class="third-party-name">EmailJS</div>
+        <div class="third-party-desc">교회 코드 발급 이메일 발송 — <a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank">개인정보처리방침 →</a></div>
+      </div>
+    </div>
+    <div class="third-party-item">
+      <div class="third-party-icon">🔔</div>
+      <div>
+        <div class="third-party-name">Expo Notifications</div>
+        <div class="third-party-desc">로컬 푸시 알림 발송 (기기 내 처리, 외부 서버 미전송) — <a href="https://expo.dev/privacy" target="_blank">개인정보처리방침 →</a></div>
+      </div>
+    </div>
+    <div class="third-party-item">
+      <div class="third-party-icon">🌐</div>
+      <div>
+        <div class="third-party-name">Google Fonts</div>
+        <div class="third-party-desc">폰트 제공 — <a href="https://developers.google.com/fonts/faq/privacy" target="_blank">개인정보처리방침 →</a></div>
+      </div>
     </div>
   </div>
+</section>
 
-</div>
+<section>
+  <h2>👶 아동 개인정보 보호</h2>
+  <p>본 앱은 만 14세 미만 아동을 대상으로 하지 않습니다. 만 14세 미만 아동이 개인정보를 제공한 경우, 보호자가 아래 이메일로 삭제를 요청할 수 있습니다.</p>
+</section>
 
-<footer>
-  © 
+<section>
+  <h2>✅ 이용자의 권리</h2>
+  <p>이용자는 언제든지 다음 권리를 행사할 수 있습니다:</p>
+  <div class="rights-grid">
+    <div class="right-item"><div class="right-icon">👁️</div><div class="right-label">개인정보 열람 요청</div></div>
+    <div class="right-item"><div class="right-icon">✏️</div><div class="right-label">개인정보 수정 요청</div></div>
+    <div class="right-item"><div class="right-icon">🗑️</div><div class="right-label">회원 탈퇴 및 삭제</div></div>
+    <div class="right-item"><div class="right-icon">🚫</div><div class="right-label">처리 정지 요청</div></div>
+  </div>
+  <div class="highlight" style="margin-top:14px;">
+    개인정보 삭제(회원 탈퇴)는 앱 내 <strong>더보기 탭 → ⚙️ 설정 → 회원탈퇴</strong>로 직접 처리하거나, 아래 연락처로 요청하실 수 있습니다.
+  </div>
+</section>
+
+<section>
+  <h2>📝 개인정보처리방침 변경</h2>
+  <p>본 방침이 변경될 경우 앱 내 공지사항을 통해 사전 안내합니다. 변경된 방침은 공지 후 7일 이후부터 적용됩니다.</p>
+</section>
+
+<section>
+  <h2>📬 문의처</h2>
+  <div class="contact-card">
+    <p style="margin-bottom:16px;">개인정보 관련 문의 및 삭제 요청</p>
+    <a href="mailto:km689694@naver.com">📧 km689694@naver.com</a>
+  </div>
+</section>
+
+<div class="footer">© 2026 성경읽고 레벨업. All rights reserved.</div>
+
+</body>
+</html>
